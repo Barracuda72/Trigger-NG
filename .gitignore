@@ -1,0 +1,11 @@
+# Object files
+*.o
+
+# Dependency files
+*.d
+
+# Editor layout
+Trigger-NG/Trigger-NG.layout
+
+# Output binary
+bin/trigger-rally

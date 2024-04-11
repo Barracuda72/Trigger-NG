@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="Trigger-NG" />
+		<Option makefile="GNUmakefile" />
+		<Option makefile_is_custom="1" />
+		<Option execution_dir="../src" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="../bin/trigger-rally" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/Trigger-NG" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+		</Compiler>
+		<Unit filename="../src/PEngine/app.cpp" />
+		<Unit filename="../src/PEngine/audio.cpp" />
+		<Unit filename="../src/PEngine/fxman.cpp" />
+		<Unit filename="../src/PEngine/model.cpp" />
+		<Unit filename="../src/PEngine/physfs_rw.cpp" />
+		<Unit filename="../src/PEngine/render.cpp" />
+		<Unit filename="../src/PEngine/terrain.cpp" />
+		<Unit filename="../src/PEngine/texture.cpp" />
+		<Unit filename="../src/PEngine/util.cpp" />
+		<Unit filename="../src/PEngine/vbuffer.cpp" />
+		<Unit filename="../src/PEngine/vmath.cpp" />
+		<Unit filename="../src/PSim/engine.cpp" />
+		<Unit filename="../src/PSim/rigidbody.cpp" />
+		<Unit filename="../src/PSim/sim.cpp" />
+		<Unit filename="../src/PSim/vehicle.cpp" />
+		<Unit filename="../src/Trigger/game.cpp" />
+		<Unit filename="../src/Trigger/main.cpp" />
+		<Unit filename="../src/Trigger/menu.cpp" />
+		<Unit filename="../src/Trigger/render.cpp" />
+		<Unit filename="../src/include/app.h" />
+		<Unit filename="../src/include/audio.h" />
+		<Unit filename="../src/include/codriver.h" />
+		<Unit filename="../src/include/engine.h" />
+		<Unit filename="../src/include/exception.h" />
+		<Unit filename="../src/include/hiscore1.h" />
+		<Unit filename="../src/include/main.h" />
+		<Unit filename="../src/include/menu.h" />
+		<Unit filename="../src/include/pengine.h" />
+		<Unit filename="../src/include/physfs_utils.h" />
+		<Unit filename="../src/include/psim.h" />
+		<Unit filename="../src/include/render.h" />
+		<Unit filename="../src/include/subsys.h" />
+		<Unit filename="../src/include/terrainmap.h" />
+		<Unit filename="../src/include/vbuffer.h" />
+		<Unit filename="../src/include/vehicle.h" />
+		<Unit filename="../src/include/vmath.h" />
+		<Extensions />
+	</Project>
+</CodeBlocks_project_file>
