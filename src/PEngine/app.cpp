@@ -116,58 +116,58 @@ void PApp::stereoGLProject(float xmin, float xmax, float ymin, float ymax, float
 void PApp::stereoFrustum(float xmin, float xmax, float ymin, float ymax, float znear, float zfar, float zzps, float eye)
 {
   // xmove = eye * (zzps - znear) / zzps - eye, simplifies to
-  
+
   float xmove = -eye * znear / zzps;
-  
+
   glFrustum(xmin + xmove, xmax + xmove, ymin, ymax, znear, zfar);
 }
 
 int PApp::run(int argc, char *argv[])
 {
   PUtil::outLog() << apptitle << " init" << std::endl;
-  
+
   PUtil::outLog() << "Build: " << PACKAGE_VERSION << " on " << __DATE__ << " at " << __TIME__ << std::endl;
-  
+
   if (exit_requested) {
     PUtil::outLog() << "Exit requested" << std::endl;
     return 0;
   }
-  
+
   PUtil::outLog() << "Initialising PhysFS" << std::endl;
-  
+
   if (PHYSFS_init((argc >= 1) ? argv[0] : nullptr) == 0) {
     PUtil::outLog() << "PhysFS failed to initialise" << std::endl;
     PUtil::outLog() << "PhysFS: " << physfs_getErrorString() << std::endl;
     return 1;
   }
-  
+
   PHYSFS_permitSymbolicLinks(1);
-  
+
   {
     std::string lsdbuff;
-    
+
     lsdbuff = physfs_getDir();
-    
+
     PUtil::outLog() << "Setting writable user directory to \"" << lsdbuff << "\"" << std::endl;
-    
+
     if (PHYSFS_setWriteDir(lsdbuff.c_str()) == 0) {
       PUtil::outLog() << "Failed to set PhysFS writable directory to \"" << lsdbuff << "\"" << std::endl
           << "PhysFS: " << physfs_getErrorString() << std::endl;
     }
-    
+
     if (PHYSFS_mkdir("/players") == 0)
     {
         PUtil::outLog() << "Failed to create directory \"/players\"" << std::endl
             << "PhysFS: " << physfs_getErrorString() << std::endl;
     }
-    
+
     std::string basedir = PHYSFS_getBaseDir();
     PUtil::outLog() << "Application base directory \"" << basedir << '\"' << std::endl;
     if (PHYSFS_mount(basedir.c_str(), NULL, 1) == 0) {
       PUtil::outLog() << "Failed to add PhysFS search directory \"" << basedir << "\"" << std::endl
           << "PhysFS: " << physfs_getErrorString() << std::endl;
     }
-    
+
     if (PHYSFS_mount(lsdbuff.c_str(), NULL, 1) == 0) {
       PUtil::outLog() << "Failed to add PhysFS search directory \"" << lsdbuff << "\"" << std::endl
           << "PhysFS: " << physfs_getErrorString() << std::endl;
@@ -181,7 +181,7 @@ int PApp::run(int argc, char *argv[])
     catch (PException &e)
     {
         PUtil::outLog() << "Config failed: " << e.what() << std::endl;
-        
+
         if (PHYSFS_deinit() == 0)
         {
             PUtil::outLog() << "PhysFS: " << physfs_getErrorString() << std::endl;
@@ -192,15 +192,15 @@ int PApp::run(int argc, char *argv[])
 
     // Find any .zip files and add them to search path
     std::list<std::string> zipfiles = PUtil::findFiles("", ".zip");
-    
+
     for (std::list<std::string>::iterator i = zipfiles.begin();
       i != zipfiles.end(); ++i) {
-      
+
       const char *realpath = PHYSFS_getRealDir(i->c_str());
-      
+
       if (realpath) {
         std::string fullpath = (std::string)realpath + *i;
-        
+
         if (PHYSFS_mount(fullpath.c_str(), NULL, 1) == 0) {
           PUtil::outLog() << "Failed to add archive \"" << fullpath << "\"" << std::endl
               << "PhysFS: " << physfs_getErrorString() << std::endl;
@@ -213,37 +213,42 @@ int PApp::run(int argc, char *argv[])
   }
 
   srand(SDL_GetTicks());
-  
+
   PUtil::outLog() << "Create window and set video mode" << std::endl;
 #if 0
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
     SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
+#elif 0
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 #endif
   SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
-  
+
   if (reqRGB) {
     SDL_GL_SetAttribute( SDL_GL_RED_SIZE, 8 );
     SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, 8 );
     SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, 8 );
   }
-  
+
   if (reqAlpha) {
     SDL_GL_SetAttribute( SDL_GL_ALPHA_SIZE, 8 );
   }
-  
+
   if (reqDepth) {
     SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, 24 );
   }
-  
+
   if (reqStencil)
     SDL_GL_SetAttribute( SDL_GL_STENCIL_SIZE, 8 );
-  
+
   if (stereo == StereoQuadBuffer) {
     SDL_GL_SetAttribute( SDL_GL_STEREO, 1 );
   }
-  
+
   if (cx <= 0 || cy <= 0) setScreenModeAutoWindow();
 
     if (!autoVideo)
@@ -298,7 +303,7 @@ int PApp::run(int argc, char *argv[])
             SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN_DESKTOP);
 #endif
     }
-  
+
   if (!screen) {
     PUtil::outLog() << "Failed to create window or set video mode" << std::endl;
     PUtil::outLog() << "SDL error: " << SDL_GetError() << std::endl;
@@ -309,9 +314,9 @@ int PApp::run(int argc, char *argv[])
     }
     return 1;
   }
-  
+
   context = SDL_GL_CreateContext(screen);
-  
+
     if (context == NULL)
     {
         PUtil::outLog() << "Failed to create OpenGL context for game window\n";
@@ -325,14 +330,14 @@ int PApp::run(int argc, char *argv[])
 		}
         return 1;
     }
-  
+
   sdl_mousemap = 0;
-  
+
   sdl_joy.resize(SDL_NumJoysticks());
-  
+
   PUtil::outLog() << "Found " << sdl_joy.size() << " joystick" <<
     (sdl_joy.size() == 1 ? "" : "s") << std::endl;
-  
+
   for (unsigned int i=0; i<sdl_joy.size(); i++) {
     PUtil::outLog() << "Joystick " << (i+1) << ": ";
     sdl_joy[i].sdl_joystick = SDL_JoystickOpen(i);
@@ -362,15 +367,17 @@ int PApp::run(int argc, char *argv[])
       if (state & SDL_HAT_UP) sdl_joy[i].hat[j].y = 1;
       else if (state & SDL_HAT_DOWN) sdl_joy[i].hat[j].y = -1;
     }
-    
+
     PUtil::outLog() << sdl_joy[i].name << ", " <<
       sdl_joy[i].axis.size() << " axis, " <<
       sdl_joy[i].button.size() << " button, " <<
       sdl_joy[i].hat.size() << " hat" << std::endl;
   }
-  
+
   SDL_JoystickEventState(SDL_ENABLE);
-  
+
+  glewExperimental = true;
+
   int err = glewInit();
 
   if (err != GLEW_OK) {
@@ -385,10 +392,10 @@ int PApp::run(int argc, char *argv[])
   }
 
   PUtil::outLog() << "GLEW initialized" << std::endl;
-  
+
   PUtil::outLog() << "Graphics: " <<
     glGetString(GL_VENDOR) << " " << glGetString(GL_RENDERER) << std::endl;
-  
+
   PUtil::outLog() << "Using OpenGL " << glGetString(GL_VERSION) << std::endl;
 
   switch (stereo) {
@@ -428,7 +435,7 @@ int PApp::run(int argc, char *argv[])
   catch (PException &e)
   {
     PUtil::outLog () << "Subsystem failed to init: " << e.what() << std::endl;
-    
+
     while (!sslist.empty())
     {
       delete sslist.back();
@@ -448,7 +455,7 @@ int PApp::run(int argc, char *argv[])
   }
 
   PUtil::outLog() << "Performing app load" << std::endl;
-  
+
   try
   {
     load();
@@ -496,9 +503,9 @@ int PApp::run(int argc, char *argv[])
 
     while ( SDL_PollEvent(&event) ) {
       switch(event.type) {
-      
+
       // Using ACTIVEEVENT only seems to cause trouble.
-      
+
       /*
       case SDL_ACTIVEEVENT:
         active = event.active.gain;
@@ -599,91 +606,91 @@ int PApp::run(int argc, char *argv[])
 
     if (active || repaint) {
       switch (stereo) {
-        
+
       case StereoNone: // Normal, non-stereo rendering
-        
+
         render(0.0f);
         glFlush();
         SDL_GL_SwapWindow(screen);
         break;
-        
+
       case StereoQuadBuffer: // Hardware quad buffer stereo
-        
+
         glDrawBuffer(GL_BACK_LEFT);
         render(-stereoEyeTranslation);
         glFlush();
-        
+
         glDrawBuffer(GL_BACK_RIGHT);
         render(stereoEyeTranslation);
         glFlush();
-        
+
         SDL_GL_SwapWindow(screen);
         break;
-        
+
       case StereoRedBlue: // Red-blue anaglyph stereo
-        
+
         // Green will not be rendered to, so clear it
         glColorMask(GL_FALSE, GL_TRUE, GL_FALSE, GL_TRUE);
         glClearColor(0.5, 0.5, 0.5, 0.5);
         glClear(GL_COLOR_BUFFER_BIT);
-        
+
         glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_TRUE);
         render(-stereoEyeTranslation);
         glFlush();
-        
+
         glColorMask(GL_FALSE, GL_FALSE, GL_TRUE, GL_TRUE);
         render(stereoEyeTranslation);
         glFlush();
-        
+
         SDL_GL_SwapWindow(screen);
         break;
-        
+
       case StereoRedGreen: // Red-green anaglyph stereo
-        
+
         // Blue will not be rendered to, so clear it
         glColorMask(GL_FALSE, GL_FALSE, GL_TRUE, GL_TRUE);
         glClearColor(0.5, 0.5, 0.5, 0.5);
         glClear(GL_COLOR_BUFFER_BIT);
-        
+
         glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_TRUE);
         render(-stereoEyeTranslation);
         glFlush();
-        
+
         glColorMask(GL_FALSE, GL_TRUE, GL_FALSE, GL_TRUE);
         render(stereoEyeTranslation);
         glFlush();
-        
+
         SDL_GL_SwapWindow(screen);
         break;
-        
+
       case StereoRedCyan: // Red-cyan anaglyph stereo
-        
+
         glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_TRUE);
         render(-stereoEyeTranslation);
         glFlush();
-        
+
         glColorMask(GL_FALSE, GL_TRUE, GL_TRUE, GL_TRUE);
         render(stereoEyeTranslation);
         glFlush();
-        
+
         SDL_GL_SwapWindow(screen);
         break;
-        
+
       case StereoYellowBlue: // Yellow-blue anaglyph stereo
-        
+
         glColorMask(GL_TRUE, GL_TRUE, GL_FALSE, GL_TRUE);
         render(-stereoEyeTranslation);
         glFlush();
-        
+
         glColorMask(GL_FALSE, GL_FALSE, GL_TRUE, GL_TRUE);
         render(stereoEyeTranslation);
         glFlush();
-        
+
         SDL_GL_SwapWindow(screen);
         break;
       }
       repaint = false;
-      
+
       if (screenshot_requested) {
         glReadBuffer(GL_FRONT);
         unsigned char *data1 = new unsigned char[cx*(cy+1)*3];
@@ -715,7 +722,7 @@ int PApp::run(int argc, char *argv[])
         delete[] data1;
         screenshot_requested = false;
       }
-      
+
     } else {
       SDL_WaitEvent(nullptr);
     }
@@ -726,28 +733,28 @@ int PApp::run(int argc, char *argv[])
   PUtil::outLog() << "Exit requested" << std::endl;
 
   unload();
-  
+
   while (!sslist.empty()) {
     delete sslist.back();
     sslist.pop_back();
   }
-  
+
   //SDL_WM_GrabInput(SDL_GRAB_OFF);
   //SDL_SetWindowGrab(screen, SDL_FALSE);
   SDL_ShowCursor(SDL_ENABLE);
-  
+
     SDL_GL_DeleteContext(context);
     SDL_DestroyWindow(screen);
     SDL_Quit();
-  
+
   best_times.savePlayer();
-  
+
   if (PHYSFS_deinit() == 0) {
     PUtil::outLog() << "PhysFS: " << physfs_getErrorString() << std::endl;
   }
-  
+
   PUtil::outLog() << "Shutdown complete" << std::endl;
-  
+
   return 0;
 }
 
@@ -821,9 +828,9 @@ void PApp::resize()
 void PApp::render(float eyetranslation)
 {
   eyetranslation = eyetranslation;
-  
+
   glClearColor(0.5, 0.5, 0.5, 0.0);
-  
+
   glClear(GL_COLOR_BUFFER_BIT);
 }
 
