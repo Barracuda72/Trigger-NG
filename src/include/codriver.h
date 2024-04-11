@@ -27,6 +27,11 @@
 #include <unordered_map>
 #include <vector>
 
+#include <glm/gtc/type_ptr.hpp> // For glm::value_ptr
+#include <glm/mat4x4.hpp> // For glm::mat4
+#include <glm/ext/matrix_transform.hpp> // For glm::translate
+#include <glm/ext/matrix_clip_space.hpp> // For glm::frustrum
+
 // maximum number of characters for a note
 // e.g.: "hard left over jump" has 19 characters
 //
@@ -129,27 +134,24 @@ public:
         }
 
         glPushMatrix();
-        glLoadIdentity();
-        glOrtho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
-        glTranslatef(uc.posx, uc.posy, 0.0f);
-        glScalef(uc.scale, uc.scale, 1.0f);
-        glTranslatef(-0.5f * cpsigns.size() * 2 + 1.0f, 0.0f, 0.0f);
+
+        glm::mat4 ortho = glm::ortho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
+        glm::mat4 t = glm::translate(ortho, glm::vec3(uc.posx, uc.posy, 0.0f));
+        t = glm::scale(t, glm::vec3(uc.scale, uc.scale, 1.0f));
+        t = glm::translate(t, glm::vec3(-0.5f * cpsigns.size() * 2 + 1.0f, 0.0f, 0.0f));
+        glLoadMatrixf(glm::value_ptr(t));
+
+        glInterleavedArrays(GL_T2F_V3F, 5 * sizeof(GL_FLOAT), this->vbo);
+
         glColor4f(1.0f, 1.0f, 1.0f, alpha);
 
         for (PTexture *cptex: cpsigns)
         {
             cptex->bind();
-            glBegin(GL_QUADS);
-            glTexCoord2f(   1.0f,   1.0f);
-            glVertex2f(     1.0f,   1.0f);
-            glTexCoord2f(   0.0f,   1.0f);
-            glVertex2f(    -1.0f,   1.0f);
-            glTexCoord2f(   0.0f,   0.0f);
-            glVertex2f(    -1.0f,  -1.0f);
-            glTexCoord2f(   1.0f,   0.0f);
-            glVertex2f(     1.0f,  -1.0f);
-            glEnd();
-            glTranslatef(2.0f, 0.0f, 0.0f);
+
+            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, this->ibo);
+            t = glm::translate(t, glm::vec3(2.0f, 0.0f, 0.0f));
+            glLoadMatrixf(glm::value_ptr(t));
         }
 
         glPopMatrix();
@@ -162,6 +164,18 @@ private:
     std::vector<PTexture *> cpsigns;
     std::string tempnote; ///< Temporary string for performance.
     float cptime;
+
+    float vbo[20] = {
+        1.0f, 1.0f,   1.0f, 1.0f, 0.0f,
+        0.0f, 1.0f,  -1.0f, 1.0f, 0.0f,
+        0.0f, 0.0f,  -1.0f,-1.0f, 0.0f,
+        1.0f, 0.0f,   1.0f,-1.0f, 0.0f,
+    };
+
+    unsigned int ibo[6] = {
+        0, 1, 2,
+        2, 3, 0,
+    };
 };
 
 ///
