@@ -45,7 +45,7 @@ class PApp
 
         SDL_Window *screen; // TODO: rename this to "window" maybe
         SDL_GLContext context;
-        
+
         /// Attempts to set fullscreen at native resolution.
         bool autoVideo = false;
 
@@ -214,7 +214,7 @@ class PApp
 
         void drawModel(PModel &model);
 
-        void stereoGLProject(float xmin, float xmax, float ymin, float ymax, float znear, float zfar, float zzps, float dist, float eye);
+        //void stereoGLProject(float xmin, float xmax, float ymin, float ymax, float znear, float zfar, float zzps, float dist, float eye);
         void stereoFrustum(float xmin, float xmax, float ymin, float ymax, float znear, float zfar, float zzps, float eye);
 
         // config stuff

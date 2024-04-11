@@ -343,6 +343,14 @@ public:
 
   std::string fxname;
   PEffect *effect;
+
+
+  const int vertexSize = 2 + 3 + 3; // Tex, Normal, Vertex
+  void buildGeometry();
+  float* vbo;
+  unsigned int* ibo;
+
+  ~PMesh();
 };
 
 
@@ -358,6 +366,7 @@ public:
 private:
   void loadASE (const std::string &filename, float globalScale);
   void loadOBJ (const std::string &filename, float globalScale);
+  void buildGeometry();
 };
 
 struct PTerrainFoliageBand {
