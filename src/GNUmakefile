@@ -48,6 +48,10 @@ docdir          := $(datarootdir)/doc/$(DISTNAME)
 #
 .PHONY: build printvars install uninstall installdirs dist clean
 
+Debug: build
+
+Release: build
+
 # builds the executable
 build: printvars $(TR_EXEFILE)
 
