@@ -4,6 +4,10 @@
 // Copyright 2004-2006 Jasmine Langridge, jas@jareiko.net
 // License: GPL version 2 (see included gpl.txt)
 
+#include <glm/gtc/type_ptr.hpp> // For glm::value_ptr
+#include <glm/mat4x4.hpp> // For glm::mat4
+#include <glm/ext/matrix_transform.hpp> // For glm::translate
+#include <glm/ext/matrix_clip_space.hpp> // For glm::frustrum
 
 #include "pengine.h"
 #include "physfs_utils.h"
@@ -85,6 +89,7 @@ void PApp::setScreenModeFastFullScreen()
    eye = half the eye separation; positive for the right eye subfield,
    negative for the left eye subfield.
 */
+/*
 void PApp::stereoGLProject(float xmin, float xmax, float ymin, float ymax, float znear, float zfar, float zzps, float dist, float eye)
 {
   float xmid, ymid, clip_near, clip_far, top, bottom, left, right, dx, dy, n_over_d;
@@ -110,6 +115,7 @@ void PApp::stereoGLProject(float xmin, float xmax, float ymin, float ymax, float
   glFrustum(left, right, bottom, top, clip_near, clip_far);
   glTranslatef(-xmid - eye, -ymid, -zzps - dist);
 }
+*/
 
 // I'm afraid I didn't understand how stereoGLProject worked, so I rewrote it
 
@@ -119,7 +125,8 @@ void PApp::stereoFrustum(float xmin, float xmax, float ymin, float ymax, float z
 
   float xmove = -eye * znear / zzps;
 
-  glFrustum(xmin + xmove, xmax + xmove, ymin, ymax, znear, zfar);
+  glm::mat4 frust = glm::frustum(xmin + xmove, xmax + xmove, ymin, ymax, znear, zfar);
+  glLoadMatrixf(glm::value_ptr(frust));
 }
 
 int PApp::run(int argc, char *argv[])
@@ -215,7 +222,7 @@ int PApp::run(int argc, char *argv[])
   srand(SDL_GetTicks());
 
   PUtil::outLog() << "Create window and set video mode" << std::endl;
-#if 0
+#if 1
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
@@ -774,27 +781,13 @@ void PApp::drawModel(PModel &model)
     if (!mesh->effect)
       mesh->effect = getSSEffect().loadEffect(mesh->fxname);
 
+    glInterleavedArrays(GL_T2F_N3F_V3F, mesh->vertexSize * sizeof(GL_FLOAT), mesh->vbo);
+
     int numPasses = 0;
     if (mesh->effect->renderBegin(&numPasses, getSSTexture())) {
       for (int i=0; i<numPasses; i++) {
         mesh->effect->renderPass(i);
-        glBegin(GL_TRIANGLES);
-        for (unsigned int f=0; f<mesh->face.size(); f++) {
-          //glNormal3fv(mesh->face[f].facenormal);
-
-          glNormal3fv(mesh->norm[mesh->face[f].nr[0]]);
-          glTexCoord2fv(mesh->texco[mesh->face[f].tc[0]]);
-          glVertex3fv(mesh->vert[mesh->face[f].vt[0]]);
-
-          glNormal3fv(mesh->norm[mesh->face[f].nr[1]]);
-          glTexCoord2fv(mesh->texco[mesh->face[f].tc[1]]);
-          glVertex3fv(mesh->vert[mesh->face[f].vt[1]]);
-
-          glNormal3fv(mesh->norm[mesh->face[f].nr[2]]);
-          glTexCoord2fv(mesh->texco[mesh->face[f].tc[2]]);
-          glVertex3fv(mesh->vert[mesh->face[f].vt[2]]);
-        }
-        glEnd();
+        glDrawArrays(GL_TRIANGLES, 0, mesh->face.size() * 3);
       }
       mesh->effect->renderEnd();
     }

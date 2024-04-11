@@ -136,13 +136,27 @@ PModel::PModel (const std::string &filename, float globalScale)
    {
       loadOBJ(filename, globalScale);
    }
+
+   buildGeometry();
+}
+
+/*
+ * Creates an buffer objects for all meshes to be used in rendering
+ */
+void PModel::buildGeometry()
+{
+  for (std::vector<PMesh>::iterator mesh = this->mesh.begin();
+    mesh != this->mesh.end();
+    ++mesh) {
+    mesh->buildGeometry();
+  }
 }
 
 /*! Load an .obj model from file to the pengine structures.
  * \note: All model faces must be triangles;
- * \note: Not setting the pengine per face normal (mesh.facenormal) as the 
+ * \note: Not setting the pengine per face normal (mesh.facenormal) as the
  *        renderer is ignoring it (only setting vertex normals)
- * FIXME: Restriction: Model must have only a single material. 
+ * FIXME: Restriction: Model must have only a single material.
  *                     See comment bellow on how to fix it.  */
 
 #define OBJ_BUFFER_SIZE 65552
@@ -158,11 +172,11 @@ void PModel::loadOBJ(const std::string &filename, float globalScale)
 	PMesh* curMesh;              /**< Current loading mesh */
 	vec3f v3;                    /**< Vector to parse from lines */
 	vec2f v2;                    /**< Vector to parse from lines */
-   
+
 	/* Initing debug message */
 	if(PUtil::isDebugLevel(DEBUGLEVEL_TEST))
 	{
-		PUtil::outLog() << "Loading OBJ model \"" << filename 
+		PUtil::outLog() << "Loading OBJ model \"" << filename
 		<< "\"" << std::endl;
 	}
 
@@ -182,22 +196,22 @@ void PModel::loadOBJ(const std::string &filename, float globalScale)
 	{
 		if(PUtil::getToken(buff.data(), tok, value))
 		{
-		  
+
 			if(tok == "f")
 			{
 				std::vector<PFace>& facebuf = curMesh->face;
-				
+
 				/* Face (triangle) declaration */
 				int v[3],uv[3],vn[3];
-			
+
 				if (facebuf.size() == curFace)
 					facebuf.reserve(curFace + 256);
-			
+
 				curFace++;
-			
+
 				facebuf.resize(curFace+1);
-				if(sscanf(value.c_str(), "%d/%d/%d %d/%d/%d %d/%d/%d", 
-					&v[0], &uv[0], &vn[0], 
+				if(sscanf(value.c_str(), "%d/%d/%d %d/%d/%d %d/%d/%d",
+					&v[0], &uv[0], &vn[0],
 					&v[1], &uv[1], &vn[1],
 					&v[2], &uv[2], &vn[2]) == 9)
 				{
@@ -221,30 +235,30 @@ void PModel::loadOBJ(const std::string &filename, float globalScale)
 			else if(tok == "vt")
 			{
 				/* Vertex st texture coordinate */
-			
+
 				if (curMesh->texco.size() == curMesh->texco.size())
 					curMesh->texco.reserve(curMesh->texco.size() + 256);
-			
+
 				if(sscanf(value.c_str(), "%f %f", &v2.x, &v2.y) == 2)
 					curMesh->texco.push_back (v2);
 			}
 			else if(tok == "v")
 			{
 				/* Vertex declaration */
-            
+
 				if (curMesh->vert.size() == curMesh->vert.capacity())
 					curMesh->vert.reserve(curMesh->vert.capacity() + 128);
-			
+
 				if(sscanf(value.c_str(), "%f %f %f", &v3.x, &v3.y, &v3.z) == 3)
 					curMesh->vert.push_back(v3 * globalScale);
 			}
 			else if(tok == "vn")
 			{
 				/* Vertex Normal declaraction */
-			
+
 				if (curMesh->norm.size() == curMesh->norm.capacity())
 					curMesh->norm.reserve(curMesh->norm.capacity() + 128);
-			
+
 				if(sscanf(value.c_str(), "%f %f %f",
 					&v3.x, &v3.y, &v3.z) == 3)
 				{
@@ -255,7 +269,7 @@ void PModel::loadOBJ(const std::string &filename, float globalScale)
 			else if(tok == "mtllib")
 			{
 				/* Material Library declaration (mtllib) */
-				curMesh->fxname = PUtil::assemblePath(value/*"focus_tex.fx"*/, 
+				curMesh->fxname = PUtil::assemblePath(value/*"focus_tex.fx"*/,
 					filename);
 			}
 			else if(tok == "o")
@@ -264,7 +278,7 @@ void PModel::loadOBJ(const std::string &filename, float globalScale)
 				objNumber++;
 				if(objNumber > 1)
 				{
-					PUtil::outLog() << "Warning: Object file \"" << filename 
+					PUtil::outLog() << "Warning: Object file \"" << filename
 					<< "\" has more than one object defined!" << std::endl;
 				}
 			}
@@ -274,19 +288,19 @@ void PModel::loadOBJ(const std::string &filename, float globalScale)
 			}
 			else if(tok == "usemtl")
 			{
-				/* Face material usage. (usemtl). 
-				* FIXME: Ignoring, as the pengine renderer is 
+				/* Face material usage. (usemtl).
+				* FIXME: Ignoring, as the pengine renderer is
 				* using only a single "fx" per mesh.
 				*
 				* A bad fix should just duplicate each distinct material faces
 				* as different meshes.
 				*
-				* A good fix should rewrite the renderer (at ./app.cpp) to 
-				* change materials on a single mesh as needed, allowing multiple 
-				* material meshes. 
+				* A good fix should rewrite the renderer (at ./app.cpp) to
+				* change materials on a single mesh as needed, allowing multiple
+				* material meshes.
 				*
 				* I'm do either of them, but just mark it as a restriction to
-				* .obj files on trigger. Someone must remove this restriction 
+				* .obj files on trigger. Someone must remove this restriction
 				* latter */
 			}
 			else if(tok == "s")
@@ -304,7 +318,7 @@ void PModel::loadOBJ(const std::string &filename, float globalScale)
 	/* Verify if normals were defined */
 	if(curMesh->norm.size() == 0)
 	{
-		PUtil::outLog() << "Warning: Object file \"" << filename 
+		PUtil::outLog() << "Warning: Object file \"" << filename
 		<< "\" had no normals defined!" << std::endl;
 	}
 

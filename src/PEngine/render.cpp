@@ -21,7 +21,7 @@ void PSSRender::tick(float delta, const vec3f &eyepos, const mat44f &eyeori, con
 {
   (void)delta;
   (void)eyevel;
-  
+
   cam_pos = eyepos;
   cam_orimat = eyeori;
 }
@@ -32,12 +32,12 @@ void PSSRender::render(PParticleSystem *psys)
   vec3f pushx = makevec3f(cam_orimat.row[0]);
   vec3f pushy = makevec3f(cam_orimat.row[1]);
   vec3f vert;
-  
+
   glBlendFunc(psys->blendparam1, psys->blendparam2);
-  
+
   if (psys->tex) psys->tex->bind();
   else glDisable(GL_TEXTURE_2D);
-  
+
   glBegin(GL_QUADS);
   for (unsigned int i=0; i<psys->part.size(); i++) {
     PParticle_s &part = psys->part[i];
@@ -66,7 +66,7 @@ void PSSRender::render(PParticleSystem *psys)
     glVertex3fv(vert);
   }
   glEnd();
-  
+
   if (!psys->tex) glEnable(GL_TEXTURE_2D);
 }
 
@@ -291,7 +291,7 @@ vec2f PSSRender::getTextDims(const std::string &text)
 {
 //  const float font_aspect = 0.6f;
     const float font_aspect = 8.0f / 12.0f;
-  
+
   return vec2f((float)text.length() * font_aspect, 1.0f);
 }
 
@@ -321,11 +321,42 @@ void PParticleSystem::tick(float delta)
     if (part[j].life > 0.0) j++;
   }
   part.resize(j);
-  
+
   for (unsigned int i=0; i<part.size(); i++) {
     part[i].pos += part[i].linvel * delta;
   }
 }
 
+void PMesh::buildGeometry()
+{
+  this->vbo = new float[this->face.size() * 3 * vertexSize];
+  this->ibo = new unsigned int[this->face.size() * 3];
 
+  for (unsigned int f=0; f<this->face.size(); f++) {
+    //glNormal3fv(mesh->face[f].facenormal);
+    for (unsigned int v = 0; v < 3; v++) {
+      vec3f norm = this->norm[this->face[f].nr[v]];
+      vec2f tex = this->texco[this->face[f].tc[v]];
+      vec3f vert = this->vert[this->face[f].vt[v]];
 
+      this->vbo[(f * 3 + v) * vertexSize + 0] = tex.x;
+      this->vbo[(f * 3 + v) * vertexSize + 1] = tex.y;
+
+      this->vbo[(f * 3 + v) * vertexSize + 2] = norm.x;
+      this->vbo[(f * 3 + v) * vertexSize + 3] = norm.y;
+      this->vbo[(f * 3 + v) * vertexSize + 4] = norm.z;
+
+      this->vbo[(f * 3 + v) * vertexSize + 5] = vert.x;
+      this->vbo[(f * 3 + v) * vertexSize + 6] = vert.y;
+      this->vbo[(f * 3 + v) * vertexSize + 7] = vert.z;
+
+      this->ibo[f * 3 + v] = f * 3 + v;
+    }
+  }
+}
+
+PMesh::~PMesh()
+{
+  delete[] this->vbo;
+  delete[] this->ibo;
+}
