@@ -78,27 +78,13 @@ void PSSRender::drawModel(PModel &model, PSSEffect &ssEffect, PSSTexture &ssText
     if (!mesh->effect)
       mesh->effect = ssEffect.loadEffect(mesh->fxname);
 
+    glInterleavedArrays(GL_T2F_N3F_V3F, mesh->vertexSize * sizeof(GL_FLOAT), mesh->vbo);
+
     int numPasses = 0;
     if (mesh->effect->renderBegin(&numPasses, ssTexture)) {
       for (int i=0; i<numPasses; i++) {
         mesh->effect->renderPass(i);
-        glBegin(GL_TRIANGLES);
-        for (unsigned int f=0; f<mesh->face.size(); f++) {
-          //glNormal3fv(mesh->face[f].facenormal);
-
-          glNormal3fv(mesh->norm[mesh->face[f].nr[0]]);
-          glTexCoord2fv(mesh->texco[mesh->face[f].tc[0]]);
-          glVertex3fv(mesh->vert[mesh->face[f].vt[0]]);
-
-          glNormal3fv(mesh->norm[mesh->face[f].nr[1]]);
-          glTexCoord2fv(mesh->texco[mesh->face[f].tc[1]]);
-          glVertex3fv(mesh->vert[mesh->face[f].vt[1]]);
-
-          glNormal3fv(mesh->norm[mesh->face[f].nr[2]]);
-          glTexCoord2fv(mesh->texco[mesh->face[f].tc[2]]);
-          glVertex3fv(mesh->vert[mesh->face[f].vt[2]]);
-        }
-        glEnd();
+        glDrawArrays(GL_TRIANGLES, 0, mesh->face.size() * 3);
       }
       mesh->effect->renderEnd();
     }

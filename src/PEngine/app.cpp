@@ -775,23 +775,7 @@ void PApp::grabMouse(bool grab)
 
 void PApp::drawModel(PModel &model)
 {
-  for (std::vector<PMesh>::iterator mesh = model.mesh.begin();
-    mesh != model.mesh.end();
-    ++mesh) {
-    if (!mesh->effect)
-      mesh->effect = getSSEffect().loadEffect(mesh->fxname);
-
-    glInterleavedArrays(GL_T2F_N3F_V3F, mesh->vertexSize * sizeof(GL_FLOAT), mesh->vbo);
-
-    int numPasses = 0;
-    if (mesh->effect->renderBegin(&numPasses, getSSTexture())) {
-      for (int i=0; i<numPasses; i++) {
-        mesh->effect->renderPass(i);
-        glDrawArrays(GL_TRIANGLES, 0, mesh->face.size() * 3);
-      }
-      mesh->effect->renderEnd();
-    }
-  }
+  getSSRender().drawModel(model, getSSEffect(), getSSTexture());
 }
 
 
