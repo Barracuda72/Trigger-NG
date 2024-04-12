@@ -38,7 +38,9 @@ void PSSRender::render(PParticleSystem *psys)
   if (psys->tex) psys->tex->bind();
   else glDisable(GL_TEXTURE_2D);
 
-  glBegin(GL_QUADS);
+  float* vbo = new float[psys->part.size() * 4 * 5];
+  unsigned int* ibo = new unsigned int[psys->part.size() * 6];
+
   for (unsigned int i=0; i<psys->part.size(); i++) {
     PParticle_s &part = psys->part[i];
     float sizenow = INTERP(psys->endsize, psys->startsize, part.life);
@@ -52,20 +54,32 @@ void PSSRender::render(PParticleSystem *psys)
         INTERP(psys->colorend[2], psys->colorstart[2], part.life),
         INTERP(psys->colorend[3], psys->colorstart[3], part.life));
 
-    vert = part.pos - pushx2 - pushy2;
-    glTexCoord2i(0,0);
-    glVertex3fv(vert);
-    vert = part.pos + pushx2 - pushy2;
-    glTexCoord2i(1,0);
-    glVertex3fv(vert);
-    vert = part.pos + pushx2 + pushy2;
-    glTexCoord2i(1,1);
-    glVertex3fv(vert);
-    vert = part.pos - pushx2 + pushy2;
-    glTexCoord2i(0,1);
-    glVertex3fv(vert);
+    for (int y = 0; y < 2; y++)
+      for (int x = 0; x < 2; x++) {
+        vert = part.pos + ((2*x - 1.0f) * pushx2) + ((2*y-1.0f) * pushy2);
+
+        vbo[(i * 4 + (y * 2 + x)) * 5 + 0] = (float)x;
+        vbo[(i * 4 + (y * 2 + x)) * 5 + 1] = (float)y;
+
+        vbo[(i * 4 + (y * 2 + x)) * 5 + 2] = vert.x;
+        vbo[(i * 4 + (y * 2 + x)) * 5 + 3] = vert.y;
+        vbo[(i * 4 + (y * 2 + x)) * 5 + 4] = vert.z;
+      }
+
+    ibo[i * 6 + 0] = i * 4 + 0;
+    ibo[i * 6 + 1] = i * 4 + 1;
+    ibo[i * 6 + 2] = i * 4 + 2;
+
+    ibo[i * 6 + 3] = i * 4 + 1;
+    ibo[i * 6 + 4] = i * 4 + 3;
+    ibo[i * 6 + 5] = i * 4 + 2;
   }
-  glEnd();
+
+  glInterleavedArrays(GL_T2F_V3F, 5*sizeof(GL_FLOAT), vbo);
+  glDrawElements(GL_TRIANGLES, psys->part.size() * 6, GL_UNSIGNED_INT, ibo);
+
+  delete[] ibo;
+  delete[] vbo;
 
   if (!psys->tex) glEnable(GL_TEXTURE_2D);
 }
