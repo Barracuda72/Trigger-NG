@@ -228,17 +228,30 @@ void PSSRender::drawText(const std::string &text, uint32 flags)
 
     glPushMatrix();
 
+    float x_offset = 0.0f;
+    float y_offset = 0.0f;
+
     if (flags & PTEXT_VTA_CENTER)
-        glTranslatef(0.0f, -0.5f, 0.0f);
+        y_offset = -0.5f;
     else
     if (flags & PTEXT_VTA_TOP)
-        glTranslatef(0.0f, -1.0f, 0.0f);
+        y_offset = -1.0f;
 
     if (flags & PTEXT_HZA_CENTER)
-        glTranslatef(-0.5f * text.length() * font_aspect, 0.0f, 0.0f);
+        x_offset = -0.5f;
     else
     if (flags & PTEXT_HZA_RIGHT)
-        glTranslatef(-1.0f * text.length() * font_aspect, 0.0f, 0.0f);
+        x_offset = -1.0f;
+
+    glm::mat4 m;
+    glGetFloatv(GL_MODELVIEW_MATRIX, glm::value_ptr(m));
+    glm::mat4 t = glm::translate(m, glm::vec3(x_offset * text.length() * font_aspect, y_offset, 0.0f));
+    glLoadMatrixf(glm::value_ptr(t));
+
+    float* vbo = new float[(text.length()) * 4 * 5]; // N letters, each letter has 4 vertices, each vertex has 5 attributes
+    unsigned int* ibo = new unsigned int[text.length() * 6]; // N letters, each has 6 indices
+
+    int i = 0;
 
     for (char c: text)
     {
@@ -256,18 +269,32 @@ void PSSRender::drawText(const std::string &text, uint32 flags)
                 break;
         }
 
-        glBegin(GL_TRIANGLE_STRIP);
-        glTexCoord2f(tx, ty);
-        glVertex2f(0.0f, 0.0f);
-        glTexCoord2f(tx + addx, ty);
-        glVertex2f(font_aspect, 0.0f);
-        glTexCoord2f(tx, ty + addy);
-        glVertex2f(0.0f, 1.0f);
-        glTexCoord2f(tx + addx, ty + addy);
-        glVertex2f(font_aspect, 1.0f);
-        glEnd();
-        glTranslatef(font_aspect, 0.0f, 0.0f);
+        for (int y = 0; y < 2; y++)
+            for (int x = 0; x < 2; x++) {
+              vbo[(i * 4 + (y * 2 + x)) * 5 + 0] = tx + addx * x;
+              vbo[(i * 4 + (y * 2 + x)) * 5 + 1] = ty + addy * y;
+
+              vbo[(i * 4 + (y * 2 + x)) * 5 + 2] = font_aspect * (i + x);
+              vbo[(i * 4 + (y * 2 + x)) * 5 + 3] = (float)y;
+              vbo[(i * 4 + (y * 2 + x)) * 5 + 4] = 0.0f;
+            }
+
+        ibo[i * 6 + 0] = i * 4 + 0;
+        ibo[i * 6 + 1] = i * 4 + 1;
+        ibo[i * 6 + 2] = i * 4 + 2;
+
+        ibo[i * 6 + 3] = i * 4 + 1;
+        ibo[i * 6 + 4] = i * 4 + 3;
+        ibo[i * 6 + 5] = i * 4 + 2;
+
+        i++;
     }
+
+    glInterleavedArrays(GL_T2F_V3F, 5*sizeof(GL_FLOAT), vbo);
+    glDrawElements(GL_TRIANGLES, text.length() * 6, GL_UNSIGNED_INT, ibo);
+
+    delete[] ibo;
+    delete[] vbo;
 
     glPopMatrix();
 }
