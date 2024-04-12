@@ -52,6 +52,10 @@ Debug: build
 
 Release: build
 
+cleanDebug: clean
+
+cleanRelease: clean
+
 # builds the executable
 build: printvars $(TR_EXEFILE)
 
