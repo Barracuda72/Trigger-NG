@@ -903,7 +903,11 @@ void PTerrain::render(const vec3f &campos, const mat44f &camorim)
   glDisable(GL_ALPHA_TEST);
 }
 
-void PTerrain::drawSplat(float x, float y, float scale, float angle)
+/*
+ * TODO: This function looks overengineered. That's not how you should draw a shadow.
+ * I'll keep in until I implement proper shadows.
+ */
+void PTerrain::drawShadow(float x, float y, float scale, float angle)
 {
   float *hmd = &hmap[0];
   int cx = totsize;
@@ -927,33 +931,53 @@ void PTerrain::drawSplat(float x, float y, float scale, float angle)
 
   glPushMatrix();
 
-  //glTranslatef(0.5f, 0.5f, 0.0f);
-  //glRotatef(DEGREES(angle), 0.0f, 0.0f, 1.0f);
-  //glScalef(0.5f / scale, 0.5f / scale, 1.0f);
-  //glTranslatef(-x, -y, 0.0f);
-
   glm::mat4 t = glm::translate(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 0.0f));
   t = glm::rotate(t, angle, glm::vec3(0.0f, 0.0f, 1.0f));
   t = glm::scale(t, glm::vec3(0.5f / scale, 0.5f / scale, 1.0f));
   t = glm::translate(t, glm::vec3(-x, -y, 0.0f));
   glLoadMatrixf(glm::value_ptr(t));
 
-  for (int y2=miny; y2<maxy; y2++) {
-    int yc = y2 & (cy-1),
-      ycp1 = (yc+1) & (cy-1),
-      yc_cx = yc * cx,
-      ycp1_cx = ycp1 * cx;
+  float* vbo = new float[(maxx-minx)*(maxy-miny+1)*5]; // N times M+1 vertices, each having 2+3 attributes
 
-    glBegin(GL_TRIANGLE_STRIP);
+  int x_stride = maxx-minx;
+
+  for (int y2=miny; y2<=maxy; y2++) {
+    int yc = y2 & (cy-1); // Y modulo tile size
+    int yc_cx = yc * cx;  // Offset for Y
+
+    int y3 = y2 - miny;
+
     for (int x2=minx; x2<maxx; x2++) {
       int xc = x2 & (cx - 1);
-      glTexCoord2i(x2, y2 + 1);
-      glVertex3f(x2 * scale_hz, (y2 + 1) * scale_hz, hmd[ycp1_cx + xc]);
-      glTexCoord2i(x2, y2);
-      glVertex3f(x2 * scale_hz, y2 * scale_hz, hmd[yc_cx + xc]);
+
+      int x3 = x2 - minx;
+
+      vbo[(y3 * x_stride + x3)*5 + 0] = x2;
+      vbo[(y3 * x_stride + x3)*5 + 1] = y2;
+
+      vbo[(y3 * x_stride + x3)*5 + 2] = x2 * scale_hz;
+      vbo[(y3 * x_stride + x3)*5 + 3] = y2 * scale_hz;
+      vbo[(y3 * x_stride + x3)*5 + 4] = hmd[yc_cx + xc];
     }
-    glEnd();
   }
+
+  unsigned int* ibo = new unsigned int[(maxx-minx+1)*(maxy-miny)*2]; // N times M squares, each having 2 triangles with 3 vertices
+
+  for (int y2 = 0; y2 < (maxy-miny); y2++) {
+    for (int x2 = 0; x2 < (maxx-minx); x2++) {
+      ibo[(y2 * (x_stride+1) + x2)*2 + 0] = (y2 + 1) * (x_stride) + (x2 + 0);
+      ibo[(y2 * (x_stride+1) + x2)*2 + 1] = (y2 + 0) * (x_stride) + (x2 + 0);
+    }
+    ibo[(y2 * (x_stride+1) + (maxx-minx))*2 + 0] = 0; // Restart strip
+    ibo[(y2 * (x_stride+1) + (maxx-minx))*2 + 1] = 0;
+  }
+
+  glInterleavedArrays(GL_T2F_V3F, 5*sizeof(GL_FLOAT), vbo);
+  glDrawElements(GL_TRIANGLE_STRIP, (maxx-minx+1)*(maxy-miny)*2, GL_UNSIGNED_INT, ibo);
+
+  delete[] ibo;
+  delete[] vbo;
+
   glPopMatrix();
 
   glMatrixMode(GL_MODELVIEW);

@@ -632,7 +632,7 @@ public:
 
   void render(const vec3f &campos, const mat44f &camorim);
 
-  void drawSplat(float x, float y, float scale, float angle);
+  void drawShadow(float x, float y, float scale, float angle);
 
 
   struct ContactInfo {

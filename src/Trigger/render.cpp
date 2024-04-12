@@ -843,7 +843,7 @@ void MainApp::renderStateGame(float eyetranslation)
         vec3f vpos = game->vehicle[0]->body->pos;
         vec3f forw = makevec3f(game->vehicle[0]->body->getOrientationMatrix().row[0]);
         float forwangle = atan2(forw.y, forw.x);
-        game->terrain->drawSplat(vpos.x, vpos.y, 1.4f, forwangle + PI*0.5f);
+        game->terrain->drawShadow(vpos.x, vpos.y, 1.4f, forwangle + PI*0.5f);
 
         glBlendFunc(GL_ONE, GL_ZERO);
     }
