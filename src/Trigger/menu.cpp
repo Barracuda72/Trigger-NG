@@ -4,6 +4,11 @@
 // Copyright 2004-2006 Jasmine Langridge, jas@jareiko.net
 // License: GPL version 2 (see included gpl.txt)
 
+#include <glm/gtc/type_ptr.hpp> // For glm::value_ptr
+#include <glm/mat4x4.hpp> // For glm::mat4
+#include <glm/ext/matrix_transform.hpp> // For glm::translate
+#include <glm/ext/matrix_clip_space.hpp> // For glm::frustrum
+
 #include <sstream>
 #include "main.h"
 
@@ -1175,28 +1180,34 @@ void MainApp::handleLevelScreenKey(const SDL_KeyboardEvent &ke)
 
 void MainApp::renderStateLevel(float eyetranslation)
 {
+  float vbo[20] = {
+    0.0f, 0.0f,  -1.0f,-1.0f, 0.0f,
+    1.0f, 0.0f,   1.0f,-1.0f, 0.0f,
+    1.0f, 1.0f,   1.0f, 1.0f, 0.0f,
+    0.0f, 1.0f,  -1.0f, 1.0f, 0.0f,
+  };
+
+  unsigned int ibo[6] = {
+    0, 1, 2,
+    2, 3, 0,
+  };
+
   eyetranslation = eyetranslation;
-
-  glMatrixMode(GL_PROJECTION);
-  glPushMatrix();
-  glLoadIdentity();
-
-  const GLdouble margin = (800.0 - 600.0 * cx / cy) / 2.0;
-
-  glOrtho(margin, 600.0 * cx / cy + margin, 0.0, 600.0, -1.0, 1.0);
-
-  glPushMatrix();
-  glLoadIdentity();
-  glOrtho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
-
-  glMatrixMode(GL_MODELVIEW);
-
-  // draw background image
 
   glBlendFunc(GL_ONE, GL_ZERO);
   glDisable(GL_DEPTH_TEST);
   glDisable(GL_FOG);
   glDisable(GL_LIGHTING);
+
+  glMatrixMode(GL_PROJECTION);
+  glPushMatrix();
+  {
+  glm::mat4 o = glm::ortho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
+  glLoadMatrixf(glm::value_ptr(o));
+
+  glMatrixMode(GL_MODELVIEW);
+
+  // draw background image
 
   tex_splash_screen->bind();
 
@@ -1204,37 +1215,23 @@ void MainApp::renderStateLevel(float eyetranslation)
   glColor4f(1.0f, 1.0f, 1.0f, 1.0f); // use image's normal colors
   //glColor4f(0.5f, 0.5f, 0.5f, 1.0f); // make image darker
 
-    glBegin(GL_QUADS);
-    // the background image is square and cut out a piece based on aspect ratio
-    // -------- if aspect ratio is larger than 4:3
-    // if aspect ratio is larger than 1:1
-    if ((float)getWidth()/(float)getHeight() > 1.0f)
-    {
+  glPushMatrix();
+  {
+  // the background image is square and cut out a piece based on aspect ratio
+  glm::mat4 t = glm::scale(glm::mat4(1.0f), glm::vec3((float)getWidth()/(float)getHeight(), 1.0f, 1.0f));
+  glLoadMatrixf(glm::value_ptr(t));
 
-      // lower and upper offset based on aspect ratio
-      float off_l = (1 - ((float)getHeight() / (float)getWidth())) / 2.f;
-      float off_u = 1 - off_l;
-      glTexCoord2f(1.0f,off_u); glVertex2f(1.0f, 1.0f);
-      glTexCoord2f(0.0f,off_u); glVertex2f(-1.0f, 1.0f);
-      glTexCoord2f(0.0f,off_l); glVertex2f(-1.0f, -1.0f);
-      glTexCoord2f(1.0f,off_l); glVertex2f(1.0f, -1.0f);
-    }
-    // other cases (including 4:3, in which case off_l and off_u are = 1)
-    else
-    {
-
-      float off_l = (1 - ((float)getWidth() / (float)getHeight())) / 2.f;
-      float off_u = 1 - off_l;
-      glTexCoord2f(off_u,1.0f); glVertex2f(1.0f, 1.0f);
-      glTexCoord2f(off_l,1.0f); glVertex2f(-1.0f, 1.0f);
-      glTexCoord2f(off_l,0.0f); glVertex2f(-1.0f, -1.0f);
-      glTexCoord2f(off_u,0.0f); glVertex2f(1.0f, -1.0f);
-    }
-    glEnd();
-
+  glInterleavedArrays(GL_T2F_V3F, 5 * sizeof(GL_FLOAT), vbo);
+  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, ibo);
+  }
+  glPopMatrix();
 
   glMatrixMode(GL_PROJECTION);
-  glPopMatrix();
+
+  const GLdouble margin = (800.0 - 600.0 * cx / cy) / 2.0;
+
+  glm::mat4 o = glm::ortho(margin, 600.0 * cx / cy + margin, 0.0, 600.0, -1.0, 1.0);
+  glLoadMatrixf(glm::value_ptr(o));
 
   glMatrixMode(GL_MODELVIEW);
   // draw GUI
@@ -1251,14 +1248,15 @@ void MainApp::renderStateLevel(float eyetranslation)
 
   glPopMatrix(); // 0
 
+  glMatrixMode(GL_PROJECTION);
+  }
+  glPopMatrix();
+  glMatrixMode(GL_MODELVIEW);
+
   glBlendFunc(GL_ONE, GL_ZERO);
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_FOG);
   glEnable(GL_LIGHTING);
-
-  glMatrixMode(GL_PROJECTION);
-  glPopMatrix();
-  glMatrixMode(GL_MODELVIEW);
 }
 
 /// @see GuiWidgetColors
@@ -1372,58 +1370,55 @@ bool Gui::getDefaultAction(int &data1, int &data2)
 
 void Gui::render()
 {
+  float vbo[20] = {
+    0.0f, 0.0f,   0.0f, 0.0f, 0.0f,
+    1.0f, 0.0f,   1.0f, 0.0f, 0.0f,
+    1.0f, 1.0f,   1.0f, 1.0f, 0.0f,
+    0.0f, 1.0f,   0.0f, 1.0f, 0.0f,
+  };
+
+  unsigned int ibo[6] = {
+    0, 1, 2,
+    2, 3, 0,
+  };
+
   for (unsigned int i = 0; i < widget.size(); i++) {
+    glPushMatrix();
+
+    vec4f colc = vec4f(1.0f, 1.0f, 1.0f, 1.0f);
+
+    if (widget[i].clickable) {
+      colc = INTERP(widget[i].colclick, widget[i].colhover, widget[i].glow);
+    } else {
+      colc = widget[i].colnormal;
+    }
+
+    if ((int)i == defwidget)
+      colc += vec4f(0.1f, -0.1f, -0.1f, 0.0f) * sinf(defflash);
+
+    glColor4fv(colc);
+
+    widget[i].tex->bind();
+
+    vec2f pos = widget[i].pos;
+    vec2f dims = widget[i].dims;
+
+    glm::mat4 t = glm::translate(glm::mat4(1.0f), glm::vec3(pos.x, pos.y, 0.0f));
+    t = glm::scale(t, glm::vec3(dims.x, dims.y, 1.0f));
+    glLoadMatrixf(glm::value_ptr(t));
 
     switch(widget[i].type) {
     case GWT_LABEL: {
-      vec4f colc;
-      if (widget[i].clickable) {
-        colc = INTERP(widget[i].colclick, widget[i].colhover, widget[i].glow);
-      } else {
-        colc = widget[i].colnormal;
-      }
-
-      if ((int)i == defwidget)
-        colc += vec4f(0.1f, -0.1f, -0.1f, 0.0f) * sinf(defflash);
-
-      glPushMatrix();
-
-      vec2f ctr = widget[i].pos;
-      glTranslatef(ctr.x, ctr.y, 0.0f);
-
-      glScalef(widget[i].fontsize, widget[i].fontsize, 1.0f);
-
-      fonttex->bind();
-
-      glColor4fv(colc);
       ssRender->drawText(widget[i].text, PTEXT_HZA_LEFT | PTEXT_VTA_BOTTOM);
-      glPopMatrix();
       } break;
 
     case GWT_GRAPHIC: {
-      vec4f colc = vec4f(1.0f, 1.0f, 1.0f, 1.0f);
-
-      if (widget[i].clickable) {
-        colc = INTERP(widget[i].colclick, widget[i].colhover, widget[i].glow);
-      } else {
-        colc = widget[i].colnormal;
-      }
-
-      vec2f min = widget[i].pos;
-      vec2f max = widget[i].pos + widget[i].dims_min;
-
-      widget[i].tex->bind();
-
-      glColor4fv(colc);
-
-      glBegin(GL_QUADS);
-      glTexCoord2f(0.0f, 0.0f); glVertex2f(min.x, min.y);
-      glTexCoord2f(1.0f, 0.0f); glVertex2f(max.x, min.y);
-      glTexCoord2f(1.0f, 1.0f); glVertex2f(max.x, max.y);
-      glTexCoord2f(0.0f, 1.0f); glVertex2f(min.x, max.y);
-      glEnd();
+      glInterleavedArrays(GL_T2F_V3F, 5 * sizeof(GL_FLOAT), vbo);
+      glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, ibo);
       } break;
     }
+
+    glPopMatrix();
   }
 }
 
@@ -1686,8 +1681,10 @@ int Gui::addLabel(float x, float y, const std::string &text, uint32 flags, float
   widget[w].type = GWT_LABEL;
   widget[w].text = text;
   widget[w].fontsize = fontsize;
+  widget[w].dims = vec2f(fontsize, fontsize);
   widget[w].dims_min = ssRender->getTextDims(text) * fontsize;
   widget[w].pos = vec2f(x, y);
+  widget[w].tex = fonttex;
 
   if (ls == LabelStyle::Regular)
   {
@@ -1748,6 +1745,7 @@ int Gui::addGraphic(float x, float y, float width, float height, PTexture *tex, 
 {
   int w = getFreeWidget();
   widget[w].type = GWT_GRAPHIC;
+  widget[w].dims = vec2f(width, height);
   widget[w].dims_min = vec2f(width, height);
   widget[w].pos = vec2f(x, y);
   widget[w].tex = tex;

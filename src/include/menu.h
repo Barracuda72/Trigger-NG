@@ -114,16 +114,16 @@ struct GuiWidgetColors
 };
 
 struct LevelState {
-  
+
   int state;
-  
+
   int currentevent;
   int currentlevel;
   int currentplayer; // current player in the best times list
-  
+
   int livesleft;
   float totaltime;
-  
+
   std::vector<float> leveltimes;
 };
 
@@ -137,61 +137,62 @@ struct LevelState {
 #define GWPARENT_NONE         -1
 
 struct GuiWidget {
-  
+
   int type;
-  
+
   bool clickable;
   int d1, d2;
-  
+
   std::string text;
   float fontsize;
-  
+
   vec2f
+    dims,
     dims_min,
     pos;
-  
+
   vec4f
     colnormal   {1.00f, 1.00f, 1.00f, 0.85f},  ///< Normal color for unclickable widgets.
     colclick    {0.65f, 1.00f, 0.65f, 0.85f},  ///< Normal color for clickable widgets.
     colhover    {1.00f, 0.40f, 0.00f, 1.00f};  ///< Mouse hover color for clickable widgets.
-  
+
   float glow;
-  
+
   PTexture *tex;
-  
+
   GuiWidget(int t) : type(t), clickable(false), d1(0), d2(0), glow(0.0f) { }
 };
 
 
 class Gui {
-  
+
 private:
-    
+
     GuiWidgetColors colors;
-    
+
   std::vector<GuiWidget> widget;
-  
+
   PSSRender *ssRender;
-  
+
   vec2f cursor;
-  
+
   int highlight, defwidget;
-  
+
   float defflash;
-  
+
   PTexture *fonttex;
-  
+
 protected:
   int getFreeWidget();
-  
+
   void measureWidgetTree(int w);
   void placeWidgetTree(int w);
-  
+
   void renderWidgetTree(int w);
-  
+
 public:
   Gui() : cursor(vec2f::zero()), defflash(0.0f) { }
-  
+
   bool loadColors(const std::string &filename);
 
     ///
@@ -201,41 +202,41 @@ public:
     {
         return colors;
     }
-  
+
   void setSSRender(PSSRender &render) { ssRender = &render; }
   void setFont(PTexture *tex) { fonttex = tex; }
-  
+
   void tick(float delta);
-  
+
   void setCursorPos(float x, float y);
-  
+
   bool getClickAction(int &data1, int &data2);
   bool getDefaultAction(int &data1, int &data2);
-  
+
   void doLayout();
-  
+
   void render();
-  
+
   void clear() { widget.clear(); highlight = -1; defwidget = -1; }
-  
+
   int addContainer(int parent, float minwidth, float minheight, bool vert);
-  
+
   int addLabel(float x, float y, const std::string &text, uint32 flags, float fontsize, LabelStyle ls = LabelStyle::Regular);
-  
+
   int addGraphic(float x, float y, float width, float height, PTexture *tex, GraphicStyle gs = GraphicStyle::Image);
-  
+
   int makeClickable(int w, int data1, int data2) {
     widget[w].clickable = true;
     widget[w].d1 = data1;
     widget[w].d2 = data2;
     return w;
   }
-  
+
   int makeUnclickable(int w) {
     widget[w].clickable = false;
     return w;
   }
-  
+
   void makeDefault(int w) { defwidget = w; }
 };
 
