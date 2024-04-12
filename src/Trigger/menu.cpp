@@ -1230,8 +1230,8 @@ void MainApp::renderStateLevel(float eyetranslation)
 
   const GLdouble margin = (800.0 - 600.0 * cx / cy) / 2.0;
 
-  glm::mat4 o = glm::ortho(margin, 600.0 * cx / cy + margin, 0.0, 600.0, -1.0, 1.0);
-  glLoadMatrixf(glm::value_ptr(o));
+  glm::mat4 o2 = glm::ortho(margin, 600.0 * cx / cy + margin, 0.0, 600.0, -1.0, 1.0);
+  glLoadMatrixf(glm::value_ptr(o2));
 
   glMatrixMode(GL_MODELVIEW);
   // draw GUI
