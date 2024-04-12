@@ -927,15 +927,10 @@ void PTerrain::drawShadow(float x, float y, float scale, float angle)
   int maxx = (int)(x + scale) + 2;
   if ((x + scale) < 0.0f) maxx--;
 
-  glMatrixMode(GL_TEXTURE);
-
-  glPushMatrix();
-
   glm::mat4 t = glm::translate(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 0.0f));
   t = glm::rotate(t, angle, glm::vec3(0.0f, 0.0f, 1.0f));
   t = glm::scale(t, glm::vec3(0.5f / scale, 0.5f / scale, 1.0f));
   t = glm::translate(t, glm::vec3(-x, -y, 0.0f));
-  glLoadMatrixf(glm::value_ptr(t));
 
   float* vbo = new float[(maxx-minx)*(maxy-miny+1)*5]; // N times M+1 vertices, each having 2+3 attributes
 
@@ -952,8 +947,11 @@ void PTerrain::drawShadow(float x, float y, float scale, float angle)
 
       int x3 = x2 - minx;
 
-      vbo[(y3 * x_stride + x3)*5 + 0] = x2;
-      vbo[(y3 * x_stride + x3)*5 + 1] = y2;
+      glm::vec4 tex_v = glm::vec4(x2, y2, 0.0f, 1.0f);
+      tex_v = t * tex_v;
+
+      vbo[(y3 * x_stride + x3)*5 + 0] = tex_v.x;
+      vbo[(y3 * x_stride + x3)*5 + 1] = tex_v.y;
 
       vbo[(y3 * x_stride + x3)*5 + 2] = x2 * scale_hz;
       vbo[(y3 * x_stride + x3)*5 + 3] = y2 * scale_hz;
@@ -977,10 +975,6 @@ void PTerrain::drawShadow(float x, float y, float scale, float angle)
 
   delete[] ibo;
   delete[] vbo;
-
-  glPopMatrix();
-
-  glMatrixMode(GL_MODELVIEW);
 }
 
 
