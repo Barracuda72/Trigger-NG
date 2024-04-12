@@ -5,6 +5,11 @@
 // License: GPL version 2 (see included gpl.txt)
 
 
+#include <glm/gtc/type_ptr.hpp> // For glm::value_ptr
+#include <glm/mat4x4.hpp> // For glm::mat4
+#include <glm/ext/matrix_transform.hpp> // For glm::translate
+#include <glm/ext/matrix_clip_space.hpp> // For glm::frustrum
+
 #include "pengine.h"
 
 #include "main.h"
@@ -74,7 +79,7 @@ PTerrain::PTerrain (XMLElement *element, const std::string &filepath, PSSTexture
             walk = walk->NextSiblingElement("row"))
         {
             const char *srow = walk->Attribute("data");
-            
+
             if (srow == nullptr)
                 continue;
 
@@ -815,8 +820,9 @@ void PTerrain::render(const vec3f &campos, const mat44f &camorim)
   glEnable(GL_ALPHA_TEST);
   glDisable(GL_CULL_FACE);
   glColor3f(1.0f, 1.0f, 1.0f);
-  glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-  glEnableClientState(GL_VERTEX_ARRAY);
+
+  //glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+  //glEnableClientState(GL_VERTEX_ARRAY);
 
   for (unsigned int b = 0; b < foliageband.size(); b++) {
 
@@ -828,8 +834,7 @@ void PTerrain::render(const vec3f &campos, const mat44f &camorim)
         (*t)->foliage[b].buff[0].bind(); // vert data
         (*t)->foliage[b].buff[1].bind(); // indices
 
-        glTexCoordPointer(2, GL_FLOAT, sizeof(PVert_tv), (*t)->foliage[b].buff[0].getPointer(0));
-        glVertexPointer(3, GL_FLOAT, sizeof(PVert_tv), (*t)->foliage[b].buff[0].getPointer(sizeof(float)*2));
+        glInterleavedArrays(GL_T2F_V3F, sizeof(PVert_tv), (*t)->foliage[b].buff[0].getPointer(0));
 
         glDrawRangeElements(GL_TRIANGLES,
           0,(*t)->foliage[b].numvert,(*t)->foliage[b].numelem,
@@ -880,8 +885,7 @@ void PTerrain::render(const vec3f &campos, const mat44f &camorim)
                 t->roadsignset[b].buff[0].bind();
                 t->roadsignset[b].buff[1].bind();
 
-                glTexCoordPointer(2, GL_FLOAT, sizeof(PVert_tv), t->roadsignset[b].buff[0].getPointer(0));
-                glVertexPointer(3, GL_FLOAT, sizeof(PVert_tv), t->roadsignset[b].buff[0].getPointer(sizeof(float)*2));
+                glInterleavedArrays(GL_T2F_V3F, sizeof(PVert_tv), t->roadsignset[b].buff[0].getPointer(0));
 
                 glDrawRangeElements(GL_TRIANGLES, 0,
                     t->roadsignset[b].numvert, t->roadsignset[b].numelem,
@@ -893,8 +897,8 @@ void PTerrain::render(const vec3f &campos, const mat44f &camorim)
   #endif
 
   PVBuffer::unbind();
-  glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-  glDisableClientState(GL_VERTEX_ARRAY);
+  //glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+  //glDisableClientState(GL_VERTEX_ARRAY);
   glEnable(GL_CULL_FACE);
   glDisable(GL_ALPHA_TEST);
 }
@@ -922,10 +926,17 @@ void PTerrain::drawSplat(float x, float y, float scale, float angle)
   glMatrixMode(GL_TEXTURE);
 
   glPushMatrix();
-  glTranslatef(0.5f, 0.5f, 0.0f);
-  glRotatef(DEGREES(angle), 0.0f, 0.0f, 1.0f);
-  glScalef(0.5f / scale, 0.5f / scale, 1.0f);
-  glTranslatef(-x, -y, 0.0f);
+
+  //glTranslatef(0.5f, 0.5f, 0.0f);
+  //glRotatef(DEGREES(angle), 0.0f, 0.0f, 1.0f);
+  //glScalef(0.5f / scale, 0.5f / scale, 1.0f);
+  //glTranslatef(-x, -y, 0.0f);
+
+  glm::mat4 t = glm::translate(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 0.0f));
+  t = glm::rotate(t, angle, glm::vec3(0.0f, 0.0f, 1.0f));
+  t = glm::scale(t, glm::vec3(0.5f / scale, 0.5f / scale, 1.0f));
+  t = glm::translate(t, glm::vec3(-x, -y, 0.0f));
+  glLoadMatrixf(glm::value_ptr(t));
 
   for (int y2=miny; y2<maxy; y2++) {
     int yc = y2 & (cy-1),
