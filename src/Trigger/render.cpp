@@ -89,16 +89,6 @@ void drawBlades(float radius, float ang, float trace)
 void MainApp::renderWater()
 {
     tex_water->bind();
-    {
-        float tgens[] = { 0.5,0,0,0 };
-        float tgent[] = { 0,0.5,0,0 };
-        glTexGeni(GL_S,GL_TEXTURE_GEN_MODE,GL_OBJECT_LINEAR);
-        glTexGenfv(GL_S,GL_OBJECT_PLANE,tgens);
-        glTexGeni(GL_T,GL_TEXTURE_GEN_MODE,GL_OBJECT_LINEAR);
-        glTexGenfv(GL_T,GL_OBJECT_PLANE,tgent);
-    }
-    glEnable(GL_TEXTURE_GEN_S);
-    glEnable(GL_TEXTURE_GEN_T);
     glPushMatrix();
     glScalef(20.0,20.0,1.0);
     glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
@@ -121,7 +111,9 @@ void MainApp::renderWater()
                 if (game->water.fixedalpha)
                 {
                     glColor4f(1.0f, 1.0f, 1.0f, maxalpha);
+                    glTexCoord2f(x * 0.5, (y+1) * 0.5);
                     glVertex3f(x, y+1, game->water.height);
+                    glTexCoord2f(x * 0.5, y * 0.5);
                     glVertex3f(x, y, game->water.height);
                 }
                 else
@@ -131,11 +123,14 @@ void MainApp::renderWater()
                     alpha = 1.0 - exp(ht - game->water.height);
                     CLAMP(alpha, 0.0f, maxalpha);
                     glColor4f(1.0,1.0,1.0,alpha);
+                    glTexCoord2f(x * 0.5, (y+1) * 0.5);
                     glVertex3f(x, y+1, game->water.height);
+
                     ht = game->terrain->getHeight((x)*20.0,(y)*20.0);
                     alpha = 1.0 - exp(ht - game->water.height);
                     CLAMP(alpha, 0.0f, maxalpha);
                     glColor4f(1.0,1.0,1.0,alpha);
+                    glTexCoord2f(x * 0.5, y * 0.5);
                     glVertex3f(x, y, game->water.height);
                 }
             }
@@ -144,9 +139,6 @@ void MainApp::renderWater()
     }
     glPopMatrix();
     glBlendFunc(GL_ONE,GL_ZERO);
-
-    glDisable(GL_TEXTURE_GEN_S);
-    glDisable(GL_TEXTURE_GEN_T);
 }
 
 void MainApp::renderSky(const mat44f &cammat)
