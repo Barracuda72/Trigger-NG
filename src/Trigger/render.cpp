@@ -93,45 +93,38 @@ void MainApp::renderWater()
     glScalef(20.0,20.0,1.0);
     glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
+
+    float alpha = 0.5f, maxalpha = 0.5f;
+
+    if (game->water.useralpha)
+        alpha = maxalpha = game->water.alpha;
+
     {
-        int minx = (int)(campos.x / 20.0)-20,
-            maxx = minx + 40,
-            miny = (int)(campos.y / 20.0)-20,
-            maxy = miny + 40;
+        int off_x = (int)(campos.x / 20.0);
+        int off_y = (int)(campos.y / 20.0);
+
+        int minx = - 20,
+            maxx = + 20,
+            miny = - 20,
+            maxy = + 20;
+
         for (int y=miny; y<maxy; ++y)
         {
             glBegin(GL_TRIANGLE_STRIP);
             for (int x=minx; x<=maxx; ++x)
             {
-                float maxalpha = 0.5f;
+                for (int n = 1; n >= 0; n--) {
+                    if (!game->water.fixedalpha)
+                    {
+                        float ht = game->terrain->getHeight((x+off_x)*20.0,(y+n+off_y)*20.0);
+                        alpha = 1.0 - exp(ht - game->water.height);
+                        CLAMP(alpha, 0.0f, maxalpha);
+                    }
 
-                if (game->water.useralpha)
-                    maxalpha = game->water.alpha;
-
-                if (game->water.fixedalpha)
-                {
-                    glColor4f(1.0f, 1.0f, 1.0f, maxalpha);
-                    glTexCoord2f(x * 0.5, (y+1) * 0.5);
-                    glVertex3f(x, y+1, game->water.height);
-                    glTexCoord2f(x * 0.5, y * 0.5);
-                    glVertex3f(x, y, game->water.height);
-                }
-                else
-                {
-                    float ht,alpha;
-                    ht = game->terrain->getHeight((x)*20.0,(y+1)*20.0);
-                    alpha = 1.0 - exp(ht - game->water.height);
-                    CLAMP(alpha, 0.0f, maxalpha);
+                    glTexCoord2f((x) * 0.5, (y+n+off_y-off_x) * 0.5);
                     glColor4f(1.0,1.0,1.0,alpha);
-                    glTexCoord2f(x * 0.5, (y+1) * 0.5);
-                    glVertex3f(x, y+1, game->water.height);
-
-                    ht = game->terrain->getHeight((x)*20.0,(y)*20.0);
-                    alpha = 1.0 - exp(ht - game->water.height);
-                    CLAMP(alpha, 0.0f, maxalpha);
-                    glColor4f(1.0,1.0,1.0,alpha);
-                    glTexCoord2f(x * 0.5, y * 0.5);
-                    glVertex3f(x, y, game->water.height);
+                    glNormal3f(0.0f, 0.0f, 0.0f);
+                    glVertex3f(x+off_x, y+n+off_y, game->water.height);
                 }
             }
             glEnd();
