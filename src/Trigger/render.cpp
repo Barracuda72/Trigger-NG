@@ -89,8 +89,7 @@ void drawBlades(float radius, float ang, float trace)
 void MainApp::renderWater()
 {
     tex_water->bind();
-    glPushMatrix();
-    glScalef(20.0,20.0,1.0);
+
     glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
 
@@ -99,20 +98,35 @@ void MainApp::renderWater()
     if (game->water.useralpha)
         alpha = maxalpha = game->water.alpha;
 
+    glPushMatrix();
     {
         int off_x = (int)(campos.x / 20.0);
         int off_y = (int)(campos.y / 20.0);
+
+        glm::mat4 t(1.0f);
+
+        glGetFloatv(GL_MODELVIEW_MATRIX, glm::value_ptr(t));
+        t = glm::scale(t, glm::vec3(20.0f, 20.0f, 1.0f));
+        t = glm::translate(t, glm::vec3(off_x, off_y, 0.0f));
+        glLoadMatrixf(glm::value_ptr(t));
 
         int minx = - 20,
             maxx = + 20,
             miny = - 20,
             maxy = + 20;
 
+        int x_stride = maxx - minx;
+
+        float* vbo = new float[(maxx-minx)*(maxy-miny+1)*12];
+        memset(vbo, 0, (maxx-minx)*(maxy-miny+1)*12*sizeof(float));
+        unsigned int* ibo = new unsigned int[(maxx-minx+1)*(maxy-miny)*2];
+
         for (int y=miny; y<maxy; ++y)
         {
-            glBegin(GL_TRIANGLE_STRIP);
+            int y3 = y + 20;
             for (int x=minx; x<=maxx; ++x)
             {
+                int x3 = x+20;
                 for (int n = 1; n >= 0; n--) {
                     if (!game->water.fixedalpha)
                     {
@@ -120,15 +134,34 @@ void MainApp::renderWater()
                         alpha = 1.0 - exp(ht - game->water.height);
                         CLAMP(alpha, 0.0f, maxalpha);
                     }
-
-                    glTexCoord2f((x) * 0.5, (y+n+off_y-off_x) * 0.5);
-                    glColor4f(1.0,1.0,1.0,alpha);
-                    glNormal3f(0.0f, 0.0f, 0.0f);
-                    glVertex3f(x+off_x, y+n+off_y, game->water.height);
+                    vbo[(y3 * x_stride + x3)*12 +  0] = x * 0.5;
+                    vbo[(y3 * x_stride + x3)*12 +  1] = (y+n+off_y-off_x) * 0.5; // TODO: WTF???
+                    vbo[(y3 * x_stride + x3)*12 +  2] = 1.0;
+                    vbo[(y3 * x_stride + x3)*12 +  3] = 1.0;
+                    vbo[(y3 * x_stride + x3)*12 +  4] = 1.0;
+                    vbo[(y3 * x_stride + x3)*12 +  5] = alpha;
+                    // Skip normal
+                    vbo[(y3 * x_stride + x3)*12 +  9] = x;
+                    vbo[(y3 * x_stride + x3)*12 + 10] = y+n;
+                    vbo[(y3 * x_stride + x3)*12 + 11] = game->water.height;
                 }
             }
-            glEnd();
         }
+
+        for (int y2 = 0; y2 < (maxy-miny); y2++) {
+            for (int x2 = 0; x2 < (maxx-minx); x2++) {
+                ibo[(y2 * (x_stride+1) + x2)*2 + 0] = (y2 + 1) * (x_stride) + (x2 + 0);
+                ibo[(y2 * (x_stride+1) + x2)*2 + 1] = (y2 + 0) * (x_stride) + (x2 + 0);
+            }
+            ibo[(y2 * (x_stride+1) + (maxx-minx))*2 + 0] = 0; // Restart strip
+            ibo[(y2 * (x_stride+1) + (maxx-minx))*2 + 1] = 0;
+        }
+
+        glInterleavedArrays(GL_T2F_C4F_N3F_V3F, 12 * sizeof(GL_FLOAT), vbo);
+        glDrawElements(GL_TRIANGLE_STRIP, (maxx-minx+1)*(maxy-miny)*2, GL_UNSIGNED_INT, ibo);
+
+        delete[] ibo;
+        delete[] vbo;
     }
     glPopMatrix();
     glBlendFunc(GL_ONE,GL_ZERO);
