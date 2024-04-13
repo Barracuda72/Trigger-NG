@@ -58,6 +58,9 @@ void MainApp::resize()
     glEnable(GL_NORMALIZE);
 }
 
+/*
+ * TODO: this function seems to be unused
+ *
 void drawBlades(float radius, float ang, float trace)
 {
     float invtrace = 1.0 / trace;
@@ -81,7 +84,7 @@ void drawBlades(float radius, float ang, float trace)
         glEnd();
     }
     glPopMatrix();
-}
+}*/
 
 void MainApp::renderWater()
 {
