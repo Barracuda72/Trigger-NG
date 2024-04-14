@@ -127,24 +127,22 @@ void MainApp::renderWater()
             for (int x=minx; x<=maxx; ++x)
             {
                 int x3 = x+20;
-                for (int n = 1; n >= 0; n--) {
-                    if (!game->water.fixedalpha)
-                    {
-                        float ht = game->terrain->getHeight((x+off_x)*20.0,(y+n+off_y)*20.0);
-                        alpha = 1.0 - exp(ht - game->water.height);
-                        CLAMP(alpha, 0.0f, maxalpha);
-                    }
-                    vbo[(y3 * x_stride + x3)*12 +  0] = x * 0.5;
-                    vbo[(y3 * x_stride + x3)*12 +  1] = (y+n+off_y-off_x) * 0.5; // TODO: WTF???
-                    vbo[(y3 * x_stride + x3)*12 +  2] = 1.0;
-                    vbo[(y3 * x_stride + x3)*12 +  3] = 1.0;
-                    vbo[(y3 * x_stride + x3)*12 +  4] = 1.0;
-                    vbo[(y3 * x_stride + x3)*12 +  5] = alpha;
-                    // Skip normal
-                    vbo[(y3 * x_stride + x3)*12 +  9] = x;
-                    vbo[(y3 * x_stride + x3)*12 + 10] = y+n;
-                    vbo[(y3 * x_stride + x3)*12 + 11] = game->water.height;
+                if (!game->water.fixedalpha)
+                {
+                    float ht = game->terrain->getHeight((x+off_x)*20.0,(y+off_y)*20.0);
+                    alpha = 1.0 - exp(ht - game->water.height);
+                    CLAMP(alpha, 0.0f, maxalpha);
                 }
+                vbo[(y3 * x_stride + x3)*12 +  0] = x * 0.5;
+                vbo[(y3 * x_stride + x3)*12 +  1] = (y+off_y-off_x) * 0.5; // TODO: WTF???
+                vbo[(y3 * x_stride + x3)*12 +  2] = 1.0;
+                vbo[(y3 * x_stride + x3)*12 +  3] = 1.0;
+                vbo[(y3 * x_stride + x3)*12 +  4] = 1.0;
+                vbo[(y3 * x_stride + x3)*12 +  5] = alpha;
+                // Skip normal
+                vbo[(y3 * x_stride + x3)*12 +  9] = x;
+                vbo[(y3 * x_stride + x3)*12 + 10] = y;
+                vbo[(y3 * x_stride + x3)*12 + 11] = game->water.height;
             }
         }
 
@@ -172,31 +170,55 @@ void MainApp::renderSky(const mat44f &cammat)
     glFogf(GL_FOG_DENSITY, game->weather.fog.density_sky);
     glDepthRange(0.999,1.0);
     glDisable(GL_CULL_FACE);
+
     glPushMatrix(); // 1
-    glLoadIdentity();
-    glMultMatrixf(cammat);
-    tex_sky[0]->bind();
+    {
+      glLoadIdentity();
+      glMultMatrixf(cammat);
+      tex_sky[0]->bind();
 #define CLRANGE     10
 #define CLFACTOR    0.02//0.014
-    glMatrixMode(GL_TEXTURE);
-    glPushMatrix();
-    glTranslatef(cloudscroll,0.0,0.0);
-    glRotatef(30.0,0.0,0.0,1.0);
-    glScalef(0.4,0.4,1.0);
-    for (int y=-CLRANGE; y<CLRANGE; y++)
-    {
-        glBegin(GL_TRIANGLE_STRIP);
-        for (int x=-CLRANGE; x<CLRANGE+1; x++)
+      {
+        int x_stride = 2 * CLRANGE + 1;
+        float* vbo = new float[(2 * CLRANGE + 1)*(2 * CLRANGE)*5];
+        unsigned int* ibo = new unsigned int[(2 * CLRANGE + 2)*(2 * CLRANGE)*2];
+
+        glm::mat4 t(1.0);
+        t = glm::translate(t, glm::vec3(cloudscroll, 0.0f, 0.0f));
+        t = glm::rotate(t, 30.0f / 360.0f * 2 * 3.141592653f, glm::vec3(0.0f, 0.0f, 1.0f));
+        t = glm::scale(t, glm::vec3(0.4f, 0.4f, 1.0f));
+
+        for (int y=-CLRANGE; y<CLRANGE; y++)
         {
-            glTexCoord2i(x,y);
-            glVertex3f(x,y,0.3-(x*x+y*y)*CLFACTOR);
-            glTexCoord2i(x,y+1);
-            glVertex3f(x,y+1,0.3-(x*x+(y+1)*(y+1))*CLFACTOR);
+            int y3 = y + CLRANGE;
+            for (int x=-CLRANGE; x<CLRANGE+1; x++)
+            {
+                int x3 = x + CLRANGE;
+                glm::vec4 k = t * glm::vec4(x, y, 0.0f, 1.0f);
+                vbo[(y3 * x_stride + x3) * 5 + 0] = k.x;
+                vbo[(y3 * x_stride + x3) * 5 + 1] = k.y;
+                vbo[(y3 * x_stride + x3) * 5 + 2] = x;
+                vbo[(y3 * x_stride + x3) * 5 + 3] = y;
+                vbo[(y3 * x_stride + x3) * 5 + 4] = 0.3-(x*x+y*y)*CLFACTOR;
+            }
         }
-        glEnd();
+
+        for (int y2 = 0; y2 < 2 * CLRANGE; y2++) {
+            for (int x2 = 0; x2 < 2 * CLRANGE + 1; x2++) {
+                ibo[(y2 * (x_stride+1) + x2)*2 + 0] = (y2 + 1) * (x_stride) + (x2 + 0);
+                ibo[(y2 * (x_stride+1) + x2)*2 + 1] = (y2 + 0) * (x_stride) + (x2 + 0);
+            }
+            ibo[(y2 * (x_stride+1) + 2*CLRANGE+1)*2 + 0] = 0; // Restart strip
+            ibo[(y2 * (x_stride+1) + 2*CLRANGE+1)*2 + 1] = 0;
+        }
+
+        glInterleavedArrays(GL_T2F_V3F, 5 * sizeof(GL_FLOAT), vbo);
+        glDrawElements(GL_TRIANGLE_STRIP, (2 * CLRANGE + 1)*(2 * CLRANGE)*2, GL_UNSIGNED_INT, ibo);
+
+        delete[] ibo;
+        delete[] vbo;
+      }
     }
-    glPopMatrix();
-    glMatrixMode(GL_MODELVIEW);
     glPopMatrix(); // 1
     glEnable(GL_CULL_FACE);
     glDepthRange(0.0,0.999);
