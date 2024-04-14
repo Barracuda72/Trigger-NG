@@ -173,15 +173,14 @@ void MainApp::renderSky(const mat44f &cammat)
 
     glPushMatrix(); // 1
     {
-      glLoadIdentity();
-      glMultMatrixf(cammat);
+      glLoadMatrixf(cammat);
       tex_sky[0]->bind();
 #define CLRANGE     10
 #define CLFACTOR    0.02//0.014
       {
         int x_stride = 2 * CLRANGE + 1;
         float* vbo = new float[(2 * CLRANGE + 1)*(2 * CLRANGE)*5];
-        unsigned int* ibo = new unsigned int[(2 * CLRANGE + 2)*(2 * CLRANGE)*2];
+        unsigned short* ibo = new unsigned short[(2 * CLRANGE + 2)*(2 * CLRANGE)*2];
 
         glm::mat4 t(1.0);
         t = glm::translate(t, glm::vec3(cloudscroll, 0.0f, 0.0f));
@@ -213,7 +212,42 @@ void MainApp::renderSky(const mat44f &cammat)
         }
 
         glInterleavedArrays(GL_T2F_V3F, 5 * sizeof(GL_FLOAT), vbo);
-        glDrawElements(GL_TRIANGLE_STRIP, (2 * CLRANGE + 1)*(2 * CLRANGE)*2, GL_UNSIGNED_INT, ibo);
+        glDrawElements(GL_TRIANGLE_STRIP, (2 * CLRANGE + 1)*(2 * CLRANGE)*2, GL_UNSIGNED_SHORT, ibo);
+
+        /*
+        GLuint vertexBuffer;
+        GLuint indexBuffer;
+
+        glGenBuffers(1, &vertexBuffer);
+        glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+        glBufferData(GL_ARRAY_BUFFER, 5 * sizeof(GL_FLOAT) * (2 * CLRANGE + 1)*(2 * CLRANGE), vbo, GL_STATIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+        glGenBuffers(1, &indexBuffer);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, (2 * CLRANGE + 2)*(2 * CLRANGE)*2 * sizeof(unsigned short), ibo, GL_STATIC_DRAW);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+        ShaderProgram sp("../data/shaders/sky_vsh.glsl", "../data/shaders/sky_fsh.glsl");
+        sp.use();
+
+        glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+
+        sp.attrib("tex_coord", 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GL_FLOAT), 0);
+        sp.attrib("vert_coord", 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GL_FLOAT), (const void*)(2 * sizeof(GL_FLOAT)));
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
+
+        sp.uniform("t_transform", t);
+
+        tex_sky[0]->bind();
+        sp.uniform("tex", 0);
+
+        glDrawElements(GL_TRIANGLE_STRIP, (2 * CLRANGE + 1)*(2 * CLRANGE)*2, GL_UNSIGNED_SHORT, 0);
+
+        glDeleteBuffers(1, &vertexBuffer);
+        glDeleteBuffers(1, &indexBuffer);
+        */
 
         delete[] ibo;
         delete[] vbo;
