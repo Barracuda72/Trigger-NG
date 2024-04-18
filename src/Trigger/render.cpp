@@ -925,24 +925,6 @@ void MainApp::renderStateGame(float eyetranslation)
         }
         ibo[i * 8 + 6] = 0; // Restart
         ibo[i * 8 + 7] = 0;
-
-        /*glBegin(GL_TRIANGLE_STRIP);
-        glColor4f(raindrop_col.r,raindrop_col.g,raindrop_col.b,0.0);
-        tempv = pt1 - zag;
-        glVertex3fv(tempv);
-        tempv = pt2 - zag;
-        glVertex3fv(tempv);
-
-        glColor4fv(glm::value_ptr(raindrop_col));
-        glVertex3fv(pt1);
-        glVertex3fv(pt2);
-
-        glColor4f(raindrop_col.r,raindrop_col.g,raindrop_col.b,0.0);
-        tempv = pt1 + zag;
-        glVertex3fv(tempv);
-        tempv = pt2 + zag;
-        glVertex3fv(tempv);
-        glEnd();*/
     }
 
     glInterleavedArrays(GL_C4F_N3F_V3F, 10 * sizeof(float), vbo);
