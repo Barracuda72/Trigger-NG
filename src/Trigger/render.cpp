@@ -216,6 +216,8 @@ void MainApp::renderSky(const mat44f &cammat)
         glInterleavedArrays(GL_T2F_V3F, 5 * sizeof(GL_FLOAT), vbo);
         glDrawElements(GL_TRIANGLE_STRIP, (2 * CLRANGE + 1)*(2 * CLRANGE)*2, GL_UNSIGNED_SHORT, ibo);
         #else
+        glActiveTexture(GL_TEXTURE0);
+        tex_sky[0]->bind();
         VAO vao(
                 vbo, 5 * sizeof(GL_FLOAT) * (2 * CLRANGE + 1)*(2 * CLRANGE),
                 ibo, (2 * CLRANGE + 2)*(2 * CLRANGE)*2 * sizeof(unsigned short)
@@ -231,7 +233,6 @@ void MainApp::renderSky(const mat44f &cammat)
 
         sp.uniform("t_transform", t);
 
-        tex_sky[0]->bind();
         sp.uniform("tex", 0);
 
         glDrawElements(GL_TRIANGLE_STRIP, (2 * CLRANGE + 1)*(2 * CLRANGE)*2, GL_UNSIGNED_SHORT, 0);
