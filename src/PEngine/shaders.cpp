@@ -11,6 +11,8 @@ ShaderProgram::ShaderProgram(const std::string& vsh, const std::string& fsh)
 
 ShaderProgram::~ShaderProgram()
 {
+    unuse();
+
     if (shader_id != 0)
         glDeleteProgram(shader_id);
 }
@@ -40,8 +42,16 @@ void ShaderProgram::uniform(const std::string& name, glm::mat3& m)
 
 void ShaderProgram::attrib(const std::string& name, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void *pointer) {
     GLint a_id = getAttribLocation(name);
+    enabled_attributes.push_back(a_id);
     glEnableVertexAttribArray(a_id);
     glVertexAttribPointer(a_id, size, type, normalized, stride, pointer);
+}
+
+void ShaderProgram::unuse() {
+    for (GLint a_id: enabled_attributes)
+        glDisableVertexAttribArray(a_id);
+
+    glUseProgram(0);
 }
 
 /*
@@ -138,7 +148,7 @@ GLuint ShaderProgram::createShaderProgram(const std::string& vsh_path, const std
 
 std::string ShaderProgram::readShader(const std::string& path)
 {
-    std::ifstream t(path);
+    std::ifstream t("../data/shaders/" + path);
     std::stringstream buffer;
     buffer << t.rdbuf();
     //std::cout << buffer.str() << std::endl;

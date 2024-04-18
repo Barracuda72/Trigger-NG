@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 #include <GL/glew.h>
 #include <GL/gl.h>
@@ -14,6 +15,7 @@ class ShaderProgram {
         ShaderProgram(const std::string& vsh, const std::string& fsh);
         ~ShaderProgram();
         void use();
+        void unuse();
         void uniform(const std::string& name, GLint i);
         void uniform(const std::string& name, glm::mat4& m);
         void uniform(const std::string& name, glm::mat3& m);
@@ -28,6 +30,7 @@ class ShaderProgram {
         GLint getAttribLocation(const std::string& name);
 
         GLuint shader_id = 0;
+        std::vector<GLint> enabled_attributes;
 };
 
 class VAO {
