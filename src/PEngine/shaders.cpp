@@ -170,6 +170,7 @@ VAO::VAO(const float* vbo, size_t vbo_size, const unsigned short* ibo, size_t ib
 
 VAO::~VAO()
 {
+    unbind();
     glDeleteBuffers(1, &vertexBuffer);
     glDeleteBuffers(1, &indexBuffer);
 }
