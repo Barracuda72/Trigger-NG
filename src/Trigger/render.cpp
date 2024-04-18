@@ -520,97 +520,11 @@ void MainApp::renderStateEnd(float eyetranslation)
     glMatrixMode(GL_MODELVIEW);
 }
 
-void MainApp::renderStateChoose(float eyetranslation)
+// FIXME: following two functions are almost the same
+// They shall be merged, but this requires tinkering with a game logic
+void MainApp::renderVehicleType(PVehicleType* vtype)
 {
-    PVehicleType *vtype = game->vehiclechoices[choose_type];
-
-    glClearColor(0.0, 0.0, 0.0, 1.0);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-glMatrixMode(GL_PROJECTION);
-
-  glPushMatrix();
-  glLoadIdentity();
-  glOrtho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
-
-    glMatrixMode(GL_MODELVIEW);
-
-  // draw background image
-
-  glBlendFunc(GL_ONE, GL_ZERO);
-  glDisable(GL_DEPTH_TEST);
-  glDisable(GL_FOG);
-  glDisable(GL_LIGHTING);
-
-  tex_splash_screen->bind();
-
-  //glColor4f(0.0f, 0.0f, 0.2f, 1.0f); // make image dark blue
-  glColor4f(1.0f, 1.0f, 1.0f, 1.0f); // use image's normal colors
-  //glColor4f(0.5f, 0.5f, 0.5f, 1.0f); // make image darker
-
-    glBegin(GL_QUADS);
-    // the background image is square and cut out a piece based on aspect ratio
-    // -------- if aspect ratio is larger than 4:3
-    // if aspect ratio is larger than 1:1
-    if ((float)getWidth()/(float)getHeight() > 1.0f)
-    {
-
-      // lower and upper offset based on aspect ratio
-      float off_l = (1 - ((float)getHeight() / (float)getWidth())) / 2.f;
-      float off_u = 1 - off_l;
-      glTexCoord2f(1.0f,off_u); glVertex2f(1.0f, 1.0f);
-      glTexCoord2f(0.0f,off_u); glVertex2f(-1.0f, 1.0f);
-      glTexCoord2f(0.0f,off_l); glVertex2f(-1.0f, -1.0f);
-      glTexCoord2f(1.0f,off_l); glVertex2f(1.0f, -1.0f);
-    }
-    // other cases (including 4:3, in which case off_l and off_u are = 1)
-    else
-    {
-
-      float off_l = (1 - ((float)getWidth() / (float)getHeight())) / 2.f;
-      float off_u = 1 - off_l;
-      glTexCoord2f(off_u,1.0f); glVertex2f(1.0f, 1.0f);
-      glTexCoord2f(off_l,1.0f); glVertex2f(-1.0f, 1.0f);
-      glTexCoord2f(off_l,0.0f); glVertex2f(-1.0f, -1.0f);
-      glTexCoord2f(off_u,0.0f); glVertex2f(1.0f, -1.0f);
-    }
-    glEnd();
-
-    glMatrixMode(GL_PROJECTION);
-    glPopMatrix();
-
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-
-    float fnear = 0.1f, fov = 0.6f;
-    float aspect = (float)getWidth() / (float)getHeight();
-    stereoFrustum(-fnear*aspect*fov,fnear*aspect*fov,-fnear*fov,fnear*fov,fnear,100000.0f,
-                  0.8f, eyetranslation);
-    glMatrixMode(GL_MODELVIEW);
-
-
-    glPushMatrix(); // 0
-
-//    glTranslatef(-eyetranslation, 0.5f, -5.0f);
-    glTranslatef(-eyetranslation, 0.9f, -5.0f);
-    glRotatef(28.0f, 1.0f, 0.0f, 0.0f);
-
-    glDisable(GL_FOG);
-    glEnable(GL_LIGHTING);
-    glEnable(GL_DEPTH_TEST);
-
-    vec4f lpos = vec4f(0.0f, 1.0f, 0.0f, 0.0f);
-    glLightfv(GL_LIGHT0, GL_POSITION, lpos);
-
-    //float tmp = 1.0f;
-    //float tmp = sinf(choose_spin * 2.0f) * 0.5f;
-    float tmp = cosf(choose_spin * 2.0f) * 0.5f;
-    tmp += choose_spin;
-    glRotatef(90.0f, -1.0f, 0.0f, 0.0f);
-    glRotatef(DEGREES(tmp), 0.0f, 0.0f, 1.0f);
-
-    {
-        for (unsigned int i=0; i<vtype->part.size(); ++i)
+   for (unsigned int i=0; i<vtype->part.size(); ++i)
         {
             glPushMatrix(); // 1
 
@@ -652,7 +566,118 @@ glMatrixMode(GL_PROJECTION);
 
             glPopMatrix(); // 1
         }
+}
+
+void MainApp::renderVehicle(PVehicle* vehic)
+{
+    for (unsigned int i=0; i<vehic->part.size(); ++i)
+    {
+        if (vehic->type->part[i].model)
+        {
+            glPushMatrix(); // 1
+
+            vec3f vpos = vehic->part[i].ref_world.pos;
+            glTranslatef(vpos.x, vpos.y, vpos.z);
+
+            mat44f vorim = vehic->part[i].ref_world.ori_mat_inv;
+            glMultMatrixf(vorim);
+
+            float scale = vehic->type->part[i].scale;
+            glScalef(scale,scale,scale);
+
+            drawModel(*vehic->type->part[i].model);
+
+            glPopMatrix(); // 1
+        }
+
+        if (vehic->type->wheelmodel)
+        {
+            for (unsigned int j=0; j<vehic->type->part[i].wheel.size(); j++)
+            {
+
+                glPushMatrix(); // 1
+
+                vec3f wpos = vehic->part[i].wheel[j].ref_world.getPosition();
+                glTranslatef(wpos.x,wpos.y,wpos.z);
+
+                mat44f worim = vehic->part[i].wheel[j].ref_world.ori_mat_inv;
+                glMultMatrixf(worim);
+
+                float scale = vehic->type->wheelscale * vehic->type->part[i].wheel[j].radius;
+                glScalef(scale,scale,scale);
+
+                drawModel(*vehic->type->wheelmodel);
+
+                glPopMatrix(); // 1
+            }
+        }
     }
+}
+
+void MainApp::renderStateChoose(float eyetranslation)
+{
+    PVehicleType *vtype = game->vehiclechoices[choose_type];
+
+    glClearColor(0.0, 0.0, 0.0, 1.0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+glMatrixMode(GL_PROJECTION);
+
+  glPushMatrix();
+  glm::mat4 o = glm::ortho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
+  glLoadMatrixf(glm::value_ptr(o));
+
+  glMatrixMode(GL_MODELVIEW);
+
+  // draw background image
+
+  glBlendFunc(GL_ONE, GL_ZERO);
+  glDisable(GL_DEPTH_TEST);
+  glDisable(GL_FOG);
+  glDisable(GL_LIGHTING);
+
+  tex_splash_screen->bind();
+
+  //glColor4f(0.0f, 0.0f, 0.2f, 1.0f); // make image dark blue
+  glColor4f(1.0f, 1.0f, 1.0f, 1.0f); // use image's normal colors
+  //glColor4f(0.5f, 0.5f, 0.5f, 1.0f); // make image darker
+
+  renderTexturedFullscreenQuad();
+
+    glMatrixMode(GL_PROJECTION);
+    glPopMatrix();
+
+    float fnear = 0.1f, fov = 0.6f;
+    float aspect = (float)getWidth() / (float)getHeight();
+    stereoFrustum(-fnear*aspect*fov,fnear*aspect*fov,-fnear*fov,fnear*fov,fnear,100000.0f,
+                  0.8f, eyetranslation);
+
+    glMatrixMode(GL_MODELVIEW);
+
+
+    glPushMatrix(); // 0
+
+    glm::mat4 t = glm::translate(glm::mat4(1.0f), glm::vec3(-eyetranslation, 0.9f, -5.0f));
+    t = glm::rotate(t, 28.0f * 3.141592653f / 180.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+    glLoadMatrixf(glm::value_ptr(t));
+
+    glDisable(GL_FOG);
+    glEnable(GL_LIGHTING);
+    glEnable(GL_DEPTH_TEST);
+
+    vec4f lpos = vec4f(0.0f, 1.0f, 0.0f, 0.0f);
+    glLightfv(GL_LIGHT0, GL_POSITION, lpos);
+
+    //float tmp = 1.0f;
+    //float tmp = sinf(choose_spin * 2.0f) * 0.5f;
+    float tmp = cosf(choose_spin * 2.0f) * 0.5f;
+    tmp += choose_spin;
+
+    t = glm::rotate(t, 3.141592653f / 2.0f, glm::vec3(-1.0f, 0.0f, 0.0f));
+    t = glm::rotate(t, tmp, glm::vec3(0.0f, 0.0f, 1.0f));
+    glLoadMatrixf(glm::value_ptr(t));
+
+    renderVehicleType(vtype);
 
     glPopMatrix(); // 0
 
@@ -660,8 +685,7 @@ glMatrixMode(GL_PROJECTION);
 
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
-    glLoadIdentity();
-    glOrtho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
+    glLoadMatrixf(glm::value_ptr(o)); // Already have it
     glMatrixMode(GL_MODELVIEW);
 
     // use the same colors as the menu
@@ -673,22 +697,25 @@ glMatrixMode(GL_PROJECTION);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_LIGHTING);
 
-    glPushMatrix(); // 0
-
     const GLdouble margin = (800.0 - 600.0 * cx / cy) / 2.0;
 
-    glOrtho(margin, 600.0 * cx / cy + margin, 0.0, 600.0, -1.0, 1.0);
+    glm::mat4 o2 = glm::ortho(margin, 600.0 * cx / cy + margin, 0.0, 600.0, -1.0, 1.0);
+
+    glm::mat4 scale_small = glm::scale(glm::mat4(1.0f), glm::vec3(20.0f, 20.0f, 1.0f));
+    glm::mat4 scale_big = glm::scale(glm::mat4(1.0f), glm::vec3(30.0f, 30.0f, 1.0f));
+
+    glm::mat4 q(1.0f);
 
     glPushMatrix(); // 1
-    glTranslatef(10.0f, 570.0f, 0.0f);
-    glScalef(30.0f, 30.0f, 1.0f);
+    q = glm::translate(glm::mat4(1.0f), glm::vec3(10.0f, 570.0f, 0.0f));
+    glLoadMatrixf(glm::value_ptr(o2 * q * scale_big));
     glColor4f(gwc.weak.x, gwc.weak.y, gwc.weak.z, gwc.weak.w);
     getSSRender().drawText("Trigger Rally", PTEXT_HZA_LEFT | PTEXT_VTA_CENTER);
     glPopMatrix(); // 1
 
     glPushMatrix(); // 1
-    glTranslatef(790.0f, 570.0f, 0.0f);
-    glScalef(20.0f, 20.0f, 1.0f);
+    q = glm::translate(glm::mat4(1.0f), glm::vec3(790.0f, 570.0f, 0.0f));
+    glLoadMatrixf(glm::value_ptr(o2 * q * scale_small));
     glColor4f(gwc.weak.x, gwc.weak.y, gwc.weak.z, gwc.weak.w);
     getSSRender().drawText(
         "car selection " + std::to_string(choose_type + 1) + '/' + std::to_string(game->vehiclechoices.size()),
@@ -696,71 +723,71 @@ glMatrixMode(GL_PROJECTION);
     glPopMatrix(); // 1
 
     glPushMatrix(); // 1
-    glTranslatef(100.0f, 230.0f, 0.0f);
-    glScalef(30.0f, 30.0f, 1.0f);
+    q = glm::translate(glm::mat4(1.0f), glm::vec3(100.0f, 230.0f, 0.0f));
+    glLoadMatrixf(glm::value_ptr(o2 * q * scale_big));
     glColor4f(gwc.header.x, gwc.header.y, gwc.header.z, gwc.header.w);
     getSSRender().drawText(vtype->proper_name.substr(0, 9), PTEXT_HZA_LEFT | PTEXT_VTA_CENTER);
     glPopMatrix(); // 1
 
     glPushMatrix(); // 1
-    glTranslatef(100.0f, 200.0f, 0.0f);
-    glScalef(20.0f, 20.0f, 1.0f);
+    q = glm::translate(glm::mat4(1.0f), glm::vec3(100.0f, 200.0f, 0.0f));
+    glLoadMatrixf(glm::value_ptr(o2 * q * scale_small));
     glColor4f(gwc.strong.x, gwc.strong.y, gwc.strong.z, gwc.strong.w);
     getSSRender().drawText(vtype->proper_class.substr(0, 8), PTEXT_HZA_LEFT | PTEXT_VTA_CENTER);
     glPopMatrix(); // 1
 
     glPushMatrix(); // 1
-    glTranslatef(500.0f, 230.0f, 0.0f);
-    glScalef(20.0f, 20.0f, 1.0f);
+    q = glm::translate(glm::mat4(1.0f), glm::vec3(500.0f, 230.0f, 0.0f));
+    glLoadMatrixf(glm::value_ptr(o2 * q * scale_small));
     glColor4f(gwc.weak.x, gwc.weak.y, gwc.weak.z, gwc.weak.w);
     getSSRender().drawText("Weight (Kg)", PTEXT_HZA_RIGHT | PTEXT_VTA_CENTER);
     glPopMatrix(); // 1
 
     glPushMatrix(); // 1
-    glTranslatef(500.0f, 190.0f, 0.0f);
-    glScalef(20.0f, 20.0f, 1.0f);
+    q = glm::translate(glm::mat4(1.0f), glm::vec3(500.0f, 190.0f, 0.0f));
+    glLoadMatrixf(glm::value_ptr(o2 * q * scale_small));
     glColor4f(gwc.weak.x, gwc.weak.y, gwc.weak.z, gwc.weak.w);
     getSSRender().drawText("Engine (BHP)", PTEXT_HZA_RIGHT | PTEXT_VTA_CENTER);
     glPopMatrix(); // 1
 
     glPushMatrix(); // 1
-    glTranslatef(500.0f, 150.0f, 0.0f);
-    glScalef(20.0f, 20.0f, 1.0f);
+    q = glm::translate(glm::mat4(1.0f), glm::vec3(500.0f, 150.0f, 0.0f));
+    glLoadMatrixf(glm::value_ptr(o2 * q * scale_small));
     glColor4f(gwc.weak.x, gwc.weak.y, gwc.weak.z, gwc.weak.w);
     getSSRender().drawText("Wheel drive", PTEXT_HZA_RIGHT | PTEXT_VTA_CENTER);
     glPopMatrix(); // 1
 
     glPushMatrix(); // 1
-    glTranslatef(500.0f, 110.0f, 0.0f);
-    glScalef(20.0f, 20.0f, 1.0f);
+    q = glm::translate(glm::mat4(1.0f), glm::vec3(500.0f, 110.0f, 0.0f));
+    glLoadMatrixf(glm::value_ptr(o2 * q * scale_small));
     glColor4f(gwc.weak.x, gwc.weak.y, gwc.weak.z, gwc.weak.w);
     getSSRender().drawText("Roadholding", PTEXT_HZA_RIGHT | PTEXT_VTA_CENTER);
     glPopMatrix(); // 1
 
     glPushMatrix(); // 1
-    glTranslatef(520.0f, 230.0f, 0.0f);
-    glScalef(30.0f, 30.0f, 1.0f);
+    q = glm::translate(glm::mat4(1.0f), glm::vec3(520.0f, 230.0f, 0.0f));
+    glLoadMatrixf(glm::value_ptr(o2 * q * scale_big));
     glColor4f(gwc.strong.x, gwc.strong.y, gwc.strong.z, gwc.strong.w);
     getSSRender().drawText(std::to_string(static_cast<int>(vtype->mass)), PTEXT_HZA_LEFT | PTEXT_VTA_CENTER);
     glPopMatrix(); // 1
 
     glPushMatrix(); // 1
-    glTranslatef(520.0f, 190.0f, 0.0f);
-    glScalef(30.0f, 30.0f, 1.0f);
+    q = glm::translate(glm::mat4(1.0f), glm::vec3(520.0f, 190.0f, 0.0f));
+    glLoadMatrixf(glm::value_ptr(o2 * q * scale_big));
     glColor4f(gwc.strong.x, gwc.strong.y, gwc.strong.z, gwc.strong.w);
     getSSRender().drawText(vtype->pstat_enginepower, PTEXT_HZA_LEFT | PTEXT_VTA_CENTER);
     glPopMatrix(); // 1
 
     glPushMatrix(); // 1
-    glTranslatef(520.0f, 150.0f, 0.0f);
-    glScalef(30.0f, 30.0f, 1.0f);
+    q = glm::translate(glm::mat4(1.0f), glm::vec3(520.0f, 150.0f, 0.0f));
+    glLoadMatrixf(glm::value_ptr(o2 * q * scale_big));
     glColor4f(gwc.strong.x, gwc.strong.y, gwc.strong.z, gwc.strong.w);
     getSSRender().drawText(vtype->pstat_wheeldrive, PTEXT_HZA_LEFT | PTEXT_VTA_CENTER);
     glPopMatrix(); // 1
 
     glPushMatrix(); // 1
-    glTranslatef(520.0f, 110.0f, 0.0f);
-    glScalef(30.0f, 30.0f, 1.0f);
+    q = glm::translate(glm::mat4(1.0f), glm::vec3(520.0f, 110.0f, 0.0f));
+    glLoadMatrixf(glm::value_ptr(o2 * q * scale_big));
     glColor4f(gwc.strong.x, gwc.strong.y, gwc.strong.z, gwc.strong.w);
     getSSRender().drawText(vtype->pstat_roadholding, PTEXT_HZA_LEFT | PTEXT_VTA_CENTER);
     glPopMatrix(); // 1
@@ -774,13 +801,11 @@ glMatrixMode(GL_PROJECTION);
         racename = levels[lss.currentlevel].name;
 
     glPushMatrix(); // 1
-    glTranslatef(400.0f, 30.0f, 0.0f);
-    glScalef(20.0f, 20.0f, 1.0f);
+    q = glm::translate(glm::mat4(1.0f), glm::vec3(400.0f, 30.0f, 0.0f));
+    glLoadMatrixf(glm::value_ptr(o2 * q * scale_small));
     glColor4f(gwc.weak.x, gwc.weak.y, gwc.weak.z, gwc.weak.w);
     getSSRender().drawText(racename, PTEXT_HZA_CENTER | PTEXT_VTA_CENTER);
     glPopMatrix(); // 1
-
-    glPopMatrix(); // 0
 
     glBlendFunc(GL_ONE, GL_ZERO);
     glEnable(GL_DEPTH_TEST);
@@ -886,48 +911,8 @@ void MainApp::renderStateGame(float eyetranslation)
         if (!renderowncar && v == 0) continue;
 
         PVehicle *vehic = game->vehicle[v];
-        for (unsigned int i=0; i<vehic->part.size(); ++i)
-        {
-            if (vehic->type->part[i].model)
-            {
-                glPushMatrix(); // 1
 
-                vec3f vpos = vehic->part[i].ref_world.pos;
-                glTranslatef(vpos.x, vpos.y, vpos.z);
-
-                mat44f vorim = vehic->part[i].ref_world.ori_mat_inv;
-                glMultMatrixf(vorim);
-
-                float scale = vehic->type->part[i].scale;
-                glScalef(scale,scale,scale);
-
-                drawModel(*vehic->type->part[i].model);
-
-                glPopMatrix(); // 1
-            }
-
-            if (vehic->type->wheelmodel)
-            {
-                for (unsigned int j=0; j<vehic->type->part[i].wheel.size(); j++)
-                {
-
-                    glPushMatrix(); // 1
-
-                    vec3f wpos = vehic->part[i].wheel[j].ref_world.getPosition();
-                    glTranslatef(wpos.x,wpos.y,wpos.z);
-
-                    mat44f worim = vehic->part[i].wheel[j].ref_world.ori_mat_inv;
-                    glMultMatrixf(worim);
-
-                    float scale = vehic->type->wheelscale * vehic->type->part[i].wheel[j].radius;
-                    glScalef(scale,scale,scale);
-
-                    drawModel(*vehic->type->wheelmodel);
-
-                    glPopMatrix(); // 1
-                }
-            }
-        }
+        renderVehicle(vehic);
     }
 
     glDisable(GL_LIGHTING);

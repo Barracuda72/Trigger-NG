@@ -1362,8 +1362,6 @@ void Gui::render()
   };
 
   for (unsigned int i = 0; i < widget.size(); i++) {
-    glPushMatrix();
-
     vec4f colc = vec4f(1.0f, 1.0f, 1.0f, 1.0f);
 
     if (widget[i].clickable) {
@@ -1384,6 +1382,8 @@ void Gui::render()
 
     glm::mat4 t = glm::translate(glm::mat4(1.0f), glm::vec3(pos.x, pos.y, 0.0f));
     t = glm::scale(t, glm::vec3(dims.x, dims.y, 1.0f));
+
+    glPushMatrix();
     glLoadMatrixf(glm::value_ptr(t));
 
     switch(widget[i].type) {

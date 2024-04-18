@@ -638,6 +638,8 @@ public:
 	void renderStateChoose(float eyetranslation);
 	void tickStateGame(float delta);
 	void renderStateGame(float eyetranslation);
+	void renderVehicle(PVehicle* vehic);
+	void renderVehicleType(PVehicleType* vtype);
 
 	void keyEvent(const SDL_KeyboardEvent &ke);
 	void mouseMoveEvent(int dx, int dy);
