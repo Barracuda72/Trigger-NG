@@ -1180,18 +1180,6 @@ void MainApp::handleLevelScreenKey(const SDL_KeyboardEvent &ke)
 
 void MainApp::renderStateLevel(float eyetranslation)
 {
-  float vbo[20] = {
-    0.0f, 0.0f,  -1.0f,-1.0f, 0.0f,
-    1.0f, 0.0f,   1.0f,-1.0f, 0.0f,
-    1.0f, 1.0f,   1.0f, 1.0f, 0.0f,
-    0.0f, 1.0f,  -1.0f, 1.0f, 0.0f,
-  };
-
-  unsigned int ibo[6] = {
-    0, 1, 2,
-    2, 3, 0,
-  };
-
   eyetranslation = eyetranslation;
 
   glBlendFunc(GL_ONE, GL_ZERO);
@@ -1215,16 +1203,7 @@ void MainApp::renderStateLevel(float eyetranslation)
   glColor4f(1.0f, 1.0f, 1.0f, 1.0f); // use image's normal colors
   //glColor4f(0.5f, 0.5f, 0.5f, 1.0f); // make image darker
 
-  glPushMatrix();
-  {
-  // the background image is square and cut out a piece based on aspect ratio
-  glm::mat4 t = glm::scale(glm::mat4(1.0f), glm::vec3((float)getWidth()/(float)getHeight(), 1.0f, 1.0f));
-  glLoadMatrixf(glm::value_ptr(t));
-
-  glInterleavedArrays(GL_T2F_V3F, 5 * sizeof(GL_FLOAT), vbo);
-  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, ibo);
-  }
-  glPopMatrix();
+  renderTexturedFullscreenQuad();
 
   glMatrixMode(GL_PROJECTION);
 

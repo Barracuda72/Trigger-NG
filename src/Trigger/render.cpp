@@ -291,14 +291,45 @@ void MainApp::render(float eyetranslation)
     glFinish();
 }
 
+void MainApp::renderTexturedFullscreenQuad()
+{
+    glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3((float)getWidth()/(float)getHeight(), 1.0f, 1.0f));
+    renderTexturedFullscreenQuad(scale);
+}
+
+void MainApp::renderTexturedFullscreenQuad(glm::mat4& scale)
+{
+  float vbo[20] = {
+    0.0f, 0.0f,  -1.0f,-1.0f, 0.0f,
+    1.0f, 0.0f,   1.0f,-1.0f, 0.0f,
+    1.0f, 1.0f,   1.0f, 1.0f, 0.0f,
+    0.0f, 1.0f,  -1.0f, 1.0f, 0.0f,
+  };
+
+  unsigned int ibo[6] = {
+    0, 1, 2,
+    2, 3, 0,
+  };
+
+  glPushMatrix();
+  {
+  // the background image is square and cut out a piece based on aspect ratio
+  glLoadMatrixf(glm::value_ptr(scale));
+
+  glInterleavedArrays(GL_T2F_V3F, 5 * sizeof(GL_FLOAT), vbo);
+  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, ibo);
+  }
+  glPopMatrix();
+}
+
 void MainApp::renderStateLoading(float eyetranslation)
 {
     UNREFERENCED_PARAMETER(eyetranslation);
 
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
-    glLoadIdentity();
-    glOrtho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
+    glm::mat4 o = glm::ortho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
+    glLoadMatrixf(glm::value_ptr(o));
     glMatrixMode(GL_MODELVIEW);
 
     tex_splash_screen->bind();
@@ -311,56 +342,13 @@ void MainApp::renderStateLoading(float eyetranslation)
 
     glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
-    glBegin(GL_QUADS);
-    // the background image is square and cut out a piece based on aspect ratio
-    // -------- if aspect ratio is larger than 4:3
-    // if aspect ratio is larger than 1:1
-    if ((float)getWidth()/(float)getHeight() > 1.0f)
-    {
-
-      // lower and upper offset based on aspect ratio
-      float off_l = (1 - ((float)getHeight() / (float)getWidth())) / 2.f;
-      float off_u = 1 - off_l;
-      glTexCoord2f(1.0f,off_u); glVertex2f(1.0f, 1.0f);
-      glTexCoord2f(0.0f,off_u); glVertex2f(-1.0f, 1.0f);
-      glTexCoord2f(0.0f,off_l); glVertex2f(-1.0f, -1.0f);
-      glTexCoord2f(1.0f,off_l); glVertex2f(1.0f, -1.0f);
-    }
-    // other cases (including 4:3, in which case off_l and off_u are = 1)
-    else
-    {
-
-      float off_l = (1 - ((float)getWidth() / (float)getHeight())) / 2.f;
-      float off_u = 1 - off_l;
-      glTexCoord2f(off_u,1.0f); glVertex2f(1.0f, 1.0f);
-      glTexCoord2f(off_l,1.0f); glVertex2f(-1.0f, 1.0f);
-      glTexCoord2f(off_l,0.0f); glVertex2f(-1.0f, -1.0f);
-      glTexCoord2f(off_u,0.0f); glVertex2f(1.0f, -1.0f);
-    }
-    glEnd();
+    renderTexturedFullscreenQuad();
 
     tex_loading_screen->bind();
 
-    GLfloat logovratio = static_cast<float> (getWidth()) / getHeight();
-    GLfloat logohratio = static_cast<float> (getHeight()) / getWidth();
-
-    // FIXME: nasty, nasty code
-    if (logovratio > 1.0f)
-        logohratio = 1.0f;
-    else
-    if (logohratio > 1.0f)
-        logovratio = 1.0f;
-
-#define LOGO_VRATIO     (logovratio/3.5)
-#define LOGO_HRATIO     (logohratio/3.5)
-    glBegin(GL_QUADS);
-      glTexCoord2f(1.0f, 1.0f); glVertex2f( LOGO_HRATIO,  LOGO_VRATIO);
-      glTexCoord2f(0.0f, 1.0f); glVertex2f(-LOGO_HRATIO,  LOGO_VRATIO);
-      glTexCoord2f(0.0f, 0.0f); glVertex2f(-LOGO_HRATIO, -LOGO_VRATIO);
-      glTexCoord2f(1.0f, 0.0f); glVertex2f( LOGO_HRATIO, -LOGO_VRATIO);
-    glEnd();
-#undef LOGO_VRATIO
-#undef LOGO_HRATIO
+    glm::mat4 s = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f, (float)getWidth()/(float)getHeight(), 1.0f));
+    s = glm::scale(s, glm::vec3(1.0f/3.5f, 1.0f/3.5f, 1.0f));
+    renderTexturedFullscreenQuad(s);
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_FOG);
@@ -1294,9 +1282,10 @@ void MainApp::renderStateGame(float eyetranslation)
 
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
-    glLoadIdentity();
 
-    glOrtho(0 - hratio, hratio, 0 - vratio, vratio, 0 - 1.0, 1.0);
+    glm::mat4 o = glm::ortho(0 - hratio, hratio, 0 - vratio, vratio, 0 - 1.0, 1.0);
+    glLoadMatrixf(glm::value_ptr(o));
+
     glMatrixMode(GL_MODELVIEW);
 
     glPushMatrix(); // 0
