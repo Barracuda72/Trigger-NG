@@ -1538,7 +1538,7 @@ void MainApp::renderStateGame(float eyetranslation)
       // show target time
 
       glColor4f(0.5f, 1.0f, 0.5f, 1.0f);
-      glPushMatrix(); // 2
+      glPushMatrix(); // 3
       glTranslatef(0.0f, -0.8f, 0.0f);
       getSSRender().drawText(PUtil::formatTime(game->targettime), PTEXT_HZA_LEFT | PTEXT_VTA_TOP);
 
@@ -1555,6 +1555,8 @@ void MainApp::renderStateGame(float eyetranslation)
             glTranslatef(0.0f, +1.60f, 0.0f);
         }
     }
+
+      glPopMatrix(); // 3
 
       // time label
 
