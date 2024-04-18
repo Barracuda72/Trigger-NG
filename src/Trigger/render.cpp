@@ -939,21 +939,41 @@ void MainApp::renderStateGame(float eyetranslation)
 // NOTE: must be greater than 1.0f
 #define SNOWFLAKE_MAXLIFE           4.5f
 
-    GLfloat ops; // Original Point Size, for to be restored
+    /*
+     * TODO: while we could use points for snowflakes in modern OpenGL, it is kinda point-less,
+     * because it won't lead to significant preformance improvements (if any at all).
+     * Rendering snowflakes as circles instead of points doesn't look as a good idea either.
+     * Thus I commented out the support for points but decided not to delete it entirely... just in case.
+     */
 
-    if (cfg_snowflaketype == SnowFlakeType::point)
+    //GLfloat ops; // Original Point Size, for to be restored
+
+    /*if (cfg_snowflaketype == SnowFlakeType::point)
     {
         glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
         glGetFloatv(GL_POINT_SIZE, &ops);
         glPointSize(SNOWFLAKE_POINT_SIZE);
     }
-    else
+    else*/
     if (cfg_snowflaketype == SnowFlakeType::textured)
     {
         glEnable(GL_TEXTURE_2D);
         glBlendFunc(GL_SRC_COLOR, GL_ONE);
         tex_snowflake->bind();
     }
+
+    // GL_T2F_V3F
+    // Texture coordinates will be ignored if texturing is disabled
+    float snow_vbo[20] = {
+        1.0f, 1.0f,  0.0f, 0.0f, 0.0f,
+        0.0f, 1.0f,  0.0f, 0.0f, 1.0f,
+        1.0f, 0.0f,  1.0f, 1.0f, 0.0f,
+        0.0f, 0.0f,  1.0f, 1.0f, 1.0f,
+    };
+
+    unsigned short snow_ibo[] = {
+        0, 1, 2, 3,
+    };
 
     for (const SnowFlake &sf: snowfall)
     {
@@ -975,52 +995,38 @@ void MainApp::renderStateGame(float eyetranslation)
         else
             alpha = 1.0f;
 
-        if (cfg_snowflaketype == SnowFlakeType::point)
+        /*if (cfg_snowflaketype == SnowFlakeType::point)
         {
             glBegin(GL_POINTS);
             glColor4f(1.0f, 1.0f, 1.0f, alpha);
             glVertex3fv(pt);
             glEnd();
         }
-        else
+        else*/
         {
-#define SBS     SNOWFLAKE_BOX_SIZE
             vec3f zag = campos - sf.drop_pt;
 
             zag = zag.cross(sf.drop_vect);
             zag.normalize();
-            zag *= SBS;
+            zag *= SNOWFLAKE_BOX_SIZE;
 
-            if (cfg_snowflaketype == SnowFlakeType::square)
-            {
-                glBegin(GL_TRIANGLE_STRIP);
-                glColor4f(1.0f, 1.0f, 1.0f, alpha);
-                glVertex3f(pt.x,            pt.y,           pt.z                );
-                glVertex3f(pt.x,            pt.y,           pt.z + zag.z + SBS  );
-                glVertex3f(pt.x + zag.x,    pt.y + zag.y,   pt.z                );
-                glVertex3f(pt.x + zag.x,    pt.y + zag.y,   pt.z + zag.z + SBS  );
-                glEnd();
-            }
-            else // cfg_snowflaketype == SnowFlakeType::textured
-            {
-                glBegin(GL_TRIANGLE_STRIP);
-                glColor4f(1.0f, 1.0f, 1.0f, alpha);
-                glTexCoord2f(1.0f, 1.0f);
-                glVertex3f(pt.x,            pt.y,           pt.z                );
-                glTexCoord2f(0.0f, 1.0f);
-                glVertex3f(pt.x,            pt.y,           pt.z + zag.z + SBS  );
-                glTexCoord2f(1.0f, 0.0f);
-                glVertex3f(pt.x + zag.x,    pt.y + zag.y,   pt.z                );
-                glTexCoord2f(0.0f, 0.0f);
-                glVertex3f(pt.x + zag.x,    pt.y + zag.y,   pt.z + zag.z + SBS  );
-                glEnd();
-            }
-#undef SBS
+            glm::mat4 t(1.0f);
+            glGetFloatv(GL_MODELVIEW_MATRIX, glm::value_ptr(t));
+            t = glm::translate(t, glm::vec3(pt.x, pt.y, pt.z));
+            t = glm::scale(t, glm::vec3(zag.x, zag.y, zag.z + SNOWFLAKE_BOX_SIZE));
+
+            glPushMatrix();
+            glLoadMatrixf(glm::value_ptr(t));
+
+            glColor4f(1.0f, 1.0f, 1.0f, alpha);
+            glInterleavedArrays(GL_T2F_V3F, 5 * sizeof(float), snow_vbo);
+            glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_SHORT, snow_ibo);
+            glPopMatrix();
         }
     }
 
-    if (cfg_snowflaketype == SnowFlakeType::point)
-        glPointSize(ops); // restore original point size
+    /*if (cfg_snowflaketype == SnowFlakeType::point)
+        glPointSize(ops); // restore original point size*/
 
     // disable textures
     if (cfg_snowflaketype == SnowFlakeType::textured)
