@@ -52,7 +52,7 @@ MessageCallback( GLenum source,
   (void)length;
   (void)userParam;
 
-  if (severity == GL_DEBUG_SEVERITY_NOTIFICATION || severity == GL_DEBUG_SEVERITY_LOW)
+  if (severity == GL_DEBUG_SEVERITY_NOTIFICATION)
     return; // Skip debug spam
 
   fprintf( stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
