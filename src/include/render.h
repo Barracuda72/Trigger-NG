@@ -6,6 +6,7 @@
 
 
 #include <cmath>
+#include <glm/mat4x4.hpp>
 #include "vbuffer.h"
 
 
@@ -99,7 +100,7 @@ public:
 
   void drawModel(PModel &model, PSSEffect &ssEffect, PSSTexture &ssTexture);
 
-  void drawText(const std::string &text, uint32 flags);
+  void drawText(const std::string &text, uint32 flags, const glm::mat4& transform);
   vec2f getTextDims(const std::string &text);
 };
 

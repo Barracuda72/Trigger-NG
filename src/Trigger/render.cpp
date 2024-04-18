@@ -497,17 +497,12 @@ void MainApp::renderStateEnd(float eyetranslation)
                 level -= amt2;
             }
 #endif
-            glPushMatrix();
-
             glm::mat4 q = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, (float)i * -2.0f, 0.0f));
             q = glm::scale(q, glm::vec3(enlarge, enlarge, 0.0f));
-
-            glLoadMatrixf(glm::value_ptr(t * q));
 
             glColor4f(1.0f, 1.0f, 1.0f, level);
 
             getSSRender().drawText(creditstext[i], PTEXT_HZA_CENTER | PTEXT_VTA_CENTER, t * q);
-            glPopMatrix();
         }
     }
 

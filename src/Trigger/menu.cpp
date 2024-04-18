@@ -1383,21 +1383,19 @@ void Gui::render()
     glm::mat4 t = glm::translate(glm::mat4(1.0f), glm::vec3(pos.x, pos.y, 0.0f));
     t = glm::scale(t, glm::vec3(dims.x, dims.y, 1.0f));
 
-    glPushMatrix();
-    glLoadMatrixf(glm::value_ptr(t));
-
     switch(widget[i].type) {
     case GWT_LABEL: {
-      ssRender->drawText(widget[i].text, PTEXT_HZA_LEFT | PTEXT_VTA_BOTTOM);
+      ssRender->drawText(widget[i].text, PTEXT_HZA_LEFT | PTEXT_VTA_BOTTOM, t);
       } break;
 
     case GWT_GRAPHIC: {
+      glPushMatrix();
+      glLoadMatrixf(glm::value_ptr(t));
       glInterleavedArrays(GL_T2F_V3F, 5 * sizeof(GL_FLOAT), vbo);
       glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, ibo);
+      glPopMatrix();
       } break;
     }
-
-    glPopMatrix();
   }
 }
 

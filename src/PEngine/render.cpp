@@ -231,7 +231,7 @@ void PSSRender::drawModel(PModel &model, PSSEffect &ssEffect, PSSTexture &ssText
 ///  (PTEXT_VTA_CENTER xor PTEXT_VTA_TOP) or
 ///  (PTEXT_HZA_CENTER xor PTEXT_HZA_RIGHT)
 ///
-void PSSRender::drawText(const std::string &text, uint32 flags)
+void PSSRender::drawText(const std::string &text, uint32 flags, const glm::mat4& transform)
 {
     // FIXME: what the aspect should be...
     const GLfloat font_aspect = 8.0f / 12.0f;
@@ -259,7 +259,7 @@ void PSSRender::drawText(const std::string &text, uint32 flags)
 
     glm::mat4 m;
     glGetFloatv(GL_MODELVIEW_MATRIX, glm::value_ptr(m));
-    glm::mat4 t = glm::translate(m, glm::vec3(x_offset * text.length() * font_aspect, y_offset, 0.0f));
+    glm::mat4 t = glm::translate(transform * m, glm::vec3(x_offset * text.length() * font_aspect, y_offset, 0.0f));
     glLoadMatrixf(glm::value_ptr(t));
 
     float* vbo = new float[(text.length()) * 4 * 5]; // N letters, each letter has 4 vertices, each vertex has 5 attributes
