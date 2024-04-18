@@ -1044,6 +1044,40 @@ void MainApp::renderStateGame(float eyetranslation)
 
     if (showcheckpoint)
     {
+        // GL_C4F_N3F_V3F
+        const int N_SPLITS = 20;
+
+        float* check_vbo = new float[(N_SPLITS) * 3 * 10];
+        memset(check_vbo, 0, (N_SPLITS) * 3 * 10 * sizeof(float));
+        unsigned short* check_ibo = new unsigned short[(N_SPLITS+1)*4];
+        vec4f col = checkpoint_col[2];
+
+        for (int i = 0; i < N_SPLITS; i++)
+        {
+            float a = i * 2 * PI / N_SPLITS;
+
+            for (int j = 0; j < 3; j++)
+            {
+                check_vbo[(i*3 + j) * 10 + 0] = col[0];
+                check_vbo[(i*3 + j) * 10 + 1] = col[1];
+                check_vbo[(i*3 + j) * 10 + 2] = col[2];
+                check_vbo[(i*3 + j) * 10 + 3] = col[3] * (j == 1);
+                // Skip normal
+                check_vbo[(i*3 + j) * 10 + 7] = cosf(a);
+                check_vbo[(i*3 + j) * 10 + 8] = sinf(a);
+                check_vbo[(i*3 + j) * 10 + 9] = j - 1;
+
+            }
+        }
+
+        for (int i = 0; i < N_SPLITS+1; i++) {
+            check_ibo[i * 2 + 0] = (i % N_SPLITS) * 3 + 0;
+            check_ibo[i * 2 + 1] = (i % N_SPLITS) * 3 + 1;
+
+            check_ibo[(i + N_SPLITS + 1) * 2 + 0] = (i % N_SPLITS) * 3 + 1;
+            check_ibo[(i + N_SPLITS + 1) * 2 + 1] = (i % N_SPLITS) * 3 + 2;
+        }
+
         for (unsigned int i=0; i<game->checkpt.size(); i++)
         {
             vec4f colr = checkpoint_col[2];
@@ -1054,8 +1088,10 @@ void MainApp::renderStateGame(float eyetranslation)
                 colr = checkpoint_col[1];
 
             glPushMatrix(); // 1
-            glTranslatef(game->checkpt[i].pt.x, game->checkpt[i].pt.y, game->checkpt[i].pt.z);
-            glScalef(25.0f, 25.0f, 1.0f);
+            glm::mat4 t(1.0f);
+            glGetFloatv(GL_MODELVIEW_MATRIX, glm::value_ptr(t));
+            t = glm::translate(t, glm::vec3(game->checkpt[i].pt.x, game->checkpt[i].pt.y, game->checkpt[i].pt.z));
+            t = glm::scale(t, glm::vec3(25.0f, 25.0f, 1.0f));
 
 #if 0 // Checkpoint style one
             glBegin(GL_TRIANGLE_STRIP);
@@ -1080,45 +1116,53 @@ void MainApp::renderStateGame(float eyetranslation)
 
             glEnd();
 #else // Regular checkpoint style
-            glBegin(GL_TRIANGLE_STRIP);
             float ht = sinf(cprotate * 6.0f) * 7.0f + 8.0f;
-            glColor4f(colr[0], colr[1], colr[2], 0.0f);
-            glVertex3f(1.0f, 0.0f, ht - 1.0f);
-            glColor4f(colr[0], colr[1], colr[2], colr[3]);
-            glVertex3f(1.0f, 0.0f, ht + 0.0f);
-            for (float a = PI/10.0f; a < PI*2.0f-0.01f; a += PI/10.0f)
+
+            t = glm::translate(t, glm::vec3(0.0f, 0.0f, ht));
+
+            glLoadMatrixf(glm::value_ptr(t));
+#if 0
+            glBegin(GL_TRIANGLE_STRIP);
+            for (int i = 0; i < N_SPLITS; i++)
+            //for (float a = PI/10.0f; a < PI*2.0f-0.01f; a += PI/10.0f)
             {
+                float a = i * 2 * PI / N_SPLITS;
                 glColor4f(colr[0], colr[1], colr[2], 0.0f);
-                glVertex3f(cosf(a), sinf(a), ht - 1.0f);
+                glVertex3f(cosf(a), sinf(a), - 1.0f);
                 glColor4f(colr[0], colr[1], colr[2], colr[3]);
-                glVertex3f(cosf(a), sinf(a), ht + 0.0f);
+                glVertex3f(cosf(a), sinf(a), + 0.0f);
             }
             glColor4f(colr[0], colr[1], colr[2], 0.0f);
-            glVertex3f(1.0f, 0.0f, ht - 1.0f);
+            glVertex3f(1.0f, 0.0f, - 1.0f);
             glColor4f(colr[0], colr[1], colr[2], colr[3]);
-            glVertex3f(1.0f, 0.0f, ht + 0.0f);
+            glVertex3f(1.0f, 0.0f, + 0.0f);
             glEnd();
 
             glBegin(GL_TRIANGLE_STRIP);
-            glColor4f(colr[0], colr[1], colr[2], colr[3]);
-            glVertex3f(1.0f, 0.0f, ht - 0.0f);
-            glColor4f(colr[0], colr[1], colr[2], 0.0f);
-            glVertex3f(1.0f, 0.0f, ht + 1.0f);
-            for (float a = PI/10.0f; a < PI*2.0f-0.01f; a += PI/10.0f)
+            for (int i = 0; i < N_SPLITS; i++)
+            //for (float a = PI/10.0f; a < PI*2.0f-0.01f; a += PI/10.0f)
             {
+                float a = i * 2 * PI / N_SPLITS;
                 glColor4f(colr[0], colr[1], colr[2], colr[3]);
-                glVertex3f(cosf(a), sinf(a), ht - 0.0f);
+                glVertex3f(cosf(a), sinf(a), - 0.0f);
                 glColor4f(colr[0], colr[1], colr[2], 0.0f);
-                glVertex3f(cosf(a), sinf(a), ht + 1.0f);
+                glVertex3f(cosf(a), sinf(a), + 1.0f);
             }
             glColor4f(colr[0], colr[1], colr[2], colr[3]);
-            glVertex3f(1.0f, 0.0f, ht - 0.0f);
+            glVertex3f(1.0f, 0.0f, - 0.0f);
             glColor4f(colr[0], colr[1], colr[2], 0.0f);
-            glVertex3f(1.0f, 0.0f, ht + 1.0f);
+            glVertex3f(1.0f, 0.0f, + 1.0f);
             glEnd();
+#else
+            glInterleavedArrays(GL_C4F_N3F_V3F, 10 * sizeof(float), check_vbo);
+            glDrawElements(GL_TRIANGLE_STRIP, (N_SPLITS+1)*4, GL_UNSIGNED_SHORT, check_ibo);
+#endif
 #endif
             glPopMatrix(); // 1
         }
+
+        delete[] check_vbo;
+        delete[] check_ibo;
 
 // codriver checkpoints rendering
 #ifdef INDEVEL
