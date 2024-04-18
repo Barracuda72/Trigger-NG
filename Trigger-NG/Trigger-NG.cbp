@@ -48,6 +48,7 @@
 		<Unit filename="../src/PEngine/model.cpp" />
 		<Unit filename="../src/PEngine/physfs_rw.cpp" />
 		<Unit filename="../src/PEngine/render.cpp" />
+		<Unit filename="../src/PEngine/shaders.cpp" />
 		<Unit filename="../src/PEngine/terrain.cpp" />
 		<Unit filename="../src/PEngine/texture.cpp" />
 		<Unit filename="../src/PEngine/util.cpp" />
@@ -73,6 +74,7 @@
 		<Unit filename="../src/include/physfs_utils.h" />
 		<Unit filename="../src/include/psim.h" />
 		<Unit filename="../src/include/render.h" />
+		<Unit filename="../src/include/shaders.h" />
 		<Unit filename="../src/include/subsys.h" />
 		<Unit filename="../src/include/terrainmap.h" />
 		<Unit filename="../src/include/vbuffer.h" />
