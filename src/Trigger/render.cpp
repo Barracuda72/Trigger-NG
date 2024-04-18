@@ -19,6 +19,7 @@
 
 #include <cmath>
 #include "main.h"
+#include "shaders.h"
 
 void MainApp::resize()
 {
@@ -174,7 +175,6 @@ void MainApp::renderSky(const mat44f &cammat)
     glPushMatrix(); // 1
     {
       glLoadMatrixf(cammat);
-      tex_sky[0]->bind();
 #define CLRANGE     10
 #define CLFACTOR    0.02//0.014
       {
@@ -211,32 +211,23 @@ void MainApp::renderSky(const mat44f &cammat)
             ibo[(y2 * (x_stride+1) + 2*CLRANGE+1)*2 + 1] = 0;
         }
 
+        #if 1
+        tex_sky[0]->bind();
         glInterleavedArrays(GL_T2F_V3F, 5 * sizeof(GL_FLOAT), vbo);
         glDrawElements(GL_TRIANGLE_STRIP, (2 * CLRANGE + 1)*(2 * CLRANGE)*2, GL_UNSIGNED_SHORT, ibo);
-
-        /*
-        GLuint vertexBuffer;
-        GLuint indexBuffer;
-
-        glGenBuffers(1, &vertexBuffer);
-        glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-        glBufferData(GL_ARRAY_BUFFER, 5 * sizeof(GL_FLOAT) * (2 * CLRANGE + 1)*(2 * CLRANGE), vbo, GL_STATIC_DRAW);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-        glGenBuffers(1, &indexBuffer);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, (2 * CLRANGE + 2)*(2 * CLRANGE)*2 * sizeof(unsigned short), ibo, GL_STATIC_DRAW);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+        #else
+        VAO vao(
+                vbo, 5 * sizeof(GL_FLOAT) * (2 * CLRANGE + 1)*(2 * CLRANGE),
+                ibo, (2 * CLRANGE + 2)*(2 * CLRANGE)*2 * sizeof(unsigned short)
+                );
 
         ShaderProgram sp("../data/shaders/sky_vsh.glsl", "../data/shaders/sky_fsh.glsl");
         sp.use();
 
-        glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+        vao.bind();
 
         sp.attrib("tex_coord", 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GL_FLOAT), 0);
         sp.attrib("vert_coord", 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GL_FLOAT), (const void*)(2 * sizeof(GL_FLOAT)));
-
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
 
         sp.uniform("t_transform", t);
 
@@ -245,9 +236,9 @@ void MainApp::renderSky(const mat44f &cammat)
 
         glDrawElements(GL_TRIANGLE_STRIP, (2 * CLRANGE + 1)*(2 * CLRANGE)*2, GL_UNSIGNED_SHORT, 0);
 
-        glDeleteBuffers(1, &vertexBuffer);
-        glDeleteBuffers(1, &indexBuffer);
-        */
+        vao.unbind();
+        glUseProgram(0);
+        #endif
 
         delete[] ibo;
         delete[] vbo;
