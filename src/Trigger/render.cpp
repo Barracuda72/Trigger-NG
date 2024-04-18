@@ -881,9 +881,25 @@ void MainApp::renderStateGame(float eyetranslation)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 #define RAINDROP_WIDTH          0.015
-    const vec4f raindrop_col(0.5,0.5,0.5,0.4);
+    const glm::vec4 raindrop_col(0.5,0.5,0.5,0.4);
 
     vec3f offsetdrops = campos - campos_prev;
+
+    float* vbo = new float[rain.size() * 6 * 10]; // 10 = 4 color, 3 normal (unused), 3 position
+    memset(vbo, 0, rain.size() * 6 * 10 * sizeof(float));
+    unsigned short* ibo = new unsigned short[rain.size() * 8]; // 2 extra for primitive restart
+
+    // Set color for all vertices
+    for (unsigned int i = 0; i < rain.size(); i++)
+    {
+        for (unsigned int j = 0; j < 6; j++)
+        {
+            vbo[(i * 6 + j)* 10 + 0] = raindrop_col.r;
+            vbo[(i * 6 + j)* 10 + 1] = raindrop_col.g;
+            vbo[(i * 6 + j)* 10 + 2] = raindrop_col.b;
+            vbo[(i * 6 + j)* 10 + 3] = raindrop_col.a * (j == 2 || j == 3);
+        }
+    }
 
     for (unsigned int i = 0; i < rain.size(); i++)
     {
@@ -894,24 +910,46 @@ void MainApp::renderStateGame(float eyetranslation)
         vec3f zag = campos - rain[i].drop_pt;
         zag = zag.cross(rain[i].drop_vect);
         zag *= RAINDROP_WIDTH / zag.length();
-        glBegin(GL_TRIANGLE_STRIP);
-        glColor4f(raindrop_col[0],raindrop_col[1],raindrop_col[2],0.0);
+
+        for (unsigned int j = 0; j < 6; j++)
+        {
+            float sign = j / 2 - 1.0f;
+            vec3f pt = (j%2 == 0) ? pt1 : pt2;
+            vec3f v = pt + sign * zag;
+
+            vbo[(i * 6 + j)* 10 + 7] = v.x;
+            vbo[(i * 6 + j)* 10 + 8] = v.y;
+            vbo[(i * 6 + j)* 10 + 9] = v.z;
+
+            ibo[i * 8 + j] = i * 6 + j;
+        }
+        ibo[i * 8 + 6] = 0; // Restart
+        ibo[i * 8 + 7] = 0;
+
+        /*glBegin(GL_TRIANGLE_STRIP);
+        glColor4f(raindrop_col.r,raindrop_col.g,raindrop_col.b,0.0);
         tempv = pt1 - zag;
         glVertex3fv(tempv);
         tempv = pt2 - zag;
         glVertex3fv(tempv);
 
-        glColor4fv(raindrop_col);
+        glColor4fv(glm::value_ptr(raindrop_col));
         glVertex3fv(pt1);
         glVertex3fv(pt2);
 
-        glColor4f(raindrop_col[0],raindrop_col[1],raindrop_col[2],0.0);
+        glColor4f(raindrop_col.r,raindrop_col.g,raindrop_col.b,0.0);
         tempv = pt1 + zag;
         glVertex3fv(tempv);
         tempv = pt2 + zag;
         glVertex3fv(tempv);
-        glEnd();
+        glEnd();*/
     }
+
+    glInterleavedArrays(GL_C4F_N3F_V3F, 10 * sizeof(float), vbo);
+    glDrawElements(GL_TRIANGLE_STRIP, rain.size() * 8, GL_UNSIGNED_SHORT, ibo);
+
+    delete[] ibo;
+    delete[] vbo;
 
 #define SNOWFLAKE_POINT_SIZE        3.0f
 #define SNOWFLAKE_BOX_SIZE          0.175f
