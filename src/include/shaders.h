@@ -29,3 +29,15 @@ class ShaderProgram {
 
         GLuint shader_id = 0;
 };
+
+class VAO {
+    public:
+        VAO(const float* vbo, size_t vbo_size, const unsigned short* ibo, size_t ibo_size);
+        ~VAO();
+        void bind();
+        void unbind();
+
+    private:
+        GLuint vertexBuffer = 0;
+        GLuint indexBuffer = 0;
+};

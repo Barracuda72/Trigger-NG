@@ -144,3 +144,34 @@ std::string ShaderProgram::readShader(const std::string& path)
     //std::cout << buffer.str() << std::endl;
     return buffer.str();
 }
+
+VAO::VAO(const float* vbo, size_t vbo_size, const unsigned short* ibo, size_t ibo_size)
+{
+    glGenBuffers(1, &vertexBuffer);
+    glGenBuffers(1, &indexBuffer);
+
+    bind();
+
+    glBufferData(GL_ARRAY_BUFFER, vbo_size, vbo, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, ibo_size, ibo, GL_STATIC_DRAW);
+
+    unbind();
+}
+
+VAO::~VAO()
+{
+    glDeleteBuffers(1, &vertexBuffer);
+    glDeleteBuffers(1, &indexBuffer);
+}
+
+void VAO::bind()
+{
+    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
+}
+
+void VAO::unbind()
+{
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+}
