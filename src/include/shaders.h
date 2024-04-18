@@ -17,8 +17,10 @@ class ShaderProgram {
         void use();
         void unuse();
         void uniform(const std::string& name, GLint i);
+        void uniform(const std::string& name, GLfloat f);
         void uniform(const std::string& name, glm::mat4& m);
         void uniform(const std::string& name, glm::mat3& m);
+        void uniform(const std::string& name, glm::vec3& v);
         void attrib(const std::string& name, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void *pointer);
 
     private:

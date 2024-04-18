@@ -28,6 +28,12 @@ void ShaderProgram::uniform(const std::string& name, GLint i)
     glUniform1i(u_id, i);
 }
 
+void ShaderProgram::uniform(const std::string& name, GLfloat f)
+{
+    GLint u_id = getUniformLocation(name);
+    glUniform1f(u_id, f);
+}
+
 void ShaderProgram::uniform(const std::string& name, glm::mat4& m)
 {
     GLint u_id = getUniformLocation(name);
@@ -38,6 +44,12 @@ void ShaderProgram::uniform(const std::string& name, glm::mat3& m)
 {
     GLint u_id = getUniformLocation(name);
     glUniformMatrix3fv(u_id, 1, GL_FALSE, glm::value_ptr(m));
+}
+
+void ShaderProgram::uniform(const std::string& name, glm::vec3& v)
+{
+    GLint u_id = getUniformLocation(name);
+    glUniform3fv(u_id, 1, glm::value_ptr(v));
 }
 
 void ShaderProgram::attrib(const std::string& name, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void *pointer) {
