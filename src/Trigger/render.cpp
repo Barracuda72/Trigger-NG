@@ -439,8 +439,8 @@ void MainApp::renderStateEnd(float eyetranslation)
 
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
-    glLoadIdentity();
-    glOrtho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
+    glm::mat4 o = glm::ortho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
+    glLoadMatrixf(glm::value_ptr(o));
     glMatrixMode(GL_MODELVIEW);
 
     tex_end_screen->bind();
@@ -452,57 +452,29 @@ void MainApp::renderStateEnd(float eyetranslation)
 
     glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
-    glBegin(GL_QUADS);
-    // the background image is square and cut out a piece based on aspect ratio
-    // -------- if aspect ratio is larger than 4:3
-    // if aspect ratio is larger than 1:1
-    if ((float)getWidth()/(float)getHeight() > 1.0f)
-    {
-
-      // lower and upper offset based on aspect ratio
-      float off_l = (1 - ((float)getHeight() / (float)getWidth())) / 2.f;
-      float off_u = 1 - off_l;
-      glTexCoord2f(1.0f,off_u); glVertex2f(1.0f, 1.0f);
-      glTexCoord2f(0.0f,off_u); glVertex2f(-1.0f, 1.0f);
-      glTexCoord2f(0.0f,off_l); glVertex2f(-1.0f, -1.0f);
-      glTexCoord2f(1.0f,off_l); glVertex2f(1.0f, -1.0f);
-    }
-    // other cases (including 4:3, in which case off_l and off_u are = 1)
-    else
-    {
-
-      float off_l = (1 - ((float)getWidth() / (float)getHeight())) / 2.f;
-      float off_u = 1 - off_l;
-      glTexCoord2f(off_u,1.0f); glVertex2f(1.0f, 1.0f);
-      glTexCoord2f(off_l,1.0f); glVertex2f(-1.0f, 1.0f);
-      glTexCoord2f(off_l,0.0f); glVertex2f(-1.0f, -1.0f);
-      glTexCoord2f(off_u,0.0f); glVertex2f(1.0f, -1.0f);
-    }
-    glEnd();
+    renderTexturedFullscreenQuad();
 
     tex_fontSourceCodeOutlined->bind();
 
     glMatrixMode(GL_PROJECTION);
     glPopMatrix();
+
     glPushMatrix();
-    glLoadIdentity();
-    glOrtho(0 - hratio, hratio, 0 - vratio, vratio, 0 - 1.0, 1.0);
+    o = glm::ortho(0 - hratio, hratio, 0 - vratio, vratio, 0 - 1.0, 1.0);
+    glLoadMatrixf(glm::value_ptr(o));
     //glOrtho(-1, 1, -1, 1, -1, 1);
     //glOrtho(800, 0, 600, 0, -1, 1);
     glMatrixMode(GL_MODELVIEW);
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    glPushMatrix();
-
     float scroll = splashtimeout;
     const float maxscroll = (float)(NUMCREDITSTRINGS - 1) * 2.0f;
     RANGEADJUST(scroll, 0.0f, 0.9f, -10.0f, maxscroll);
     CLAMP_UPPER(scroll, maxscroll);
 
-    glScalef(0.1f, 0.1f, 1.0f);
-
-    glTranslatef(0.0f, scroll, 0.0f);
+    glm::mat4 t = glm::scale(glm::mat4(1.0f), glm::vec3(0.1f, 0.1f, 1.0f));
+    t = glm::translate(t, glm::vec3(0.0f, scroll, 0.0f));
 
     for (int i = 0; i < (int)NUMCREDITSTRINGS; i++)
     {
@@ -512,9 +484,6 @@ void MainApp::renderStateEnd(float eyetranslation)
         if (level > 0.0f)
         {
             CLAMP_UPPER(level, 1.0f);
-
-            glPushMatrix();
-            glTranslatef(0.0f, (float)i * -2.0f, 0.0f);
 
             float enlarge = 1.0f;
 
@@ -528,16 +497,19 @@ void MainApp::renderStateEnd(float eyetranslation)
                 level -= amt2;
             }
 #endif
+            glPushMatrix();
 
-            glScalef(enlarge, enlarge, 0.0f);
+            glm::mat4 q = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, (float)i * -2.0f, 0.0f));
+            q = glm::scale(q, glm::vec3(enlarge, enlarge, 0.0f));
+
+            glLoadMatrixf(glm::value_ptr(t * q));
+
             glColor4f(1.0f, 1.0f, 1.0f, level);
 
             getSSRender().drawText(creditstext[i], PTEXT_HZA_CENTER | PTEXT_VTA_CENTER);
             glPopMatrix();
         }
     }
-
-    glPopMatrix();
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_FOG);
