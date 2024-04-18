@@ -211,7 +211,7 @@ void MainApp::renderSky(const mat44f &cammat)
             ibo[(y2 * (x_stride+1) + 2*CLRANGE+1)*2 + 1] = 0;
         }
 
-        #if 1
+        #if 0
         tex_sky[0]->bind();
         glInterleavedArrays(GL_T2F_V3F, 5 * sizeof(GL_FLOAT), vbo);
         glDrawElements(GL_TRIANGLE_STRIP, (2 * CLRANGE + 1)*(2 * CLRANGE)*2, GL_UNSIGNED_SHORT, ibo);
@@ -221,7 +221,7 @@ void MainApp::renderSky(const mat44f &cammat)
                 ibo, (2 * CLRANGE + 2)*(2 * CLRANGE)*2 * sizeof(unsigned short)
                 );
 
-        ShaderProgram sp("../data/shaders/sky_vsh.glsl", "../data/shaders/sky_fsh.glsl");
+        ShaderProgram sp("sky_vsh.glsl", "sky_fsh.glsl");
         sp.use();
 
         vao.bind();
@@ -235,9 +235,6 @@ void MainApp::renderSky(const mat44f &cammat)
         sp.uniform("tex", 0);
 
         glDrawElements(GL_TRIANGLE_STRIP, (2 * CLRANGE + 1)*(2 * CLRANGE)*2, GL_UNSIGNED_SHORT, 0);
-
-        vao.unbind();
-        glUseProgram(0);
         #endif
 
         delete[] ibo;
