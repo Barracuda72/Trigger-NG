@@ -24,7 +24,7 @@ WARNINGS        ?= -Wall -Wextra -pedantic
 OPTIMS          ?= -march=native -mtune=native -Ofast
 DMACROS         := -DNDEBUG -DUNIX -DPACKAGE_VERSION=\"$(DISTVER)\"
 INCDIRS         := -I'./include' -I'../glm'
-CXXFLAGS        += -std=c++11 $(WARNINGS) $(OPTIMS)
+CXXFLAGS        += -std=c++11 $(WARNINGS) $(OPTIMS) -g
 CPPFLAGS        += $(DMACROS) $(INCDIRS)
 EXTRA_LIBS      := -lSDL2main -lGL -lGLU -lGLEW -lSDL2 -lSDL2_image -lphysfs -lopenal -lalut -lpthread -ltinyxml2
 LDFLAGS         += $(EXTRA_LIBS)
@@ -135,7 +135,7 @@ $(TR_EXEFILE): $(OBJFILES)
 	@printf "\t-> %s\n" $@
 	@$(CXX) -o $@ $(OBJFILES) $(LDFLAGS)
 	@printf "strip\t%s\n" $@
-	@strip $@
+	#@strip $@
 
 #
 # removes object files, dependency files, executable and
