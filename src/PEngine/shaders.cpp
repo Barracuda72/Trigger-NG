@@ -34,22 +34,28 @@ void ShaderProgram::uniform(const std::string& name, GLfloat f)
     glUniform1f(u_id, f);
 }
 
-void ShaderProgram::uniform(const std::string& name, glm::mat4& m)
+void ShaderProgram::uniform(const std::string& name, const glm::mat4& m)
 {
     GLint u_id = getUniformLocation(name);
     glUniformMatrix4fv(u_id, 1, GL_FALSE, glm::value_ptr(m));
 }
 
-void ShaderProgram::uniform(const std::string& name, glm::mat3& m)
+void ShaderProgram::uniform(const std::string& name, const glm::mat3& m)
 {
     GLint u_id = getUniformLocation(name);
     glUniformMatrix3fv(u_id, 1, GL_FALSE, glm::value_ptr(m));
 }
 
-void ShaderProgram::uniform(const std::string& name, glm::vec3& v)
+void ShaderProgram::uniform(const std::string& name, const glm::vec3& v)
 {
     GLint u_id = getUniformLocation(name);
     glUniform3fv(u_id, 1, glm::value_ptr(v));
+}
+
+void ShaderProgram::uniform(const std::string& name, const glm::vec4& v)
+{
+    GLint u_id = getUniformLocation(name);
+    glUniform4fv(u_id, 1, glm::value_ptr(v));
 }
 
 void ShaderProgram::attrib(const std::string& name, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void *pointer) {
