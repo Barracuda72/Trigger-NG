@@ -59,34 +59,6 @@ void MainApp::resize()
     glEnable(GL_NORMALIZE);
 }
 
-/*
- * TODO: this function seems to be unused
- *
-void drawBlades(float radius, float ang, float trace)
-{
-    float invtrace = 1.0 / trace;
-    glPushMatrix();
-    glScalef(radius, radius, 1.0);
-    for (float ba=0; ba<PI*2.0-0.01; ba+=PI/2.0)
-    {
-        glBegin(GL_TRIANGLE_FAN);
-        glColor4f(0.1,0.1,0.1,0.24 * invtrace);
-        glVertex2f(0.0,0.0);
-        glColor4f(0.1,0.1,0.1,0.06 * invtrace);
-        int num = (int)(trace / 0.1);
-        if (num < 2) num = 2;
-        float mult = trace / (float)(num-1);
-        float angadd = ba + ang;
-        for (int i=0; i<num; ++i)
-        {
-            float a = (float)i * mult + angadd;
-            glVertex2f(cos(a),sin(a));
-        }
-        glEnd();
-    }
-    glPopMatrix();
-}*/
-
 void MainApp::renderWater()
 {
     tex_water->bind();
@@ -211,11 +183,6 @@ void MainApp::renderSky(const mat44f &cammat)
             ibo[(y2 * (x_stride+1) + 2*CLRANGE+1)*2 + 1] = 0;
         }
 
-        #if 0
-        tex_sky[0]->bind();
-        glInterleavedArrays(GL_T2F_V3F, 5 * sizeof(GL_FLOAT), vbo);
-        glDrawElements(GL_TRIANGLE_STRIP, (2 * CLRANGE + 1)*(2 * CLRANGE)*2, GL_UNSIGNED_SHORT, ibo);
-        #else
         glActiveTexture(GL_TEXTURE0);
         tex_sky[0]->bind();
         VAO vao(
@@ -236,7 +203,6 @@ void MainApp::renderSky(const mat44f &cammat)
         sp.uniform("tex", 0);
 
         glDrawElements(GL_TRIANGLE_STRIP, (2 * CLRANGE + 1)*(2 * CLRANGE)*2, GL_UNSIGNED_SHORT, 0);
-        #endif
 
         delete[] ibo;
         delete[] vbo;
@@ -289,15 +255,14 @@ void MainApp::renderTexturedFullscreenQuad()
 void MainApp::renderTexturedFullscreenQuad(glm::mat4& scale)
 {
   float vbo[20] = {
-    0.0f, 0.0f,  -1.0f,-1.0f, 0.0f,
-    1.0f, 0.0f,   1.0f,-1.0f, 0.0f,
-    1.0f, 1.0f,   1.0f, 1.0f, 0.0f,
     0.0f, 1.0f,  -1.0f, 1.0f, 0.0f,
+    0.0f, 0.0f,  -1.0f,-1.0f, 0.0f,
+    1.0f, 1.0f,   1.0f, 1.0f, 0.0f,
+    1.0f, 0.0f,   1.0f,-1.0f, 0.0f,
   };
 
-  unsigned int ibo[6] = {
-    0, 1, 2,
-    2, 3, 0,
+  unsigned int ibo[4] = {
+    0, 1, 2, 3,
   };
 
   glPushMatrix();
@@ -306,7 +271,7 @@ void MainApp::renderTexturedFullscreenQuad(glm::mat4& scale)
   glLoadMatrixf(glm::value_ptr(scale));
 
   glInterleavedArrays(GL_T2F_V3F, 5 * sizeof(GL_FLOAT), vbo);
-  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, ibo);
+  glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_INT, ibo);
   }
   glPopMatrix();
 }
@@ -1266,13 +1231,14 @@ void MainApp::renderStateGame(float eyetranslation)
             else if ((int)i == (vehic->nextcp + 1) % (int)game->checkpt.size())
                 colr = checkpoint_col[1];
 
-            //glPushMatrix(); // 1
             glm::mat4 t(1.0f);
             glGetFloatv(GL_MODELVIEW_MATRIX, glm::value_ptr(t));
             t = glm::translate(t, glm::vec3(game->checkpt[i].pt.x, game->checkpt[i].pt.y, game->checkpt[i].pt.z));
             t = glm::scale(t, glm::vec3(25.0f, 25.0f, 1.0f));
 
 #if 0 // Checkpoint style one (one strip)
+            glPushMatrix(); // 1
+            glLoadMatrixf(glm::value_ptr(t);
             glBegin(GL_TRIANGLE_STRIP);
 
             for (float a = 0.0f; a < 0.99f; a += 0.05f)
@@ -1294,53 +1260,16 @@ void MainApp::renderStateGame(float eyetranslation)
             }
 
             glEnd();
+            glPopMatrix(); // 1
 #else // Regular checkpoint style (two strips)
             float ht = sinf(cprotate * 6.0f) * 7.0f + 8.0f;
 
             t = glm::translate(t, glm::vec3(0.0f, 0.0f, ht));
 
-            //glLoadMatrixf(glm::value_ptr(t));
-#if 0
-            glBegin(GL_TRIANGLE_STRIP);
-            for (int i = 0; i < N_SPLITS; i++)
-            //for (float a = PI/10.0f; a < PI*2.0f-0.01f; a += PI/10.0f)
-            {
-                float a = i * 2 * PI / N_SPLITS;
-                glColor4f(colr[0], colr[1], colr[2], 0.0f);
-                glVertex3f(cosf(a), sinf(a), - 1.0f);
-                glColor4f(colr[0], colr[1], colr[2], colr[3]);
-                glVertex3f(cosf(a), sinf(a), + 0.0f);
-            }
-            glColor4f(colr[0], colr[1], colr[2], 0.0f);
-            glVertex3f(1.0f, 0.0f, - 1.0f);
-            glColor4f(colr[0], colr[1], colr[2], colr[3]);
-            glVertex3f(1.0f, 0.0f, + 0.0f);
-            glEnd();
-
-            glBegin(GL_TRIANGLE_STRIP);
-            for (int i = 0; i < N_SPLITS; i++)
-            //for (float a = PI/10.0f; a < PI*2.0f-0.01f; a += PI/10.0f)
-            {
-                float a = i * 2 * PI / N_SPLITS;
-                glColor4f(colr[0], colr[1], colr[2], colr[3]);
-                glVertex3f(cosf(a), sinf(a), - 0.0f);
-                glColor4f(colr[0], colr[1], colr[2], 0.0f);
-                glVertex3f(cosf(a), sinf(a), + 1.0f);
-            }
-            glColor4f(colr[0], colr[1], colr[2], colr[3]);
-            glVertex3f(1.0f, 0.0f, - 0.0f);
-            glColor4f(colr[0], colr[1], colr[2], 0.0f);
-            glVertex3f(1.0f, 0.0f, + 1.0f);
-            glEnd();
-#else
-            //glInterleavedArrays(GL_C4F_N3F_V3F, 10 * sizeof(float), check_vbo);
-            //glDrawElements(GL_TRIANGLE_STRIP, (N_SPLITS+1)*4, GL_UNSIGNED_SHORT, check_ibo);
             sp.uniform("color", glm::vec4(colr[0], colr[1], colr[2], colr[3]));
             sp.uniform("mv", t);
             glDrawElements(GL_TRIANGLE_STRIP, (N_SPLITS+1)*4, GL_UNSIGNED_SHORT, 0);
 #endif
-#endif
-            //glPopMatrix(); // 1
         }
 
         delete[] check_vbo;
