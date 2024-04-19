@@ -12,6 +12,7 @@
 
 class ShaderProgram {
     public:
+        ShaderProgram(const std::string& name);
         ShaderProgram(const std::string& vsh, const std::string& fsh);
         ~ShaderProgram();
         void use();

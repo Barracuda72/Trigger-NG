@@ -223,7 +223,7 @@ void MainApp::renderSky(const mat44f &cammat)
                 ibo, (2 * CLRANGE + 2)*(2 * CLRANGE)*2 * sizeof(unsigned short)
                 );
 
-        ShaderProgram sp("sky_vsh.glsl", "sky_fsh.glsl");
+        ShaderProgram sp("sky");
         sp.use();
 
         vao.bind();
@@ -845,7 +845,7 @@ void MainApp::renderMapMarker(const glm::vec2& vpos, float angle, const glm::vec
         );
     vao.bind();
 
-    ShaderProgram sp("map_marker_vsh.glsl", "map_marker_fsh.glsl");
+    ShaderProgram sp("map_marker");
     sp.use();
 
     sp.attrib("position", 2, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
@@ -1200,7 +1200,7 @@ void MainApp::renderStateGame(float eyetranslation)
 
     if (showcheckpoint)
     {
-        ShaderProgram sp("chkpt_vsh.glsl", "chkpt_fsh.glsl");
+        ShaderProgram sp("chkpt");
         sp.use();
 
         // GL_C4F_N3F_V3F

@@ -4,6 +4,11 @@
 
 #include "shaders.h"
 
+ShaderProgram::ShaderProgram(const std::string& name)
+{
+    shader_id = createShaderProgram(name + "_vsh.glsl", name + "_fsh.glsl");
+}
+
 ShaderProgram::ShaderProgram(const std::string& vsh, const std::string& fsh)
 {
     shader_id = createShaderProgram(vsh, fsh);
