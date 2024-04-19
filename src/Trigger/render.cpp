@@ -1715,22 +1715,41 @@ void MainApp::renderStateGame(float eyetranslation)
 
         if (!game->terrain->getRmapOnRoad(bodypos))
         {
-            glPushMatrix();
-            glLoadIdentity();
+            glm::mat4 t = glm::scale(glm::mat4(1.0f), glm::vec3(0.25f, 0.25f, 1.0f));
+
             glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-            glScalef(0.25f, 0.25f, 1.0f);
+
+            float vbo[16] = {
+                0.0f,   1.0f,  -1.0f,   1.0f,
+                0.0f,   0.0f,  -1.0f,  -1.0f,
+                1.0f,   1.0f,   1.0f,   1.0f,
+                1.0f,   0.0f,   1.0f,  -1.0f,
+            };
+
+            unsigned short ibo[4] = {
+                0, 1, 2, 3,
+            };
+
+            VAO vao(
+                vbo, 16 * sizeof(float),
+                ibo, 4 * sizeof(unsigned short)
+            );
+            vao.bind();
+
+            ShaderProgram sp("offroad_sign");
+            sp.use();
+            sp.attrib("tex_coord", 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GL_FLOAT), 0);
+            sp.attrib("position", 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GL_FLOAT), 2 * sizeof(GL_FLOAT));
+            sp.uniform("mv", t);
+
             tex_hud_offroad->bind();
-            glBegin(GL_QUADS);
-                glTexCoord2f(   1.0f,   1.0f);
-                glVertex2f(     1.0f,   1.0f);
-                glTexCoord2f(   0.0f,   1.0f);
-                glVertex2f(    -1.0f,   1.0f);
-                glTexCoord2f(   0.0f,   0.0f);
-                glVertex2f(    -1.0f,  -1.0f);
-                glTexCoord2f(   1.0f,   0.0f);
-                glVertex2f(     1.0f,  -1.0f);
-            glEnd();
-            glPopMatrix();
+            glActiveTexture(GL_TEXTURE0);
+            sp.uniform("offroad_sign", 0);
+
+            glDrawElements(GL_TRIANGLE_STRIP, 6, GL_UNSIGNED_SHORT, 0);
+
+            vao.unbind();
+            sp.unuse();
 
             glm::mat4 k = glm::scale(glm::mat4(1.0f), glm::vec3(0.1f, 0.1f, 1.0f));
             k = glm::translate(k, glm::vec3(0.0f, -2.5f, 0.0f));
