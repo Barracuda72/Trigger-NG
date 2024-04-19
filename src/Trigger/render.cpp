@@ -229,7 +229,7 @@ void MainApp::renderSky(const mat44f &cammat)
         vao.bind();
 
         sp.attrib("tex_coord", 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), 0);
-        sp.attrib("vert_coord", 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (const void*)(2 * sizeof(float)));
+        sp.attrib("vert_coord", 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), 2 * sizeof(float));
 
         sp.uniform("t_transform", t);
 
@@ -849,7 +849,7 @@ void MainApp::renderMapMarker(const glm::vec2& vpos, float angle, const glm::vec
     sp.use();
 
     sp.attrib("position", 2, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
-    sp.attrib("alpha", 1, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (const void*) (2 * sizeof(float)));
+    sp.attrib("alpha", 1, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 2 * sizeof(float));
 
     sp.uniform("v_color", col);
     sp.uniform("mv", t);
@@ -1245,8 +1245,8 @@ void MainApp::renderStateGame(float eyetranslation)
         vao.bind();
 
         sp.attrib("d_color", 4, GL_FLOAT, GL_FALSE, 10 * sizeof(float), 0);
-        sp.attrib("normal", 3, GL_FLOAT, GL_FALSE, 10 * sizeof(float), (const void*)(4 * sizeof(float)));
-        sp.attrib("position", 3, GL_FLOAT, GL_FALSE, 10 * sizeof(float), (const void*)(7 * sizeof(float)));
+        sp.attrib("normal", 3, GL_FLOAT, GL_FALSE, 10 * sizeof(float), 4 * sizeof(float));
+        sp.attrib("position", 3, GL_FLOAT, GL_FALSE, 10 * sizeof(float), 7 * sizeof(float));
 
         for (unsigned int i=0; i<game->checkpt.size(); i++)
         {

@@ -63,11 +63,11 @@ void ShaderProgram::uniform(const std::string& name, const glm::vec4& v)
     glUniform4fv(u_id, 1, glm::value_ptr(v));
 }
 
-void ShaderProgram::attrib(const std::string& name, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void *pointer) {
+void ShaderProgram::attrib(const std::string& name, GLint size, GLenum type, GLboolean normalized, GLsizei stride, size_t offset) {
     GLint a_id = getAttribLocation(name);
     enabled_attributes.push_back(a_id);
     glEnableVertexAttribArray(a_id);
-    glVertexAttribPointer(a_id, size, type, normalized, stride, pointer);
+    glVertexAttribPointer(a_id, size, type, normalized, stride, (const void*)offset);
 }
 
 void ShaderProgram::unuse() {

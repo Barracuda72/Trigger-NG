@@ -23,7 +23,7 @@ class ShaderProgram {
         void uniform(const std::string& name, const glm::mat3& m);
         void uniform(const std::string& name, const glm::vec3& v);
         void uniform(const std::string& name, const glm::vec4& v);
-        void attrib(const std::string& name, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void *pointer);
+        void attrib(const std::string& name, GLint size, GLenum type, GLboolean normalized, GLsizei stride, size_t offset);
 
     private:
         GLuint createShader(const std::string& code, GLenum type);
