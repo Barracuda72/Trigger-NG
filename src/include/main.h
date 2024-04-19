@@ -642,7 +642,7 @@ public:
 	void renderVehicleType(PVehicleType* vtype);
 	void renderRpmDial(float rpm);
 	void renderMap(int nextcp);
-	void renderMapMarker(const glm::vec2& vpos, float angle, const glm::vec4& col, float sc = 1.0f);
+	void renderMapMarker(const glm::mat4 t, const glm::vec2& vpos, float angle, const glm::vec4& col, float sc = 1.0f);
 
 	void keyEvent(const SDL_KeyboardEvent &ke);
 	void mouseMoveEvent(int dx, int dy);

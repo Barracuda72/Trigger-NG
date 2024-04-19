@@ -816,7 +816,7 @@ void MainApp::renderRpmDial(float rpm)
       glPopMatrix(); // 1
 }
 
-void MainApp::renderMapMarker(const glm::vec2& vpos, float angle, const glm::vec4& col, float sc)
+void MainApp::renderMapMarker(const glm::mat4 map_t, const glm::vec2& vpos, float angle, const glm::vec4& col, float sc)
 {
     // 2f position, 1f alpha
     float vbo[15] = {
@@ -832,9 +832,8 @@ void MainApp::renderMapMarker(const glm::vec2& vpos, float angle, const glm::vec
     };
 
     glm::mat4 t(1.0f);
-    glGetFloatv(GL_MODELVIEW_MATRIX, glm::value_ptr(t));
 
-    t = glm::translate(t, glm::vec3(vpos.x, vpos.y, 0.0f));
+    t = glm::translate(map_t, glm::vec3(vpos.x, vpos.y, 0.0f));
     t = glm::rotate(t, angle, glm::vec3(0.0f, 0.0f, 1.0f));
     t = glm::scale(t, glm::vec3(30.0f, 30.0f, 1.0f));
     t = glm::scale(t, glm::vec3(sc, sc, 1.0f));
@@ -859,12 +858,11 @@ void MainApp::renderMapMarker(const glm::vec2& vpos, float angle, const glm::vec
 
 void MainApp::renderMap(int nextcp)
 {
-// position and size of map
+        // position and size of map
         //glViewport(getWidth() * (5.75f/100.f), getHeight() * (6.15f/100.f), getHeight()/3.5f, getHeight()/3.5f);
         glViewport(getWidth() * (2.5f/100.f), getHeight() * (2.5f/100.f), getHeight()/3.5f, getHeight()/3.5f);
 
-        glPushMatrix(); // 1
-        glScalef(hratio, vratio, 1.0f);
+        glm::mat4 s = glm::scale(glm::mat4(1.0f), glm::vec3(hratio, vratio, 1.0f));
 
         if (game->terrain->getHUDMapTexture())
         {
@@ -872,35 +870,49 @@ void MainApp::renderMap(int nextcp)
             game->terrain->getHUDMapTexture()->bind();
         }
 
-        glMatrixMode(GL_TEXTURE);
-        glPushMatrix();
         float scalefac = 1.0f / game->terrain->getMapSize();
-        glScalef(scalefac, scalefac, 1.0f);
-        glTranslatef(campos.x, campos.y, 0.0f);
-        glRotatef(DEGREES(camera_angle), 0.0f, 0.0f, 1.0f);
-        glScalef(1.0f / 0.003f, 1.0f / 0.003f, 1.0f);
+        glm::mat4 tex_t(1.0f);
+        tex_t = glm::scale(tex_t, glm::vec3(scalefac, scalefac, 1.0f));
+        tex_t = glm::translate(tex_t, glm::vec3(campos.x, campos.y, 0.0f));
+        tex_t = glm::rotate(tex_t, camera_angle, glm::vec3(0.0f, 0.0f, 1.0f));
+        tex_t = glm::scale(tex_t, glm::vec3(1.0f / 0.003f, 1.0f / 0.003f, 1.0f));
 
-        glBegin(GL_QUADS);
-        glColor4f(1.0f, 1.0f, 1.0f, 0.7f);
-        glTexCoord2f(1.0f, 1.0f);
-        glVertex2f(1.0f, 1.0f);
-        glTexCoord2f(-1.0f, 1.0f);
-        glVertex2f(-1.0f, 1.0f);
-        glTexCoord2f(-1.0f, -1.0f);
-        glVertex2f(-1.0f, -1.0f);
-        glTexCoord2f(1.0f, -1.0f);
-        glVertex2f(1.0f, -1.0f);
-        glEnd();
+        float map_vbo[8] = {
+           -1.0f,  1.0f,
+           -1.0f, -1.0f,
+            1.0f,  1.0f,
+            1.0f, -1.0f,
+        };
+        unsigned short map_ibo[4] = {
+            0, 1, 2, 3,
+        };
 
-        glPopMatrix();
-        glMatrixMode(GL_MODELVIEW);
+        VAO vao(
+            map_vbo, 8 * sizeof(float),
+            map_ibo, 4 * sizeof(unsigned short)
+            );
+        vao.bind();
+
+        ShaderProgram sp("map");
+        sp.use();
+        sp.attrib("position", 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GL_FLOAT), 0);
+
+        glActiveTexture(GL_TEXTURE0);
+        sp.uniform("map_texure", 0);
+        sp.uniform("tex_transform", tex_t);
+        sp.uniform("mv", s);
+
+        glDrawElements(GL_TRIANGLE_STRIP, 6, GL_UNSIGNED_SHORT, 0);
+        sp.unuse();
+        vao.unbind();
 
         glDisable(GL_TEXTURE_2D);
 
-        glPushMatrix(); // 2
-        glScalef(0.003f, 0.003f, 1.0f);
-        glRotatef(DEGREES(-camera_angle), 0.0f, 0.0f, 1.0f);
-        glTranslatef(-campos.x, -campos.y, 0.0f);
+        glm::mat4 t(1.0f);
+        t = glm::scale(s, glm::vec3(0.003f, 0.003f, 1.0f));
+        t = glm::rotate(t, -camera_angle, glm::vec3(0.0f, 0.0f, 1.0f));
+        t = glm::translate(t, glm::vec3(-campos.x, -campos.y, 0.0f));
+
         for (unsigned int i=0; i<game->checkpt.size(); i++)
         {
             vec3f vpos = game->checkpt[i].pt;
@@ -920,18 +932,15 @@ void MainApp::renderMap(int nextcp)
 
             glm::vec2 v_pos = glm::vec2(vpos.x, vpos.y);
             glm::vec4 col = glm::vec4(colr[0], colr[1], colr[2], colr[3]);
-            renderMapMarker(v_pos, camera_angle, col, sc);
+            renderMapMarker(t, v_pos, camera_angle, col, sc);
         }
         for (unsigned int i=0; i<game->vehicle.size(); i++)
         {
             vec3f vpos = game->vehicle[i]->body->getPosition();
             glm::vec2 v_pos = glm::vec2(vpos.x, vpos.y);
             glm::vec4 col = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-            renderMapMarker(v_pos, camera_angle, col);
+            renderMapMarker(t, v_pos, camera_angle, col);
         }
-        glPopMatrix(); // 2
-
-        glPopMatrix(); // 1
 
         glViewport(0, 0, getWidth(), getHeight());
 }
