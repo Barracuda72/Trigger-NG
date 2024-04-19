@@ -818,23 +818,43 @@ void MainApp::renderRpmDial(float rpm)
 
 void MainApp::renderMapMarker(const glm::vec2& vpos, float angle, const glm::vec4& col, float sc)
 {
-    glPushMatrix();
-    glTranslatef(vpos.x, vpos.y, 0.0f);
-    glRotatef(DEGREES(angle), 0.0f, 0.0f, 1.0f);
-    glScalef(30.0f, 30.0f, 1.0f);
-    glScalef(sc, sc, 1.0f);
+    // 2f position, 1f alpha
+    float vbo[15] = {
+        0.0f, 0.0f,  1.0f,
+        1.0f, 0.0f,  0.0f,
+        0.0f, 1.0f,  0.0f,
+       -1.0f, 0.0f,  0.0f,
+        0.0f,-1.0f,  0.0f,
+    };
+    // Fan
+    unsigned short ibo[6] = {
+        0, 1, 2, 3, 4, 1,
+    };
 
-    glBegin(GL_TRIANGLE_FAN);
-    glColor4fv(glm::value_ptr(col));
-    glVertex2f(0.0f, 0.0f);
-    glColor4f(col.r, col.g, col.b, 0.0f);
-    glVertex2f(1.0f, 0.0f);
-    glVertex2f(0.0f, 1.0f);
-    glVertex2f(-1.0f, 0.0f);
-    glVertex2f(0.0f, -1.0f);
-    glVertex2f(1.0f, 0.0f);
-    glEnd();
-    glPopMatrix();
+    glm::mat4 t(1.0f);
+    glGetFloatv(GL_MODELVIEW_MATRIX, glm::value_ptr(t));
+
+    t = glm::translate(t, glm::vec3(vpos.x, vpos.y, 0.0f));
+    t = glm::rotate(t, angle, glm::vec3(0.0f, 0.0f, 1.0f));
+    t = glm::scale(t, glm::vec3(30.0f, 30.0f, 1.0f));
+    t = glm::scale(t, glm::vec3(sc, sc, 1.0f));
+
+    VAO vao(
+        vbo, 5 * 3 * sizeof(float),
+        ibo, 6 * sizeof(unsigned short)
+        );
+    vao.bind();
+
+    ShaderProgram sp("map_marker_vsh.glsl", "map_marker_fsh.glsl");
+    sp.use();
+
+    sp.attrib("position", 2, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
+    sp.attrib("alpha", 1, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (const void*) (2 * sizeof(float)));
+
+    sp.uniform("v_color", col);
+    sp.uniform("mv", t);
+
+    glDrawElements(GL_TRIANGLE_FAN, 6, GL_UNSIGNED_SHORT, 0);
 }
 
 void MainApp::renderMap(int nextcp)
