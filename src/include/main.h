@@ -640,6 +640,7 @@ public:
 	void renderStateGame(float eyetranslation);
 	void renderVehicle(PVehicle* vehic);
 	void renderVehicleType(PVehicleType* vtype);
+	void renderRpmDial(float rpm);
 
 	void keyEvent(const SDL_KeyboardEvent &ke);
 	void mouseMoveEvent(int dx, int dy);

@@ -771,6 +771,51 @@ glMatrixMode(GL_PROJECTION);
     glMatrixMode(GL_MODELVIEW);
 }
 
+void MainApp::renderRpmDial(float rpm)
+{
+    // GL_T2F_V3F
+    const float vbo[20] = {
+      0.0f,1.0f, -1.0f, 1.0f, 0.0f,
+      0.0f,0.0f, -1.0f,-1.0f, 0.0f,
+      1.0f,1.0f,  1.0f, 1.0f, 0.0f,
+      1.0f,0.0f,  1.0f,-1.0f, 0.0f,
+    };
+
+    const unsigned short ibo[4] = {
+        0, 1, 2, 3,
+    };
+
+      glPushMatrix(); // 1
+      // position of rpm dial and needle
+      //glTranslatef( hratio * (1.f - (5.75f/50.f)) - 0.3f, -vratio * (40.f/50.f) + 0.22f, 0.0f);
+
+      glm::mat4 t = glm::translate(glm::mat4(1.0f), glm::vec3(hratio * (1.f - (2.5f/50.f)) - 0.3f, -vratio * (43.5f/50.f) + 0.22f, 0.0f));
+      t = glm::scale(t, glm::vec3(0.30f, 0.30f, 1.0f));
+      glLoadMatrixf(glm::value_ptr(t));
+
+      tex_hud_revs->bind();
+
+      glColor3f(1.0f, 1.0f, 1.0f);
+      glInterleavedArrays(GL_T2F_V3F, 5 * sizeof(float), vbo);
+      glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_SHORT, ibo);
+
+      // draw the needle of the RPM dial
+      const float my_pi = 3.67f; // TODO: I know that's stupid, but... whatever
+      t = glm::rotate(t, (my_pi / 4 * 5) - (rpm / 1000.0f) * (my_pi / 12.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+      t = glm::translate(t, glm::vec3(0.62f, 0.0f, 0.0f));
+      t = glm::scale(t, glm::vec3(0.16f, 0.16f, 0.16f));
+      glLoadMatrixf(glm::value_ptr(t));
+
+      tex_hud_revneedle->bind();
+
+      glColor3f(1.0f, 1.0f, 1.0f);
+      glInterleavedArrays(GL_T2F_V3F, 5 * sizeof(float), vbo);
+      glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_SHORT, ibo);
+
+      glDisable(GL_TEXTURE_2D); // TODO: WTH it's here???
+      glPopMatrix(); // 1
+}
+
 void MainApp::renderStateGame(float eyetranslation)
 {
     PVehicle *vehic = game->vehicle[0];
@@ -1285,45 +1330,7 @@ void MainApp::renderStateGame(float eyetranslation)
     {
         game->renderCodriverSigns();
 
-      glPushMatrix(); // 1
-      // position of rpm dial and needle
-      //glTranslatef( hratio * (1.f - (5.75f/50.f)) - 0.3f, -vratio * (40.f/50.f) + 0.22f, 0.0f);
-      glTranslatef( hratio * (1.f - (2.5f/50.f)) - 0.3f, -vratio * (43.5f/50.f) + 0.22f, 0.0f);
-      glScalef(0.30f, 0.30f, 1.0f);
-
-      tex_hud_revs->bind();
-      glColor3f(1.0f, 1.0f, 1.0f);
-      glBegin(GL_QUADS);
-      glTexCoord2f(1.0f,1.0f);
-      glVertex2f(1.0f,1.0f);
-      glTexCoord2f(0.0f,1.0f);
-      glVertex2f(-1.0f,1.0f);
-      glTexCoord2f(0.0f,0.0f);
-      glVertex2f(-1.0f,-1.0f);
-      glTexCoord2f(1.0f,0.0f);
-      glVertex2f(1.0f,-1.0f);
-      glEnd();
-
-      // draw the needle of the RPM dial
-      glRotatef(225.0f - vehic->getEngineRPM() * 15.0f / 1000.0f, 0.0f, 0.0f, 1.0f);
-      tex_hud_revneedle->bind();
-      glColor3f(1.0f, 1.0f, 1.0f);
-      glPushMatrix(); // 2
-      glTranslatef(0.62f, 0.0f, 0.0f);
-      glScalef(0.16f, 0.16f, 0.16f);
-      glBegin(GL_QUADS);
-      glTexCoord2f(1.0f,1.0f);
-      glVertex2f(1.0f,1.0f);
-      glTexCoord2f(0.0f,1.0f);
-      glVertex2f(-1.0f,1.0f);
-      glTexCoord2f(0.0f,0.0f);
-      glVertex2f(-1.0f,-1.0f);
-      glTexCoord2f(1.0f,0.0f);
-      glVertex2f(1.0f,-1.0f);
-      glEnd();
-      glPopMatrix(); // 2
-      glDisable(GL_TEXTURE_2D);
-      glPopMatrix(); // 1
+        renderRpmDial(vehic->getEngineRPM());
     }
 
     // checkpoint pointing arrow thing
