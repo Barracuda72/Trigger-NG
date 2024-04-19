@@ -816,6 +816,106 @@ void MainApp::renderRpmDial(float rpm)
       glPopMatrix(); // 1
 }
 
+void MainApp::renderMapMarker(const glm::vec2& vpos, float angle, const glm::vec4& col, float sc)
+{
+    glPushMatrix();
+    glTranslatef(vpos.x, vpos.y, 0.0f);
+    glRotatef(DEGREES(angle), 0.0f, 0.0f, 1.0f);
+    glScalef(30.0f, 30.0f, 1.0f);
+    glScalef(sc, sc, 1.0f);
+
+    glBegin(GL_TRIANGLE_FAN);
+    glColor4fv(glm::value_ptr(col));
+    glVertex2f(0.0f, 0.0f);
+    glColor4f(col.r, col.g, col.b, 0.0f);
+    glVertex2f(1.0f, 0.0f);
+    glVertex2f(0.0f, 1.0f);
+    glVertex2f(-1.0f, 0.0f);
+    glVertex2f(0.0f, -1.0f);
+    glVertex2f(1.0f, 0.0f);
+    glEnd();
+    glPopMatrix();
+}
+
+void MainApp::renderMap(int nextcp)
+{
+// position and size of map
+        //glViewport(getWidth() * (5.75f/100.f), getHeight() * (6.15f/100.f), getHeight()/3.5f, getHeight()/3.5f);
+        glViewport(getWidth() * (2.5f/100.f), getHeight() * (2.5f/100.f), getHeight()/3.5f, getHeight()/3.5f);
+
+        glPushMatrix(); // 1
+        glScalef(hratio, vratio, 1.0f);
+
+        if (game->terrain->getHUDMapTexture())
+        {
+            glEnable(GL_TEXTURE_2D);
+            game->terrain->getHUDMapTexture()->bind();
+        }
+
+        glMatrixMode(GL_TEXTURE);
+        glPushMatrix();
+        float scalefac = 1.0f / game->terrain->getMapSize();
+        glScalef(scalefac, scalefac, 1.0f);
+        glTranslatef(campos.x, campos.y, 0.0f);
+        glRotatef(DEGREES(camera_angle), 0.0f, 0.0f, 1.0f);
+        glScalef(1.0f / 0.003f, 1.0f / 0.003f, 1.0f);
+
+        glBegin(GL_QUADS);
+        glColor4f(1.0f, 1.0f, 1.0f, 0.7f);
+        glTexCoord2f(1.0f, 1.0f);
+        glVertex2f(1.0f, 1.0f);
+        glTexCoord2f(-1.0f, 1.0f);
+        glVertex2f(-1.0f, 1.0f);
+        glTexCoord2f(-1.0f, -1.0f);
+        glVertex2f(-1.0f, -1.0f);
+        glTexCoord2f(1.0f, -1.0f);
+        glVertex2f(1.0f, -1.0f);
+        glEnd();
+
+        glPopMatrix();
+        glMatrixMode(GL_MODELVIEW);
+
+        glDisable(GL_TEXTURE_2D);
+
+        glPushMatrix(); // 2
+        glScalef(0.003f, 0.003f, 1.0f);
+        glRotatef(DEGREES(-camera_angle), 0.0f, 0.0f, 1.0f);
+        glTranslatef(-campos.x, -campos.y, 0.0f);
+        for (unsigned int i=0; i<game->checkpt.size(); i++)
+        {
+            vec3f vpos = game->checkpt[i].pt;
+            float sc = 1.0f;
+
+            vec4f colr = checkpoint_col[2];
+
+            if ((int)i == nextcp)
+            {
+                sc = 1.5f + sinf(cprotate * 10.0f) * 0.5f;
+                colr = checkpoint_col[0];
+            }
+            else if ((int)i == (nextcp + 1) % (int)game->checkpt.size())
+            {
+                colr = checkpoint_col[1];
+            }
+
+            glm::vec2 v_pos = glm::vec2(vpos.x, vpos.y);
+            glm::vec4 col = glm::vec4(colr[0], colr[1], colr[2], colr[3]);
+            renderMapMarker(v_pos, camera_angle, col, sc);
+        }
+        for (unsigned int i=0; i<game->vehicle.size(); i++)
+        {
+            vec3f vpos = game->vehicle[i]->body->getPosition();
+            glm::vec2 v_pos = glm::vec2(vpos.x, vpos.y);
+            glm::vec4 col = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+            renderMapMarker(v_pos, camera_angle, col);
+        }
+        glPopMatrix(); // 2
+
+        glPopMatrix(); // 1
+
+        glViewport(0, 0, getWidth(), getHeight());
+}
+
 void MainApp::renderStateGame(float eyetranslation)
 {
     PVehicle *vehic = game->vehicle[0];
@@ -1077,13 +1177,6 @@ void MainApp::renderStateGame(float eyetranslation)
         glDisable(GL_TEXTURE_2D);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
-
-    const vec4f checkpoint_col[3] =
-    {
-        vec4f(1.0f, 0.0f, 0.0f, 0.8f),  // 0 = next checkpoint
-        vec4f(0.7f, 0.7f, 0.1f, 0.6f),  // 1 = checkpoint after next
-        vec4f(0.2f, 0.8f, 0.2f, 0.4f)  // 2 = all other checkpoints
-    };
 
     if (showcheckpoint)
     {
@@ -1375,103 +1468,7 @@ void MainApp::renderStateGame(float eyetranslation)
 
     if (showmap)
     {
-        // position and size of map
-        //glViewport(getWidth() * (5.75f/100.f), getHeight() * (6.15f/100.f), getHeight()/3.5f, getHeight()/3.5f);
-        glViewport(getWidth() * (2.5f/100.f), getHeight() * (2.5f/100.f), getHeight()/3.5f, getHeight()/3.5f);
-
-        glPushMatrix(); // 1
-        glScalef(hratio, vratio, 1.0f);
-
-        if (game->terrain->getHUDMapTexture())
-        {
-            glEnable(GL_TEXTURE_2D);
-            game->terrain->getHUDMapTexture()->bind();
-        }
-
-        glMatrixMode(GL_TEXTURE);
-        glPushMatrix();
-        float scalefac = 1.0f / game->terrain->getMapSize();
-        glScalef(scalefac, scalefac, 1.0f);
-        glTranslatef(campos.x, campos.y, 0.0f);
-        glRotatef(DEGREES(camera_angle), 0.0f, 0.0f, 1.0f);
-        glScalef(1.0f / 0.003f, 1.0f / 0.003f, 1.0f);
-
-        glBegin(GL_QUADS);
-        glColor4f(1.0f, 1.0f, 1.0f, 0.7f);
-        glTexCoord2f(1.0f, 1.0f);
-        glVertex2f(1.0f, 1.0f);
-        glTexCoord2f(-1.0f, 1.0f);
-        glVertex2f(-1.0f, 1.0f);
-        glTexCoord2f(-1.0f, -1.0f);
-        glVertex2f(-1.0f, -1.0f);
-        glTexCoord2f(1.0f, -1.0f);
-        glVertex2f(1.0f, -1.0f);
-        glEnd();
-
-        glPopMatrix();
-        glMatrixMode(GL_MODELVIEW);
-
-        glDisable(GL_TEXTURE_2D);
-
-        glPushMatrix(); // 2
-        glScalef(0.003f, 0.003f, 1.0f);
-        glRotatef(DEGREES(-camera_angle), 0.0f, 0.0f, 1.0f);
-        glTranslatef(-campos.x, -campos.y, 0.0f);
-        for (unsigned int i=0; i<game->checkpt.size(); i++)
-        {
-            glPushMatrix();
-            vec3f vpos = game->checkpt[i].pt;
-            glTranslatef(vpos.x, vpos.y, 0.0f);
-            glRotatef(DEGREES(camera_angle), 0.0f, 0.0f, 1.0f);
-            glScalef(30.0f, 30.0f, 1.0f);
-            vec4f colr = checkpoint_col[2];
-            if ((int)i == vehic->nextcp)
-            {
-                float sc = 1.5f + sinf(cprotate * 10.0f) * 0.5f;
-                glScalef(sc, sc, 1.0f);
-                colr = checkpoint_col[0];
-            }
-            else if ((int)i == (vehic->nextcp + 1) % (int)game->checkpt.size())
-            {
-                colr = checkpoint_col[1];
-            }
-            glBegin(GL_TRIANGLE_FAN);
-            glColor4fv(colr);
-            glVertex2f(0.0f, 0.0f);
-            glColor4f(colr[0], colr[1], colr[2], 0.0f);
-            //glColor4f(1.0f, 1.0f, 1.0f, 0.0f);
-            glVertex2f(1.0f, 0.0f);
-            glVertex2f(0.0f, 1.0f);
-            glVertex2f(-1.0f, 0.0f);
-            glVertex2f(0.0f, -1.0f);
-            glVertex2f(1.0f, 0.0f);
-            glEnd();
-            glPopMatrix();
-        }
-        for (unsigned int i=0; i<game->vehicle.size(); i++)
-        {
-            glPushMatrix();
-            vec3f vpos = game->vehicle[i]->body->getPosition();
-            glTranslatef(vpos.x, vpos.y, 0.0f);
-            glRotatef(DEGREES(camera_angle), 0.0f, 0.0f, 1.0f);
-            glScalef(30.0f, 30.0f, 1.0f);
-            glBegin(GL_TRIANGLE_FAN);
-            glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-            glVertex2f(0.0f, 0.0f);
-            glColor4f(1.0f, 1.0f, 1.0f, 0.0f);
-            glVertex2f(1.0f, 0.0f);
-            glVertex2f(0.0f, 1.0f);
-            glVertex2f(-1.0f, 0.0f);
-            glVertex2f(0.0f, -1.0f);
-            glVertex2f(1.0f, 0.0f);
-            glEnd();
-            glPopMatrix();
-        }
-        glPopMatrix(); // 2
-
-        glPopMatrix(); // 1
-
-        glViewport(0, 0, getWidth(), getHeight());
+        renderMap(vehic->nextcp);
     }
 
     glEnable(GL_TEXTURE_2D);

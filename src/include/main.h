@@ -641,6 +641,8 @@ public:
 	void renderVehicle(PVehicle* vehic);
 	void renderVehicleType(PVehicleType* vtype);
 	void renderRpmDial(float rpm);
+	void renderMap(int nextcp);
+	void renderMapMarker(const glm::vec2& vpos, float angle, const glm::vec4& col, float sc = 1.0f);
 
 	void keyEvent(const SDL_KeyboardEvent &ke);
 	void mouseMoveEvent(int dx, int dy);
@@ -662,4 +664,11 @@ public:
     {
         return cfg_codriveruserconfig;
     }
+private:
+    const vec4f checkpoint_col[3] =
+    {
+        vec4f(1.0f, 0.0f, 0.0f, 0.8f),  // 0 = next checkpoint
+        vec4f(0.7f, 0.7f, 0.1f, 0.6f),  // 1 = checkpoint after next
+        vec4f(0.2f, 0.8f, 0.2f, 0.4f)  // 2 = all other checkpoints
+    };
 };
