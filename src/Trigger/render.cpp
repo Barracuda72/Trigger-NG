@@ -1099,7 +1099,7 @@ void MainApp::renderStateGame(float eyetranslation)
             else if ((int)i == (vehic->nextcp + 1) % (int)game->checkpt.size())
                 colr = checkpoint_col[1];
 
-            glPushMatrix(); // 1
+            //glPushMatrix(); // 1
             glm::mat4 t(1.0f);
             glGetFloatv(GL_MODELVIEW_MATRIX, glm::value_ptr(t));
             t = glm::translate(t, glm::vec3(game->checkpt[i].pt.x, game->checkpt[i].pt.y, game->checkpt[i].pt.z));
@@ -1132,7 +1132,7 @@ void MainApp::renderStateGame(float eyetranslation)
 
             t = glm::translate(t, glm::vec3(0.0f, 0.0f, ht));
 
-            glLoadMatrixf(glm::value_ptr(t));
+            //glLoadMatrixf(glm::value_ptr(t));
 #if 0
             glBegin(GL_TRIANGLE_STRIP);
             for (int i = 0; i < N_SPLITS; i++)
@@ -1169,10 +1169,11 @@ void MainApp::renderStateGame(float eyetranslation)
             //glInterleavedArrays(GL_C4F_N3F_V3F, 10 * sizeof(float), check_vbo);
             //glDrawElements(GL_TRIANGLE_STRIP, (N_SPLITS+1)*4, GL_UNSIGNED_SHORT, check_ibo);
             sp.uniform("color", glm::vec4(colr[0], colr[1], colr[2], colr[3]));
+            sp.uniform("mv", t);
             glDrawElements(GL_TRIANGLE_STRIP, (N_SPLITS+1)*4, GL_UNSIGNED_SHORT, 0);
 #endif
 #endif
-            glPopMatrix(); // 1
+            //glPopMatrix(); // 1
         }
 
         delete[] check_vbo;
