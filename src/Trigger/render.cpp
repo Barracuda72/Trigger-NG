@@ -219,7 +219,7 @@ void MainApp::renderSky(const mat44f &cammat)
         glActiveTexture(GL_TEXTURE0);
         tex_sky[0]->bind();
         VAO vao(
-                vbo, 5 * sizeof(GL_FLOAT) * (2 * CLRANGE + 1)*(2 * CLRANGE),
+                vbo, 5 * sizeof(float) * (2 * CLRANGE + 1)*(2 * CLRANGE),
                 ibo, (2 * CLRANGE + 2)*(2 * CLRANGE)*2 * sizeof(unsigned short)
                 );
 
@@ -228,8 +228,8 @@ void MainApp::renderSky(const mat44f &cammat)
 
         vao.bind();
 
-        sp.attrib("tex_coord", 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GL_FLOAT), 0);
-        sp.attrib("vert_coord", 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GL_FLOAT), (const void*)(2 * sizeof(GL_FLOAT)));
+        sp.attrib("tex_coord", 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), 0);
+        sp.attrib("vert_coord", 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (const void*)(2 * sizeof(float)));
 
         sp.uniform("t_transform", t);
 
@@ -1042,6 +1042,9 @@ void MainApp::renderStateGame(float eyetranslation)
 
     if (showcheckpoint)
     {
+        ShaderProgram sp("chkpt_vsh.glsl", "chkpt_fsh.glsl");
+        sp.use();
+
         // GL_C4F_N3F_V3F
         const int N_SPLITS = 20;
 
@@ -1056,10 +1059,10 @@ void MainApp::renderStateGame(float eyetranslation)
 
             for (int j = 0; j < 3; j++)
             {
-                check_vbo[(i*3 + j) * 10 + 0] = col[0];
-                check_vbo[(i*3 + j) * 10 + 1] = col[1];
-                check_vbo[(i*3 + j) * 10 + 2] = col[2];
-                check_vbo[(i*3 + j) * 10 + 3] = col[3] * (j == 1);
+                check_vbo[(i*3 + j) * 10 + 0] = 0.0f;
+                check_vbo[(i*3 + j) * 10 + 1] = 0.0f;
+                check_vbo[(i*3 + j) * 10 + 2] = 0.0f;
+                check_vbo[(i*3 + j) * 10 + 3] = (j == 1);
                 // Skip normal
                 check_vbo[(i*3 + j) * 10 + 7] = cosf(a);
                 check_vbo[(i*3 + j) * 10 + 8] = sinf(a);
@@ -1076,6 +1079,17 @@ void MainApp::renderStateGame(float eyetranslation)
             check_ibo[(i + N_SPLITS + 1) * 2 + 1] = (i % N_SPLITS) * 3 + 2;
         }
 
+        VAO vao(
+            check_vbo, (N_SPLITS) * 3 * 10 * sizeof(float),
+            check_ibo, (N_SPLITS+1)*4 * sizeof(unsigned short)
+        );
+
+        vao.bind();
+
+        sp.attrib("d_color", 4, GL_FLOAT, GL_FALSE, 10 * sizeof(float), 0);
+        sp.attrib("normal", 3, GL_FLOAT, GL_FALSE, 10 * sizeof(float), (const void*)(4 * sizeof(float)));
+        sp.attrib("position", 3, GL_FLOAT, GL_FALSE, 10 * sizeof(float), (const void*)(7 * sizeof(float)));
+
         for (unsigned int i=0; i<game->checkpt.size(); i++)
         {
             vec4f colr = checkpoint_col[2];
@@ -1091,7 +1105,7 @@ void MainApp::renderStateGame(float eyetranslation)
             t = glm::translate(t, glm::vec3(game->checkpt[i].pt.x, game->checkpt[i].pt.y, game->checkpt[i].pt.z));
             t = glm::scale(t, glm::vec3(25.0f, 25.0f, 1.0f));
 
-#if 0 // Checkpoint style one
+#if 0 // Checkpoint style one (one strip)
             glBegin(GL_TRIANGLE_STRIP);
 
             for (float a = 0.0f; a < 0.99f; a += 0.05f)
@@ -1113,7 +1127,7 @@ void MainApp::renderStateGame(float eyetranslation)
             }
 
             glEnd();
-#else // Regular checkpoint style
+#else // Regular checkpoint style (two strips)
             float ht = sinf(cprotate * 6.0f) * 7.0f + 8.0f;
 
             t = glm::translate(t, glm::vec3(0.0f, 0.0f, ht));
@@ -1152,8 +1166,10 @@ void MainApp::renderStateGame(float eyetranslation)
             glVertex3f(1.0f, 0.0f, + 1.0f);
             glEnd();
 #else
-            glInterleavedArrays(GL_C4F_N3F_V3F, 10 * sizeof(float), check_vbo);
-            glDrawElements(GL_TRIANGLE_STRIP, (N_SPLITS+1)*4, GL_UNSIGNED_SHORT, check_ibo);
+            //glInterleavedArrays(GL_C4F_N3F_V3F, 10 * sizeof(float), check_vbo);
+            //glDrawElements(GL_TRIANGLE_STRIP, (N_SPLITS+1)*4, GL_UNSIGNED_SHORT, check_ibo);
+            sp.uniform("color", glm::vec4(colr[0], colr[1], colr[2], colr[3]));
+            glDrawElements(GL_TRIANGLE_STRIP, (N_SPLITS+1)*4, GL_UNSIGNED_SHORT, 0);
 #endif
 #endif
             glPopMatrix(); // 1
