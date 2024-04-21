@@ -819,11 +819,8 @@ PTerrainTile *PTerrain::getTile(int tilex, int tiley)
 }
 
 
-void PTerrain::render(const glm::vec3 &campos, const glm::mat4 &camorim, PTexture* tex_detail, std::pair<glm::mat4&,glm::mat4&> matrices)
+void PTerrain::render(const glm::vec3 &campos, const glm::mat4 &camorim, PTexture* tex_detail, const glm::mat4& mv, const glm::mat4& p)
 {
-  glm::mat4& mv = matrices.first;
-  glm::mat4& p = matrices.second;
-
   //float blah = camorim.row[0][0]; blah = blah; // unused
 
   // increase all lru counters
@@ -1000,7 +997,7 @@ void PTerrain::render(const glm::vec3 &campos, const glm::mat4 &camorim, PTextur
  * TODO: This function looks overengineered. That's not how you should draw a shadow.
  * I'll keep in until I implement proper shadows.
  */
-void PTerrain::drawShadow(float x, float y, float scale, float angle, PTexture* tex_shadow)
+void PTerrain::drawShadow(float x, float y, float scale, float angle, PTexture* tex_shadow, const glm::mat4& mv, const glm::mat4& p)
 {
   float *hmd = &hmap[0];
   int cx = totsize;
@@ -1076,6 +1073,8 @@ void PTerrain::drawShadow(float x, float y, float scale, float angle, PTexture* 
   glActiveTexture(GL_TEXTURE0);
   tex_shadow->bind();
   sp_shadow->uniform("shadow", 0);
+  sp_shadow->uniform("mv", mv);
+  sp_shadow->uniform("p", p);
 
   //glInterleavedArrays(GL_T2F_V3F, 5*sizeof(GL_FLOAT), vbo);
   glDrawElements(GL_TRIANGLE_STRIP, (maxx-minx+1)*(maxy-miny)*2, GL_UNSIGNED_SHORT, 0);

@@ -641,9 +641,9 @@ public:
 
   void unload();
 
-  void render(const glm::vec3 &campos, const glm::mat4 &camorim, PTexture* tex_detail, const std::pair<glm::mat4&,glm::mat4&> matrices);
+  void render(const glm::vec3 &campos, const glm::mat4 &camorim, PTexture* tex_detail, const glm::mat4& mv, const glm::mat4& p);
 
-  void drawShadow(float x, float y, float scale, float angle, PTexture* tex_shadow);
+  void drawShadow(float x, float y, float scale, float angle, PTexture* tex_shadow, const glm::mat4& mv, const glm::mat4& p);
 
 
   struct ContactInfo {
