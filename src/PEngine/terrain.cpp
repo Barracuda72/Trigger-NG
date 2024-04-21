@@ -20,6 +20,7 @@ PTerrain::~PTerrain ()
   delete[] indices;
   delete sp_terrain;
   delete sp_tile;
+  delete sp_shadow;
 }
 
 
@@ -470,6 +471,8 @@ PTerrain::PTerrain (XMLElement *element, const std::string &filepath, PSSTexture
   sp_terrain = new ShaderProgram("terrain");
 
   sp_tile = new ShaderProgram("tile");
+
+  sp_shadow = new ShaderProgram("shadow");
 
   loaded = true;
 }
@@ -997,7 +1000,7 @@ void PTerrain::render(const glm::vec3 &campos, const glm::mat4 &camorim, PTextur
  * TODO: This function looks overengineered. That's not how you should draw a shadow.
  * I'll keep in until I implement proper shadows.
  */
-void PTerrain::drawShadow(float x, float y, float scale, float angle)
+void PTerrain::drawShadow(float x, float y, float scale, float angle, PTexture* tex_shadow)
 {
   float *hmd = &hmap[0];
   int cx = totsize;
@@ -1060,11 +1063,27 @@ void PTerrain::drawShadow(float x, float y, float scale, float angle)
     ibo[(y2 * (x_stride+1) + (maxx-minx))*2 + 1] = 0;
   }
 
-  glInterleavedArrays(GL_T2F_V3F, 5*sizeof(GL_FLOAT), vbo);
-  glDrawElements(GL_TRIANGLE_STRIP, (maxx-minx+1)*(maxy-miny)*2, GL_UNSIGNED_SHORT, ibo);
+  VAO vao(
+    vbo, (maxx-minx)*(maxy-miny+1)*5*sizeof(float),
+    ibo, (maxx-minx+1)*(maxy-miny)*2*sizeof(unsigned short)
+  );
+
+  vao.bind();
+  sp_shadow->use();
+  sp_shadow->attrib("tex_coord", 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GL_FLOAT), 0);
+  sp_shadow->attrib("position", 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GL_FLOAT), 2 * sizeof(float));
+
+  glActiveTexture(GL_TEXTURE0);
+  tex_shadow->bind();
+  sp_shadow->uniform("shadow", 0);
+
+  //glInterleavedArrays(GL_T2F_V3F, 5*sizeof(GL_FLOAT), vbo);
+  glDrawElements(GL_TRIANGLE_STRIP, (maxx-minx+1)*(maxy-miny)*2, GL_UNSIGNED_SHORT, 0);
 
   delete[] ibo;
   delete[] vbo;
+
+  sp_shadow->unuse();
 }
 
 

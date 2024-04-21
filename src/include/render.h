@@ -595,6 +595,7 @@ protected:
 
   ShaderProgram* sp_terrain;
   ShaderProgram* sp_tile;
+  ShaderProgram* sp_shadow;
 
 protected:
 
@@ -642,7 +643,7 @@ public:
 
   void render(const glm::vec3 &campos, const glm::mat4 &camorim, PTexture* tex_detail, const std::pair<glm::mat4&,glm::mat4&> matrices);
 
-  void drawShadow(float x, float y, float scale, float angle);
+  void drawShadow(float x, float y, float scale, float angle, PTexture* tex_shadow);
 
 
   struct ContactInfo {
