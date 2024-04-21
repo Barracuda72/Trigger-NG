@@ -141,7 +141,7 @@ void PApp::stereoGLProject(float xmin, float xmax, float ymin, float ymax, float
 
 // I'm afraid I didn't understand how stereoGLProject worked, so I rewrote it
 
-void PApp::stereoFrustum(float xmin, float xmax, float ymin, float ymax, float znear, float zfar, float zzps, float eye)
+glm::mat4 PApp::stereoFrustum(float xmin, float xmax, float ymin, float ymax, float znear, float zfar, float zzps, float eye)
 {
   // xmove = eye * (zzps - znear) / zzps - eye, simplifies to
 
@@ -149,6 +149,8 @@ void PApp::stereoFrustum(float xmin, float xmax, float ymin, float ymax, float z
 
   glm::mat4 frust = glm::frustum(xmin + xmove, xmax + xmove, ymin, ymax, znear, zfar);
   glLoadMatrixf(glm::value_ptr(frust));
+
+  return frust;
 }
 
 int PApp::run(int argc, char *argv[])

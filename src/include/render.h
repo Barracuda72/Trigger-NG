@@ -640,7 +640,7 @@ public:
 
   void unload();
 
-  void render(const vec3f &campos, const mat44f &camorim, PTexture* tex_detail);
+  void render(const glm::vec3 &campos, const glm::mat4 &camorim, PTexture* tex_detail, const std::pair<glm::mat4&,glm::mat4&> matrices);
 
   void drawShadow(float x, float y, float scale, float angle);
 

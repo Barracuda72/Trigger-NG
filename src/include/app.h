@@ -16,6 +16,8 @@
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
 
+#include <glm/mat4x4.hpp>
+
 struct joystick_s
 {
     SDL_Joystick       *sdl_joystick;
@@ -215,7 +217,7 @@ class PApp
         void drawModel(PModel &model);
 
         //void stereoGLProject(float xmin, float xmax, float ymin, float ymax, float znear, float zfar, float zzps, float dist, float eye);
-        void stereoFrustum(float xmin, float xmax, float ymin, float ymax, float znear, float zfar, float zzps, float eye);
+        glm::mat4 stereoFrustum(float xmin, float xmax, float ymin, float ymax, float znear, float zfar, float zzps, float eye);
 
         // config stuff
 

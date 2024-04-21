@@ -10,6 +10,7 @@
 #include <cstdlib>
 #include <math.h>
 
+#include <glm/mat4x4.hpp>
 
 #define PI 3.1415926535897932384626433832795
 
@@ -532,6 +533,30 @@ public:
     } else {
       *this = identity();
     }
+  }
+
+  glm::mat4 getGLMatrix() const {
+      float norm = x*x + y*y + z*z + w*w,
+      s = (norm > (float)0) ? (float)2/norm : (float)0,
+
+      xx = x * x * s,
+      yy = y * y * s,
+      zz = z * z * s,
+      xy = x * y * s,
+      xz = x * z * s,
+      yz = y * z * s,
+      wx = w * x * s,
+      wy = w * y * s,
+      wz = w * z * s;
+
+    glm::mat4 m = {
+      1.0f - (yy + zz), xy + wz, xz - wy, 0.0f,
+      xy - wz, 1.0f - (xx + zz), yz + wx, 0.0f,
+      xz + wy, yz - wx, 1.0f - (xx + yy), 0.0f,
+      0.0f, 0.0f, 0.0f, 1.0f,
+    };
+
+    return m;
   }
 
   mat44<T> getMatrix() const {

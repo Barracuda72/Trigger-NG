@@ -138,7 +138,7 @@ void MainApp::renderWater()
     glBlendFunc(GL_ONE,GL_ZERO);
 }
 
-void MainApp::renderSky(const mat44f &cammat)
+void MainApp::renderSky(const glm::mat4 &cammat)
 {
     glFogf(GL_FOG_DENSITY, game->weather.fog.density_sky);
     glDepthRange(0.999,1.0);
@@ -146,7 +146,7 @@ void MainApp::renderSky(const mat44f &cammat)
 
     glPushMatrix(); // 1
     {
-      glLoadMatrixf(cammat);
+      glLoadMatrixf(glm::value_ptr(cammat));
 #define CLRANGE     10
 #define CLFACTOR    0.02//0.014
       {
@@ -922,7 +922,7 @@ void MainApp::renderStateGame(float eyetranslation)
 
     float fnear = 0.1f, fov = 0.6f;
     float aspect = (float)getWidth() / (float)getHeight();
-    stereoFrustum(-fnear*aspect*fov,fnear*aspect*fov,-fnear*fov,fnear*fov,fnear,100000.0f,
+    glm::mat4 p = stereoFrustum(-fnear*aspect*fov,fnear*aspect*fov,-fnear*fov,fnear*fov,fnear,100000.0f,
                   0.8f, eyetranslation);
     glMatrixMode(GL_MODELVIEW);
 
@@ -935,15 +935,22 @@ void MainApp::renderStateGame(float eyetranslation)
 
     glPushMatrix(); // 0
 
-    mat44f cammat = camori.getMatrix();
-    mat44f cammat_inv = cammat.transpose();
+    glm::vec3 campos_gl = glm::vec3(campos.x, campos.y, campos.z);
+
+    glm::mat4 cammat = camori.getGLMatrix();
+    glm::mat4 cammat_inv = glm::transpose(cammat);
 
     //glTranslatef(0.0,0.0,-40.0);
-    glTranslatef(-eyetranslation, 0.0f, 0.0f);
+    glm::mat4 mv = glm::translate(glm::mat4(1.0f), glm::vec3(-eyetranslation, 0.0f, 0.0f));
 
-    glMultMatrixf(cammat);
+    //glTranslatef(-eyetranslation, 0.0f, 0.0f);
 
-    glTranslatef(-campos.x, -campos.y, -campos.z);
+    //glMultMatrixf(cammat);
+    mv = cammat * mv;
+
+    //glTranslatef(-campos.x, -campos.y, -campos.z);
+    mv = glm::translate(mv, -campos_gl);
+    glLoadMatrixf(glm::value_ptr(mv));
 
     float lpos[] = { 0.2, 0.5, 1.0, 0.0 };
     glLightfv(GL_LIGHT0, GL_POSITION, lpos);
@@ -953,7 +960,7 @@ void MainApp::renderStateGame(float eyetranslation)
     glDisable(GL_LIGHTING);
 
     // draw terrain
-    game->terrain->render(campos, cammat_inv, tex_detail);
+    game->terrain->render(campos_gl, cammat_inv, tex_detail, std::pair<glm::mat4&,glm::mat4&>(mv, p));
 
     if (renderowncar)
     {

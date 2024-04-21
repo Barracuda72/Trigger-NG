@@ -1,6 +1,8 @@
 attribute vec3 position;
 
 uniform vec3 tex_gen_parameters;
+uniform mat4 mv;
+uniform mat4 p;
 
 varying vec2 tex_position;
 varying vec2 det_position;
@@ -11,5 +13,5 @@ void main() {
   float t_y = dot(wo, vec4(0.0, tex_gen_parameters.z, 0.0, tex_gen_parameters.y));
   tex_position = vec2(t_x, t_y);
   det_position = wo.xy * 0.05;
-  gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix * wo;
+  gl_Position = p * mv * wo;
 }

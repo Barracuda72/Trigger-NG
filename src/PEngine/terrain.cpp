@@ -816,16 +816,16 @@ PTerrainTile *PTerrain::getTile(int tilex, int tiley)
 }
 
 
-void PTerrain::render(const vec3f &campos, const mat44f &camorim, PTexture* tex_detail)
+void PTerrain::render(const glm::vec3 &campos, const glm::mat4 &camorim, PTexture* tex_detail, std::pair<glm::mat4&,glm::mat4&> matrices)
 {
-  float blah = camorim.row[0][0]; blah = blah; // unused
+  //float blah = camorim.row[0][0]; blah = blah; // unused
 
   // increase all lru counters
   for (std::list<PTerrainTile>::iterator iter = tile.begin();
     iter != tile.end(); ++iter) ++iter->lru_counter;
 
   // get frustum
-  frustumf frust;
+  /*frustumf frust;
   {
     mat44f mat_mv, mat_p, mat_c;
 
@@ -835,7 +835,7 @@ void PTerrain::render(const vec3f &campos, const mat44f &camorim, PTexture* tex_
     mat_c = mat_mv.concatenate(mat_p);
 
     frust.construct(mat_c);
-  }
+  }*/
 
   int ctx = (int)(campos.x * scale_tile_inv);
   if (campos.x < 0.0) --ctx;
@@ -866,6 +866,9 @@ void PTerrain::render(const vec3f &campos, const mat44f &camorim, PTexture* tex_
   tex_detail->bind();
   sp_tile->uniform("detail", 1);
   glActiveTexture(GL_TEXTURE0);
+
+  sp_tile->uniform("p", matrices.second);
+  sp_tile->uniform("mv", matrices.first);
 
   for (std::list<PTerrainTile *>::iterator t = drawtile.begin(); t != drawtile.end(); t++) {
     //if (frust.isAABBOutside(tileptr->mins, tileptr->maxs))

@@ -580,7 +580,7 @@ private:
 protected:
 
 	void renderWater();
-	void renderSky(const mat44f &cammat);
+	void renderSky(const glm::mat4 &cammat);
 
 	bool startGame(const std::string &filename);
 	void toggleSounds(bool to);
