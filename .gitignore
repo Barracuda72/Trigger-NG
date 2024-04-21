@@ -9,3 +9,7 @@ Trigger-NG/Trigger-NG.layout
 
 # Output binary
 bin/trigger-rally
+
+# Vim temp files
+.*.swp
+.*.swo
