@@ -42,8 +42,24 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
+		<Unit filename="../data/shaders/chkpt_fsh.glsl" />
+		<Unit filename="../data/shaders/chkpt_vsh.glsl" />
+		<Unit filename="../data/shaders/map_fsh.glsl" />
+		<Unit filename="../data/shaders/map_marker_fsh.glsl" />
+		<Unit filename="../data/shaders/map_marker_vsh.glsl" />
+		<Unit filename="../data/shaders/map_vsh.glsl" />
+		<Unit filename="../data/shaders/offroad_sign_fsh.glsl" />
+		<Unit filename="../data/shaders/offroad_sign_vsh.glsl" />
+		<Unit filename="../data/shaders/shadow_fsh.glsl" />
+		<Unit filename="../data/shaders/shadow_vsh.glsl" />
 		<Unit filename="../data/shaders/sky_fsh.glsl" />
 		<Unit filename="../data/shaders/sky_vsh.glsl" />
+		<Unit filename="../data/shaders/terrain_fsh.glsl" />
+		<Unit filename="../data/shaders/terrain_vsh.glsl" />
+		<Unit filename="../data/shaders/text_fsh.glsl" />
+		<Unit filename="../data/shaders/text_vsh.glsl" />
+		<Unit filename="../data/shaders/tile_fsh.glsl" />
+		<Unit filename="../data/shaders/tile_vsh.glsl" />
 		<Unit filename="../src/PEngine/app.cpp" />
 		<Unit filename="../src/PEngine/audio.cpp" />
 		<Unit filename="../src/PEngine/fxman.cpp" />
