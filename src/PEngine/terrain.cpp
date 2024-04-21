@@ -1037,7 +1037,7 @@ void PTerrain::drawShadow(float x, float y, float scale, float angle)
 
       vbo[(y3 * x_stride + x3)*5 + 2] = x2 * scale_hz;
       vbo[(y3 * x_stride + x3)*5 + 3] = y2 * scale_hz;
-      vbo[(y3 * x_stride + x3)*5 + 4] = hmd[yc_cx + xc];
+      vbo[(y3 * x_stride + x3)*5 + 4] = hmd[yc_cx + xc] + 0.05; // TODO: hack to avoid Z-fighting for shadow
     }
   }
 
