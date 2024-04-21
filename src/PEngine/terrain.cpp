@@ -818,6 +818,9 @@ PTerrainTile *PTerrain::getTile(int tilex, int tiley)
 
 void PTerrain::render(const glm::vec3 &campos, const glm::mat4 &camorim, PTexture* tex_detail, std::pair<glm::mat4&,glm::mat4&> matrices)
 {
+  glm::mat4& mv = matrices.first;
+  glm::mat4& p = matrices.second;
+
   //float blah = camorim.row[0][0]; blah = blah; // unused
 
   // increase all lru counters
@@ -867,8 +870,8 @@ void PTerrain::render(const glm::vec3 &campos, const glm::mat4 &camorim, PTextur
   sp_tile->uniform("detail", 1);
   glActiveTexture(GL_TEXTURE0);
 
-  sp_tile->uniform("p", matrices.second);
-  sp_tile->uniform("mv", matrices.first);
+  sp_tile->uniform("p", p);
+  sp_tile->uniform("mv", mv);
 
   for (std::list<PTerrainTile *>::iterator t = drawtile.begin(); t != drawtile.end(); t++) {
     //if (frust.isAABBOutside(tileptr->mins, tileptr->maxs))
@@ -912,6 +915,8 @@ void PTerrain::render(const glm::vec3 &campos, const glm::mat4 &camorim, PTextur
   //glEnableClientState(GL_VERTEX_ARRAY);
 
   sp_terrain->use();
+  sp_terrain->uniform("p", p);
+  sp_terrain->uniform("mv", mv);
   for (unsigned int b = 0; b < foliageband.size(); b++) {
 
     foliageband[b].sprite_tex->bind();
