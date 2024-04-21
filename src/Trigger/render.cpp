@@ -952,31 +952,8 @@ void MainApp::renderStateGame(float eyetranslation)
 
     glDisable(GL_LIGHTING);
 
-    glActiveTextureARB(GL_TEXTURE1_ARB);
-    glEnable(GL_TEXTURE_2D);
-    glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_COMBINE);
-    glTexEnvi(GL_TEXTURE_ENV,GL_COMBINE_RGB,GL_ADD_SIGNED);
-    glTexEnvi(GL_TEXTURE_ENV,GL_COMBINE_ALPHA,GL_MODULATE);
-    tex_detail->bind();
-    glTexGeni(GL_S,GL_TEXTURE_GEN_MODE,GL_OBJECT_LINEAR);
-    glTexGeni(GL_T,GL_TEXTURE_GEN_MODE,GL_OBJECT_LINEAR);
-    float tgens[] = { 0.05, 0.0, 0.0, 0.0 };
-    float tgent[] = { 0.0, 0.05, 0.0, 0.0 };
-    glTexGenfv(GL_S,GL_OBJECT_PLANE,tgens);
-    glTexGenfv(GL_T,GL_OBJECT_PLANE,tgent);
-    glEnable(GL_TEXTURE_GEN_S);
-    glEnable(GL_TEXTURE_GEN_T);
-    glActiveTextureARB(GL_TEXTURE0_ARB);
-
     // draw terrain
-    game->terrain->render(campos, cammat_inv);
-
-    glDisable(GL_TEXTURE_GEN_S);
-    glDisable(GL_TEXTURE_GEN_T);
-
-    glActiveTextureARB(GL_TEXTURE1_ARB);
-    glDisable(GL_TEXTURE_2D);
-    glActiveTextureARB(GL_TEXTURE0_ARB);
+    game->terrain->render(campos, cammat_inv, tex_detail);
 
     if (renderowncar)
     {

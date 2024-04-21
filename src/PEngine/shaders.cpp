@@ -74,6 +74,8 @@ void ShaderProgram::unuse() {
     for (GLint a_id: enabled_attributes)
         glDisableVertexAttribArray(a_id);
 
+    enabled_attributes.clear();
+
     glUseProgram(0);
 }
 

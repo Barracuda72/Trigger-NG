@@ -5,6 +5,7 @@
 // License: GPL version 2 (see included gpl.txt)
 
 #include "pengine.h"
+#include "shaders.h"
 
 PSSRender::PSSRender(PApp &parentApp) : PSubsystem(parentApp)
 {
@@ -240,8 +241,6 @@ void PSSRender::drawText(const std::string &text, uint32 flags, const glm::mat4&
     const GLfloat addx = 1.0f / 12.0f;
     const GLfloat addy = 1.0f / 8.0f;
 
-    glPushMatrix();
-
     float x_offset = 0.0f;
     float y_offset = 0.0f;
 
@@ -260,10 +259,9 @@ void PSSRender::drawText(const std::string &text, uint32 flags, const glm::mat4&
     glm::mat4 m;
     glGetFloatv(GL_MODELVIEW_MATRIX, glm::value_ptr(m));
     glm::mat4 t = glm::translate(transform * m, glm::vec3(x_offset * text.length() * font_aspect, y_offset, 0.0f));
-    glLoadMatrixf(glm::value_ptr(t));
 
     float* vbo = new float[(text.length()) * 4 * 5]; // N letters, each letter has 4 vertices, each vertex has 5 attributes
-    unsigned int* ibo = new unsigned int[text.length() * 6]; // N letters, each has 6 indices
+    unsigned short* ibo = new unsigned short[text.length() * 6]; // N letters, each has 6 indices
 
     int i = 0;
 
@@ -304,13 +302,26 @@ void PSSRender::drawText(const std::string &text, uint32 flags, const glm::mat4&
         i++;
     }
 
-    glInterleavedArrays(GL_T2F_V3F, 5*sizeof(GL_FLOAT), vbo);
-    glDrawElements(GL_TRIANGLES, text.length() * 6, GL_UNSIGNED_INT, ibo);
+    VAO vao(
+        vbo, (text.length()) * 4 * 5 * sizeof(float),
+        ibo, text.length() * 6 * sizeof(unsigned short)
+    );
+
+    vao.bind();
+
+    ShaderProgram sp("text");
+    sp.use();
+    sp.attrib("tex_coord", 2, GL_FLOAT, GL_FALSE, 5*sizeof(GL_FLOAT), 0);
+    sp.attrib("position", 3, GL_FLOAT, GL_FALSE, 5*sizeof(GL_FLOAT), 2 * sizeof(GL_FLOAT));
+
+    //glActiveTexture(GL_TEXTURE0);
+    sp.uniform("font", 0);
+    sp.uniform("mv", t);
+
+    glDrawElements(GL_TRIANGLES, text.length() * 6, GL_UNSIGNED_SHORT, 0);
 
     delete[] ibo;
     delete[] vbo;
-
-    glPopMatrix();
 }
 
 

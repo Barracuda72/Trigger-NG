@@ -7,7 +7,7 @@
 
 #include <cmath>
 #include <glm/mat4x4.hpp>
-#include "vbuffer.h"
+#include "shaders.h"
 
 
 
@@ -394,22 +394,25 @@ struct PTerrainFoliage {
 struct PTerrainFoliageSet {
   std::vector<PTerrainFoliage> inst;
 
-  PVBuffer buff[2];
+  VAO* vao;
   int numvert, numelem;
+  ~PTerrainFoliageSet() { delete vao; }
 };
 
 struct PRoadSignSet {
     std::vector<PTerrainFoliage> inst;
-    PVBuffer buff[2];
+    VAO* vao;
     int numvert;
     int numelem;
+
+    ~PRoadSignSet() { delete vao; }
 };
 
 struct PTerrainTile {
   int posx, posy;
   int lru_counter;
 
-  PVBuffer vert;
+  VAO* vao;
   int numverts;
 
   PTexture tex;
@@ -420,6 +423,8 @@ struct PTerrainTile {
 
   std::vector<PTerrainFoliageSet> foliage;
   std::vector<PRoadSignSet> roadsignset;
+
+  ~PTerrainTile() { delete vao; }
 };
 
 ///
@@ -582,10 +587,14 @@ protected:
   std::list<PTerrainTile> tile;
 
   // tiles share index buffers
-  PVBuffer ind;
+  //PVBuffer ind;
+  unsigned short* indices;
   int numinds;
 
   PTexture *tex_hud_map;
+
+  ShaderProgram* sp_terrain;
+  ShaderProgram* sp_tile;
 
 protected:
 
@@ -631,7 +640,7 @@ public:
 
   void unload();
 
-  void render(const vec3f &campos, const mat44f &camorim);
+  void render(const vec3f &campos, const mat44f &camorim, PTexture* tex_detail);
 
   void drawShadow(float x, float y, float scale, float angle);
 
