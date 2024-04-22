@@ -138,15 +138,13 @@ void MainApp::renderWater()
     glBlendFunc(GL_ONE,GL_ZERO);
 }
 
-void MainApp::renderSky(const glm::mat4 &cammat)
+void MainApp::renderSky(const glm::mat4 &cammat, const glm::mat4& p)
 {
     glFogf(GL_FOG_DENSITY, game->weather.fog.density_sky);
     glDepthRange(0.999,1.0);
     glDisable(GL_CULL_FACE);
 
-    glPushMatrix(); // 1
     {
-      glLoadMatrixf(glm::value_ptr(cammat));
 #define CLRANGE     10
 #define CLFACTOR    0.02//0.014
       {
@@ -201,6 +199,8 @@ void MainApp::renderSky(const glm::mat4 &cammat)
         sp.uniform("t_transform", t);
 
         sp.uniform("tex", 0);
+        sp.uniform("mv", cammat);
+        sp.uniform("p", p);
 
         glDrawElements(GL_TRIANGLE_STRIP, (2 * CLRANGE + 1)*(2 * CLRANGE)*2, GL_UNSIGNED_SHORT, 0);
 
@@ -208,7 +208,6 @@ void MainApp::renderSky(const glm::mat4 &cammat)
         delete[] vbo;
       }
     }
-    glPopMatrix(); // 1
     glEnable(GL_CULL_FACE);
     glDepthRange(0.0,0.999);
     glFogf(GL_FOG_DENSITY, game->weather.fog.density);
@@ -976,7 +975,7 @@ void MainApp::renderStateGame(float eyetranslation)
         glBlendFunc(GL_ONE, GL_ZERO);
     }
 
-    renderSky(cammat);
+    renderSky(cammat, p);
 
     glEnable(GL_LIGHTING);
 
