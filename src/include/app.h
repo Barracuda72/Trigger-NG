@@ -214,7 +214,7 @@ class PApp
 
         void grabMouse(bool grab = true);
 
-        void drawModel(PModel &model);
+        void drawModel(PModel &model, const glm::mat4& mv, const glm::mat4& p);
 
         //void stereoGLProject(float xmin, float xmax, float ymin, float ymax, float znear, float zfar, float zzps, float dist, float eye);
         glm::mat4 stereoFrustum(float xmin, float xmax, float ymin, float ymax, float znear, float zfar, float zzps, float eye);

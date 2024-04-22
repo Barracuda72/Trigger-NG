@@ -85,8 +85,15 @@ void PSSRender::render(PParticleSystem *psys)
   if (!psys->tex) glEnable(GL_TEXTURE_2D);
 }
 
-void PSSRender::drawModel(PModel &model, PSSEffect &ssEffect, PSSTexture &ssTexture)
+void PSSRender::drawModel(PModel &model, PSSEffect &ssEffect, PSSTexture &ssTexture, const glm::mat4& mv, const glm::mat4& p)
 {
+  glMatrixMode(GL_PROJECTION);
+  glPushMatrix();
+  glLoadMatrixf(glm::value_ptr(p));
+  glMatrixMode(GL_MODELVIEW);
+  glPushMatrix();
+  glLoadMatrixf(glm::value_ptr(mv));
+
   for (std::vector<PMesh>::iterator mesh = model.mesh.begin();
     mesh != model.mesh.end();
     mesh++) {
@@ -104,6 +111,11 @@ void PSSRender::drawModel(PModel &model, PSSEffect &ssEffect, PSSTexture &ssText
       mesh->effect->renderEnd();
     }
   }
+
+  glPopMatrix();
+  glMatrixMode(GL_PROJECTION);
+  glPopMatrix();
+  glMatrixMode(GL_MODELVIEW);
 }
 
 /// The Char at (0, 11) is used to display "unprintable" characters.

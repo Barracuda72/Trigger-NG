@@ -251,7 +251,7 @@ int PApp::run(int argc, char *argv[])
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
     SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
-#elif 0
+#elif 1
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG);
@@ -800,9 +800,9 @@ void PApp::grabMouse(bool grab)
   grabinput = grab;
 }
 
-void PApp::drawModel(PModel &model)
+void PApp::drawModel(PModel &model, const glm::mat4& mv, const glm::mat4& p)
 {
-  getSSRender().drawModel(model, getSSEffect(), getSSTexture());
+  getSSRender().drawModel(model, getSSEffect(), getSSTexture(), mv, p);
 }
 
 

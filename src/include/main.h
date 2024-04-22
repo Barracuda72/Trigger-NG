@@ -638,8 +638,8 @@ public:
 	void renderStateChoose(float eyetranslation);
 	void tickStateGame(float delta);
 	void renderStateGame(float eyetranslation);
-	void renderVehicle(PVehicle* vehic);
-	void renderVehicleType(PVehicleType* vtype);
+	void renderVehicle(PVehicle* vehic, const glm::mat4& mv, const glm::mat4& p);
+	void renderVehicleType(PVehicleType* vtype, const glm::mat4& mv, const glm::mat4& p);
 	void renderRpmDial(float rpm);
 	void renderMap(int nextcp);
 	void renderMapMarker(const glm::mat4 t, const glm::vec2& vpos, float angle, const glm::vec4& col, float sc = 1.0f);

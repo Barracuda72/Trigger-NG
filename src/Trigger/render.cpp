@@ -479,93 +479,85 @@ void MainApp::renderStateEnd(float eyetranslation)
 
 // FIXME: following two functions are almost the same
 // They shall be merged, but this requires tinkering with a game logic
-void MainApp::renderVehicleType(PVehicleType* vtype)
+void MainApp::renderVehicleType(PVehicleType* vtype, const glm::mat4& mv, const glm::mat4& p)
 {
    for (unsigned int i=0; i<vtype->part.size(); ++i)
         {
-            glPushMatrix(); // 1
-
             vec3f vpos = vtype->part[i].ref_local.pos;
-            glTranslatef(vpos.x, vpos.y, vpos.z);
-
             mat44f vorim = vtype->part[i].ref_local.ori_mat_inv;
-            glMultMatrixf(vorim);
+
+            glm::mat4 t = glm::translate(mv, glm::vec3(vpos.x, vpos.y, vpos.y));
+            glm::mat4 q = {
+                vorim.row[0][0], vorim.row[1][0], vorim.row[2][0], vorim.row[3][0],
+                vorim.row[0][1], vorim.row[1][1], vorim.row[2][1], vorim.row[3][1],
+                vorim.row[0][2], vorim.row[1][2], vorim.row[2][2], vorim.row[3][2],
+                vorim.row[0][3], vorim.row[1][3], vorim.row[2][3], vorim.row[3][3],
+            };
+            t = glm::transpose(q) * t;
             if (vtype->part[i].model)
             {
-
-                glPushMatrix(); // 2
-
                 float scale = vtype->part[i].scale;
-                glScalef(scale,scale,scale);
-                drawModel(*vtype->part[i].model);
-
-                glPopMatrix(); // 2
+                glm::mat4 s = glm::scale(t, glm::vec3(scale,scale,scale));
+                drawModel(*vtype->part[i].model, s, p);
             }
 
             if (vtype->wheelmodel)
             {
                 for (unsigned int j=0; j<vtype->part[i].wheel.size(); j++)
                 {
-
-                    glPushMatrix(); // 2
-
                     vec3f &wpos = vtype->part[i].wheel[j].pt;
-                    glTranslatef(wpos.x, wpos.y, wpos.z);
-
                     float scale = vtype->wheelscale * vtype->part[i].wheel[j].radius;
-                    glScalef(scale,scale,scale);
+                    glm::mat4 k = glm::translate(t, glm::vec3(wpos.x, wpos.y, wpos.z));
+                    k = glm::scale(k, glm::vec3(scale,scale,scale));
 
-                    drawModel(*vtype->wheelmodel);
-
-                    glPopMatrix(); // 2
+                    drawModel(*vtype->wheelmodel, k, p);
                 }
             }
-
-            glPopMatrix(); // 1
         }
 }
 
-void MainApp::renderVehicle(PVehicle* vehic)
+void MainApp::renderVehicle(PVehicle* vehic, const glm::mat4& mv, const glm::mat4& p)
 {
     for (unsigned int i=0; i<vehic->part.size(); ++i)
     {
         if (vehic->type->part[i].model)
         {
-            glPushMatrix(); // 1
-
             vec3f vpos = vehic->part[i].ref_world.pos;
-            glTranslatef(vpos.x, vpos.y, vpos.z);
-
             mat44f vorim = vehic->part[i].ref_world.ori_mat_inv;
-            glMultMatrixf(vorim);
-
             float scale = vehic->type->part[i].scale;
-            glScalef(scale,scale,scale);
 
-            drawModel(*vehic->type->part[i].model);
+            glm::mat4 t = glm::translate(mv, glm::vec3(vpos.x, vpos.y, vpos.z));
+            glm::mat4 q = {
+                vorim.row[0][0], vorim.row[1][0], vorim.row[2][0], vorim.row[3][0],
+                vorim.row[0][1], vorim.row[1][1], vorim.row[2][1], vorim.row[3][1],
+                vorim.row[0][2], vorim.row[1][2], vorim.row[2][2], vorim.row[3][2],
+                vorim.row[0][3], vorim.row[1][3], vorim.row[2][3], vorim.row[3][3],
+            };
+            t = t * glm::transpose(q);
+            t = glm::scale(t, glm::vec3(scale, scale, scale));
 
-            glPopMatrix(); // 1
+            drawModel(*vehic->type->part[i].model, t, p);
         }
 
         if (vehic->type->wheelmodel)
         {
             for (unsigned int j=0; j<vehic->type->part[i].wheel.size(); j++)
             {
-
-                glPushMatrix(); // 1
-
                 vec3f wpos = vehic->part[i].wheel[j].ref_world.getPosition();
-                glTranslatef(wpos.x,wpos.y,wpos.z);
-
                 mat44f worim = vehic->part[i].wheel[j].ref_world.ori_mat_inv;
-                glMultMatrixf(worim);
-
                 float scale = vehic->type->wheelscale * vehic->type->part[i].wheel[j].radius;
-                glScalef(scale,scale,scale);
 
-                drawModel(*vehic->type->wheelmodel);
+                glm::mat4 t = glm::translate(mv, glm::vec3(wpos.x, wpos.y, wpos.z));
+                glm::mat4 q = {
+                    worim.row[0][0], worim.row[1][0], worim.row[2][0], worim.row[3][0],
+                    worim.row[0][1], worim.row[1][1], worim.row[2][1], worim.row[3][1],
+                    worim.row[0][2], worim.row[1][2], worim.row[2][2], worim.row[3][2],
+                    worim.row[0][3], worim.row[1][3], worim.row[2][3], worim.row[3][3],
+                };
+                t = t * glm::transpose(q);
+                t = glm::scale(t, glm::vec3(scale, scale, scale));
 
-                glPopMatrix(); // 1
+                drawModel(*vehic->type->wheelmodel, t, p);
             }
         }
     }
@@ -606,17 +598,17 @@ glMatrixMode(GL_PROJECTION);
 
     float fnear = 0.1f, fov = 0.6f;
     float aspect = (float)getWidth() / (float)getHeight();
-    stereoFrustum(-fnear*aspect*fov,fnear*aspect*fov,-fnear*fov,fnear*fov,fnear,100000.0f,
+    glm::mat4 p = stereoFrustum(-fnear*aspect*fov,fnear*aspect*fov,-fnear*fov,fnear*fov,fnear,100000.0f,
                   0.8f, eyetranslation);
 
     glMatrixMode(GL_MODELVIEW);
 
 
-    glPushMatrix(); // 0
+    //glPushMatrix(); // 0
 
     glm::mat4 t = glm::translate(glm::mat4(1.0f), glm::vec3(-eyetranslation, 0.9f, -5.0f));
     t = glm::rotate(t, 28.0f * 3.141592653f / 180.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-    glLoadMatrixf(glm::value_ptr(t));
+    //glLoadMatrixf(glm::value_ptr(t));
 
     glDisable(GL_FOG);
     glEnable(GL_LIGHTING);
@@ -632,11 +624,11 @@ glMatrixMode(GL_PROJECTION);
 
     t = glm::rotate(t, 3.141592653f / 2.0f, glm::vec3(-1.0f, 0.0f, 0.0f));
     t = glm::rotate(t, tmp, glm::vec3(0.0f, 0.0f, 1.0f));
-    glLoadMatrixf(glm::value_ptr(t));
+    //glLoadMatrixf(glm::value_ptr(t));
 
-    renderVehicleType(vtype);
+    renderVehicleType(vtype, t, p);
 
-    glPopMatrix(); // 0
+    //glPopMatrix(); // 0
 
     glDisable(GL_LIGHTING);
 
@@ -986,7 +978,7 @@ void MainApp::renderStateGame(float eyetranslation)
 
         PVehicle *vehic = game->vehicle[v];
 
-        renderVehicle(vehic);
+        renderVehicle(vehic, mv, p);
     }
 
     glDisable(GL_LIGHTING);
