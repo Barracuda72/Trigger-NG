@@ -6,6 +6,7 @@ uniform mat4 p;
 
 varying vec2 tex_position;
 varying vec2 det_position;
+varying float fog_factor;
 
 void main() {
   vec4 wo = vec4(position, 1.0);
@@ -13,5 +14,8 @@ void main() {
   float t_y = dot(wo, vec4(0.0, tex_gen_parameters.z, 0.0, tex_gen_parameters.y));
   tex_position = vec2(t_x, t_y);
   det_position = wo.xy * 0.05;
+  gl_FogFragCoord = length((mv * wo).xyz);
+  fog_factor = exp( -gl_Fog.density * gl_FogFragCoord );
+  fog_factor = clamp(fog_factor, 0.0, 1.0);
   gl_Position = p * mv * wo;
 }
