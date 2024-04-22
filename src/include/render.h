@@ -89,6 +89,7 @@ class PSSRender : public PSubsystem {
 private:
   vec3f cam_pos;
   mat44f cam_orimat;
+  ShaderProgram* sp_model;
 
 public:
   PSSRender(PApp &parentApp);
@@ -349,7 +350,8 @@ public:
   const int vertexSize = 2 + 3 + 3; // Tex, Normal, Vertex
   void buildGeometry();
   float* vbo;
-  unsigned int* ibo;
+  unsigned short* ibo;
+  VAO* vao;
 
   ~PMesh();
 };

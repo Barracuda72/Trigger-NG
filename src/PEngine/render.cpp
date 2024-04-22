@@ -10,10 +10,12 @@
 PSSRender::PSSRender(PApp &parentApp) : PSubsystem(parentApp)
 {
   PUtil::outLog() << "Initialising render subsystem" << std::endl;
+  sp_model = new ShaderProgram("model");
 }
 
 PSSRender::~PSSRender()
 {
+  delete sp_model;
   PUtil::outLog() << "Shutting down render subsystem" << std::endl;
 }
 
@@ -87,12 +89,11 @@ void PSSRender::render(PParticleSystem *psys)
 
 void PSSRender::drawModel(PModel &model, PSSEffect &ssEffect, PSSTexture &ssTexture, const glm::mat4& mv, const glm::mat4& p)
 {
-  glMatrixMode(GL_PROJECTION);
-  glPushMatrix();
-  glLoadMatrixf(glm::value_ptr(p));
-  glMatrixMode(GL_MODELVIEW);
-  glPushMatrix();
-  glLoadMatrixf(glm::value_ptr(mv));
+  sp_model->use();
+  sp_model->uniform("mv", mv);
+  sp_model->uniform("p", p);
+  glActiveTexture(GL_TEXTURE0);
+  sp_model->uniform("tex", 0);
 
   for (std::vector<PMesh>::iterator mesh = model.mesh.begin();
     mesh != model.mesh.end();
@@ -100,7 +101,10 @@ void PSSRender::drawModel(PModel &model, PSSEffect &ssEffect, PSSTexture &ssText
     if (!mesh->effect)
       mesh->effect = ssEffect.loadEffect(mesh->fxname);
 
-    glInterleavedArrays(GL_T2F_N3F_V3F, mesh->vertexSize * sizeof(GL_FLOAT), mesh->vbo);
+    mesh->vao->bind();
+    sp_model->attrib("tex_coord", 2, GL_FLOAT, GL_FALSE, mesh->vertexSize * sizeof(GL_FLOAT), 0);
+    sp_model->attrib("normal", 3, GL_FLOAT, GL_FALSE, mesh->vertexSize * sizeof(GL_FLOAT), 2 * sizeof(GL_FLOAT));
+    sp_model->attrib("position", 3, GL_FLOAT, GL_FALSE, mesh->vertexSize * sizeof(GL_FLOAT), 5 * sizeof(GL_FLOAT));
 
     int numPasses = 0;
     if (mesh->effect->renderBegin(&numPasses, ssTexture)) {
@@ -110,12 +114,10 @@ void PSSRender::drawModel(PModel &model, PSSEffect &ssEffect, PSSTexture &ssText
       }
       mesh->effect->renderEnd();
     }
-  }
 
-  glPopMatrix();
-  glMatrixMode(GL_PROJECTION);
-  glPopMatrix();
-  glMatrixMode(GL_MODELVIEW);
+    mesh->vao->unbind();
+  }
+  sp_model->unuse();
 }
 
 /// The Char at (0, 11) is used to display "unprintable" characters.
@@ -380,7 +382,7 @@ void PParticleSystem::tick(float delta)
 void PMesh::buildGeometry()
 {
   this->vbo = new float[this->face.size() * 3 * vertexSize];
-  this->ibo = new unsigned int[this->face.size() * 3];
+  this->ibo = new unsigned short[this->face.size() * 3];
 
   for (unsigned int f=0; f<this->face.size(); f++) {
     //glNormal3fv(mesh->face[f].facenormal);
@@ -403,10 +405,16 @@ void PMesh::buildGeometry()
       this->ibo[f * 3 + v] = f * 3 + v;
     }
   }
+
+  this->vao = new VAO(
+    this->vbo, this->face.size() * 3 * vertexSize * sizeof(float),
+    this->ibo, this->face.size() * 3 * sizeof(unsigned short)
+  );
 }
 
 PMesh::~PMesh()
 {
   delete[] this->vbo;
   delete[] this->ibo;
+  delete this->vao;
 }
