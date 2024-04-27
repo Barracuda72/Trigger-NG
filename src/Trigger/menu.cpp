@@ -1356,7 +1356,7 @@ void Gui::render(const glm::mat4& p)
 
     switch(widget[i].type) {
     case GWT_LABEL: {
-      ssRender->drawText(widget[i].text, PTEXT_HZA_LEFT | PTEXT_VTA_BOTTOM, t);
+      ssRender->drawText(widget[i].text, PTEXT_HZA_LEFT | PTEXT_VTA_BOTTOM, t, p);
       } break;
 
     case GWT_GRAPHIC: {

@@ -5,9 +5,10 @@ varying vec2 tex_position;
 varying vec4 color;
 
 uniform mat4 mv;
+uniform mat4 p;
 
 void main() {
   tex_position = tex_coord;
   color = gl_Color;
-  gl_Position = gl_ProjectionMatrix * mv * vec4(position, 1.0);
+  gl_Position = p * mv * vec4(position, 1.0);
 }

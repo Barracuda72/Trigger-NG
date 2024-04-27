@@ -101,7 +101,7 @@ public:
 
   void drawModel(PModel &model, PSSEffect &ssEffect, PSSTexture &ssTexture, const glm::mat4& mv, const glm::mat4& p);
 
-  void drawText(const std::string &text, uint32 flags, const glm::mat4& transform);
+  void drawText(const std::string &text, uint32 flags, const glm::mat4& mv, const glm::mat4& p);
   vec2f getTextDims(const std::string &text);
 };
 
