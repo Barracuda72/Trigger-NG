@@ -198,9 +198,9 @@ public:
 		veh->doReset(lastCkptPos, lastCkptOri);
 	}
 
-	void renderCodriverSigns()
+	void renderCodriverSigns(const glm::mat4& mv, const glm::mat4& p)
 	{
-		cdsigns.render(coursetime);
+		cdsigns.render(coursetime, mv, p);
 	}
 
 	bool loadVehicles();

@@ -1338,7 +1338,7 @@ void MainApp::renderStateGame(float eyetranslation)
 
     if (showui)
     {
-        game->renderCodriverSigns();
+        game->renderCodriverSigns(glm::mat4(1.0f), o);
 
         renderRpmDial(vehic->getEngineRPM());
     }

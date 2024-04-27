@@ -32,6 +32,8 @@
 #include <glm/ext/matrix_transform.hpp> // For glm::translate
 #include <glm/ext/matrix_clip_space.hpp> // For glm::frustrum
 
+#include "shaders.h"
+
 // maximum number of characters for a note
 // e.g.: "hard left over jump" has 19 characters
 //
@@ -65,6 +67,16 @@ public:
     {
         cpsigns.reserve(8); // FIXME: magic number
         tempnote.reserve(note_maxlength);
+        vao = new VAO(
+            vbo, 5 * 4 * sizeof(float),
+            ibo, 6 * sizeof(unsigned short)
+        );
+        sp = new ShaderProgram("codriver");
+    }
+
+    ~PCodriverSigns() {
+        delete vao;
+        delete sp;
     }
 
     ///
@@ -111,7 +123,7 @@ public:
     /// @brief Draws the current codriver signs.
     /// @param coursetime       The current time of the course.
     ///
-    void render(float coursetime)
+    void render(float coursetime, const glm::mat4& mv, const glm::mat4& p)
     {
         if (cpsigns.empty())
             return;
@@ -133,28 +145,30 @@ public:
             return;
         }
 
-        glPushMatrix();
-
-        glm::mat4 ortho = glm::ortho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
-        glm::mat4 t = glm::translate(ortho, glm::vec3(uc.posx, uc.posy, 0.0f));
+        glm::mat4 t = glm::translate(mv, glm::vec3(uc.posx, uc.posy, 0.0f));
         t = glm::scale(t, glm::vec3(uc.scale, uc.scale, 1.0f));
         t = glm::translate(t, glm::vec3(-0.5f * cpsigns.size() * 2 + 1.0f, 0.0f, 0.0f));
-        glLoadMatrixf(glm::value_ptr(t));
 
-        glInterleavedArrays(GL_T2F_V3F, 5 * sizeof(GL_FLOAT), this->vbo);
-
-        glColor4f(1.0f, 1.0f, 1.0f, alpha);
+        vao->bind();
+        sp->use();
+        sp->attrib("tex_coord", 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GL_FLOAT), 0);
+        sp->attrib("position", 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GL_FLOAT), 2 * sizeof(GL_FLOAT));
+        sp->uniform("p", p);
+        sp->uniform("alpha", alpha);
 
         for (PTexture *cptex: cpsigns)
         {
+            glActiveTexture(GL_TEXTURE0);
             cptex->bind();
+            sp->uniform("mv", t);
+            sp->uniform("sign_tex", 0);
 
-            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, this->ibo);
+            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
             t = glm::translate(t, glm::vec3(2.0f, 0.0f, 0.0f));
-            glLoadMatrixf(glm::value_ptr(t));
         }
 
-        glPopMatrix();
+        sp->unuse();
+        vao->unbind();
     }
 
 private:
@@ -172,10 +186,13 @@ private:
         1.0f, 0.0f,   1.0f,-1.0f, 0.0f,
     };
 
-    unsigned int ibo[6] = {
+    unsigned short ibo[6] = {
         0, 1, 2,
         2, 3, 0,
     };
+
+    VAO* vao;
+    ShaderProgram* sp;
 };
 
 ///
