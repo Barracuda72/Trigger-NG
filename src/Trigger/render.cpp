@@ -1137,6 +1137,7 @@ void MainApp::renderStateGame(float eyetranslation)
     {
         ShaderProgram sp("chkpt");
         sp.use();
+        sp.uniform("p", p);
 
         // GL_C4F_N3F_V3F
         const int N_SPLITS = 20;
