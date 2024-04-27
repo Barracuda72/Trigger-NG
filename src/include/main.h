@@ -628,8 +628,8 @@ public:
 	void resize();
 	void render(float eyetranslation);
 
-	void renderTexturedFullscreenQuad(glm::mat4& scale);
-	void renderTexturedFullscreenQuad();
+	void renderTexturedFullscreenQuad(const glm::mat4& mv, const glm::mat4& p);
+	void renderTexturedFullscreenQuad(const glm::mat4& p);
 	void renderStateLoading(float eyetranslation);
 	void renderStateEnd(float eyetranslation);
 	void tickStateLevel(float delta);

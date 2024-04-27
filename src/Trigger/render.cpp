@@ -245,13 +245,13 @@ void MainApp::render(float eyetranslation)
     glFinish();
 }
 
-void MainApp::renderTexturedFullscreenQuad()
+void MainApp::renderTexturedFullscreenQuad(const glm::mat4& p)
 {
     glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3((float)getWidth()/(float)getHeight(), 1.0f, 1.0f));
-    renderTexturedFullscreenQuad(scale);
+    renderTexturedFullscreenQuad(scale, p);
 }
 
-void MainApp::renderTexturedFullscreenQuad(glm::mat4& scale)
+void MainApp::renderTexturedFullscreenQuad(const glm::mat4& mv, const glm::mat4& p)
 {
   float vbo[20] = {
     0.0f, 1.0f,  -1.0f, 1.0f, 0.0f,
@@ -260,30 +260,39 @@ void MainApp::renderTexturedFullscreenQuad(glm::mat4& scale)
     1.0f, 0.0f,   1.0f,-1.0f, 0.0f,
   };
 
-  unsigned int ibo[4] = {
+  unsigned short ibo[4] = {
     0, 1, 2, 3,
   };
 
-  glPushMatrix();
+  VAO vao(
+    vbo, 5 * 4 * sizeof(GL_FLOAT),
+    ibo, 4 * sizeof(unsigned short)
+  );
+  vao.bind();
+
+  ShaderProgram sp_bckgnd("bckgnd");
+  sp_bckgnd.use();
+
+  sp_bckgnd.attrib("tex_coord", 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GL_FLOAT), 0);
+  sp_bckgnd.attrib("position", 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GL_FLOAT), 2 * sizeof(GL_FLOAT));
+
+  sp_bckgnd.uniform("mv", mv);
+  sp_bckgnd.uniform("p", p);
+  glActiveTexture(GL_TEXTURE0);
+  sp_bckgnd.uniform("background", 0);
+
   {
   // the background image is square and cut out a piece based on aspect ratio
-  glLoadMatrixf(glm::value_ptr(scale));
-
-  glInterleavedArrays(GL_T2F_V3F, 5 * sizeof(GL_FLOAT), vbo);
-  glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_INT, ibo);
+  //glInterleavedArrays(GL_T2F_V3F, 5 * sizeof(GL_FLOAT), vbo);
+  glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_SHORT, 0);
   }
-  glPopMatrix();
 }
 
 void MainApp::renderStateLoading(float eyetranslation)
 {
     UNREFERENCED_PARAMETER(eyetranslation);
 
-    glMatrixMode(GL_PROJECTION);
-    glPushMatrix();
     glm::mat4 o = glm::ortho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
-    glLoadMatrixf(glm::value_ptr(o));
-    glMatrixMode(GL_MODELVIEW);
 
     tex_splash_screen->bind();
 
@@ -295,21 +304,17 @@ void MainApp::renderStateLoading(float eyetranslation)
 
     glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
-    renderTexturedFullscreenQuad();
+    renderTexturedFullscreenQuad(o);
 
     tex_loading_screen->bind();
 
     glm::mat4 s = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f, (float)getWidth()/(float)getHeight(), 1.0f));
     s = glm::scale(s, glm::vec3(1.0f/3.5f, 1.0f/3.5f, 1.0f));
-    renderTexturedFullscreenQuad(s);
+    renderTexturedFullscreenQuad(s, o);
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_FOG);
     glEnable(GL_LIGHTING);
-
-    glMatrixMode(GL_PROJECTION);
-    glPopMatrix();
-    glMatrixMode(GL_MODELVIEW);
 }
 
 const char *creditstext[] =
@@ -399,11 +404,7 @@ void MainApp::renderStateEnd(float eyetranslation)
 {
     eyetranslation = eyetranslation;
 
-    glMatrixMode(GL_PROJECTION);
-    glPushMatrix();
     glm::mat4 o = glm::ortho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
-    glLoadMatrixf(glm::value_ptr(o));
-    glMatrixMode(GL_MODELVIEW);
 
     tex_end_screen->bind();
 
@@ -414,12 +415,11 @@ void MainApp::renderStateEnd(float eyetranslation)
 
     glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
-    renderTexturedFullscreenQuad();
+    renderTexturedFullscreenQuad(o);
 
     tex_fontSourceCodeOutlined->bind();
 
     glMatrixMode(GL_PROJECTION);
-    glPopMatrix();
 
     glPushMatrix();
     o = glm::ortho(0 - hratio, hratio, 0 - vratio, vratio, 0 - 1.0, 1.0);
@@ -570,13 +570,7 @@ void MainApp::renderStateChoose(float eyetranslation)
     glClearColor(0.0, 0.0, 0.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-glMatrixMode(GL_PROJECTION);
-
-  glPushMatrix();
   glm::mat4 o = glm::ortho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
-  glLoadMatrixf(glm::value_ptr(o));
-
-  glMatrixMode(GL_MODELVIEW);
 
   // draw background image
 
@@ -591,10 +585,9 @@ glMatrixMode(GL_PROJECTION);
   glColor4f(1.0f, 1.0f, 1.0f, 1.0f); // use image's normal colors
   //glColor4f(0.5f, 0.5f, 0.5f, 1.0f); // make image darker
 
-  renderTexturedFullscreenQuad();
+  renderTexturedFullscreenQuad(o);
 
     glMatrixMode(GL_PROJECTION);
-    glPopMatrix();
 
     float fnear = 0.1f, fov = 0.6f;
     float aspect = (float)getWidth() / (float)getHeight();
@@ -603,12 +596,8 @@ glMatrixMode(GL_PROJECTION);
 
     glMatrixMode(GL_MODELVIEW);
 
-
-    //glPushMatrix(); // 0
-
     glm::mat4 t = glm::translate(glm::mat4(1.0f), glm::vec3(-eyetranslation, 0.9f, -5.0f));
     t = glm::rotate(t, 28.0f * 3.141592653f / 180.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-    //glLoadMatrixf(glm::value_ptr(t));
 
     glDisable(GL_FOG);
     glEnable(GL_LIGHTING);
@@ -624,11 +613,8 @@ glMatrixMode(GL_PROJECTION);
 
     t = glm::rotate(t, 3.141592653f / 2.0f, glm::vec3(-1.0f, 0.0f, 0.0f));
     t = glm::rotate(t, tmp, glm::vec3(0.0f, 0.0f, 1.0f));
-    //glLoadMatrixf(glm::value_ptr(t));
 
     renderVehicleType(vtype, t, p);
-
-    //glPopMatrix(); // 0
 
     glDisable(GL_LIGHTING);
 

@@ -1203,7 +1203,7 @@ void MainApp::renderStateLevel(float eyetranslation)
   glColor4f(1.0f, 1.0f, 1.0f, 1.0f); // use image's normal colors
   //glColor4f(0.5f, 0.5f, 0.5f, 1.0f); // make image darker
 
-  renderTexturedFullscreenQuad();
+  renderTexturedFullscreenQuad(glm::mat4(1.0f), o);
 
   glMatrixMode(GL_PROJECTION);
 
