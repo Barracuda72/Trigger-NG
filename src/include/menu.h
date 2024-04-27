@@ -191,9 +191,22 @@ protected:
   void renderWidgetTree(int w);
 
 public:
-  Gui() : cursor(vec2f::zero()), defflash(0.0f) { }
+  Gui() : cursor(vec2f::zero()), defflash(0.0f) {  }
+
+  ~Gui() {
+    delete vao_widget;
+    delete sp_widget;
+  }
 
   bool loadColors(const std::string &filename);
+  void loadVaoShader() {
+    vao_widget = new VAO(
+        widget_vbo, 5 * 4 * sizeof(float),
+        widget_ibo, 6 * sizeof(unsigned short)
+    );
+
+    sp_widget = new ShaderProgram("widget");
+  }
 
     ///
     /// @brief Returns the Gui's colors.
@@ -215,7 +228,9 @@ public:
 
   void doLayout();
 
-  void render();
+  void render(const glm::mat4& p);
+
+  void renderGraphicWidget(const glm::mat4& mv, const glm::mat4& p);
 
   void clear() { widget.clear(); highlight = -1; defwidget = -1; }
 
@@ -238,6 +253,22 @@ public:
   }
 
   void makeDefault(int w) { defwidget = w; }
+
+private:
+  float widget_vbo[20] = {
+    0.0f, 0.0f,   0.0f, 0.0f, 0.0f,
+    1.0f, 0.0f,   1.0f, 0.0f, 0.0f,
+    1.0f, 1.0f,   1.0f, 1.0f, 0.0f,
+    0.0f, 1.0f,   0.0f, 1.0f, 0.0f,
+  };
+
+  unsigned short widget_ibo[6] = {
+    0, 1, 2,
+    2, 3, 0,
+  };
+
+  VAO* vao_widget;
+  ShaderProgram* sp_widget;
 };
 
 

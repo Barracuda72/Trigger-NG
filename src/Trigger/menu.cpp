@@ -1187,13 +1187,8 @@ void MainApp::renderStateLevel(float eyetranslation)
   glDisable(GL_FOG);
   glDisable(GL_LIGHTING);
 
-  glMatrixMode(GL_PROJECTION);
-  glPushMatrix();
   {
   glm::mat4 o = glm::ortho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
-  glLoadMatrixf(glm::value_ptr(o));
-
-  glMatrixMode(GL_MODELVIEW);
 
   // draw background image
 
@@ -1205,14 +1200,10 @@ void MainApp::renderStateLevel(float eyetranslation)
 
   renderTexturedFullscreenQuad(glm::mat4(1.0f), o);
 
-  glMatrixMode(GL_PROJECTION);
-
   const GLdouble margin = (800.0 - 600.0 * cx / cy) / 2.0;
 
   glm::mat4 o2 = glm::ortho(margin, 600.0 * cx / cy + margin, 0.0, 600.0, -1.0, 1.0);
-  glLoadMatrixf(glm::value_ptr(o2));
 
-  glMatrixMode(GL_MODELVIEW);
   // draw GUI
 
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -1221,16 +1212,8 @@ void MainApp::renderStateLevel(float eyetranslation)
 
   tex_fontSourceCodeOutlined->bind();
 
-  glPushMatrix(); // 0
-
-  gui.render();
-
-  glPopMatrix(); // 0
-
-  glMatrixMode(GL_PROJECTION);
+  gui.render(o2);
   }
-  glPopMatrix();
-  glMatrixMode(GL_MODELVIEW);
 
   glBlendFunc(GL_ONE, GL_ZERO);
   glEnable(GL_DEPTH_TEST);
@@ -1347,20 +1330,8 @@ bool Gui::getDefaultAction(int &data1, int &data2)
   return true;
 }
 
-void Gui::render()
+void Gui::render(const glm::mat4& p)
 {
-  float vbo[20] = {
-    0.0f, 0.0f,   0.0f, 0.0f, 0.0f,
-    1.0f, 0.0f,   1.0f, 0.0f, 0.0f,
-    1.0f, 1.0f,   1.0f, 1.0f, 0.0f,
-    0.0f, 1.0f,   0.0f, 1.0f, 0.0f,
-  };
-
-  unsigned int ibo[6] = {
-    0, 1, 2,
-    2, 3, 0,
-  };
-
   for (unsigned int i = 0; i < widget.size(); i++) {
     vec4f colc = vec4f(1.0f, 1.0f, 1.0f, 1.0f);
 
@@ -1389,14 +1360,24 @@ void Gui::render()
       } break;
 
     case GWT_GRAPHIC: {
-      glPushMatrix();
-      glLoadMatrixf(glm::value_ptr(t));
-      glInterleavedArrays(GL_T2F_V3F, 5 * sizeof(GL_FLOAT), vbo);
-      glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, ibo);
-      glPopMatrix();
+      renderGraphicWidget(t, p);
       } break;
     }
   }
+}
+
+void Gui::renderGraphicWidget(const glm::mat4& mv, const glm::mat4& p)
+{
+    vao_widget->bind();
+    sp_widget->use();
+    sp_widget->attrib("tex_coord", 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GL_FLOAT), 0);
+    sp_widget->attrib("position", 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GL_FLOAT), 2 * sizeof(GL_FLOAT));
+    sp_widget->uniform("mv", mv);
+    sp_widget->uniform("p", p);
+    sp_widget->uniform("widget", 0);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
+    sp_widget->unuse();
+    vao_widget->unbind();
 }
 
 // Widget tree stuff wasn't working properly, so I removed it for

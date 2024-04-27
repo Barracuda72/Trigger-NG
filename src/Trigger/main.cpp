@@ -1216,6 +1216,8 @@ bool MainApp::loadAll()
   if (!gui.loadColors("/menu.colors"))
     PUtil::outLog() << "Couldn't load (all) menu colors, continuing with defaults" << std::endl;
 
+  gui.loadVaoShader();
+
   if (!loadLevelsAndEvents()) {
     PUtil::outLog() << "Couldn't load levels/events" << std::endl;
     return false;
