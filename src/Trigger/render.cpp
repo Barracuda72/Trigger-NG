@@ -1109,8 +1109,7 @@ void MainApp::renderStateGame(float eyetranslation)
             zag *= SNOWFLAKE_BOX_SIZE;
 
             glm::mat4 t(1.0f);
-            glGetFloatv(GL_MODELVIEW_MATRIX, glm::value_ptr(t));
-            t = glm::translate(t, glm::vec3(pt.x, pt.y, pt.z));
+            t = glm::translate(mv, glm::vec3(pt.x, pt.y, pt.z));
             t = glm::scale(t, glm::vec3(zag.x, zag.y, zag.z + SNOWFLAKE_BOX_SIZE));
 
             glPushMatrix();
@@ -1194,8 +1193,7 @@ void MainApp::renderStateGame(float eyetranslation)
                 colr = checkpoint_col[1];
 
             glm::mat4 t(1.0f);
-            glGetFloatv(GL_MODELVIEW_MATRIX, glm::value_ptr(t));
-            t = glm::translate(t, glm::vec3(game->checkpt[i].pt.x, game->checkpt[i].pt.y, game->checkpt[i].pt.z));
+            t = glm::translate(mv, glm::vec3(game->checkpt[i].pt.x, game->checkpt[i].pt.y, game->checkpt[i].pt.z));
             t = glm::scale(t, glm::vec3(25.0f, 25.0f, 1.0f));
 
 #if 0 // Checkpoint style one (one strip)
