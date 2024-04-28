@@ -148,7 +148,6 @@ glm::mat4 PApp::stereoFrustum(float xmin, float xmax, float ymin, float ymax, fl
   float xmove = -eye * znear / zzps;
 
   glm::mat4 frust = glm::frustum(xmin + xmove, xmax + xmove, ymin, ymax, znear, zfar);
-  glLoadMatrixf(glm::value_ptr(frust));
 
   return frust;
 }
