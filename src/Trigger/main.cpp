@@ -1291,11 +1291,23 @@ void MainApp::loadShadersAndVao()
         bckgnd_ibo, 4 * sizeof(unsigned short)
     );
 
+    snow_vao = new VAO(
+        snow_vbo, 5 * 4 * sizeof(GL_FLOAT),
+        snow_ibo, 4 * sizeof(unsigned short)
+    );
+
+    buildSkyVao();
+
     sp_map_marker = new ShaderProgram("map_marker");
     sp_rpm_dial = new ShaderProgram("rpm_dial");
     sp_rpm_needle = new ShaderProgram("rpm_needle");
     sp_water = new ShaderProgram("water");
     sp_bckgnd = new ShaderProgram("bckgnd");
+    sp_rain = new ShaderProgram("rain");
+    sp_snow = new ShaderProgram("snow");
+    sp_chkpt = new ShaderProgram("chkpt");
+    sp_map = new ShaderProgram("map");
+    sp_sky = new ShaderProgram("sky");
 }
 
 void MainApp::unload()
@@ -1306,10 +1318,17 @@ void MainApp::unload()
   delete sp_rpm_needle;
   delete sp_water;
   delete sp_bckgnd;
+  delete sp_rain;
+  delete sp_snow;
+  delete sp_chkpt;
+  delete sp_map;
+  delete sp_sky;
 
   delete map_marker_vao;
   delete rpm_dial_vao;
   delete bckgnd_vao;
+  delete snow_vao;
+  delete sky_vao;
 
   endGame(Gamefinish::not_finished);
 

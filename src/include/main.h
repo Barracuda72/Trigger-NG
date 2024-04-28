@@ -23,6 +23,7 @@
 #include <psim.h>
 #include <unordered_map>
 
+#include <glm/vec4.hpp>
 
 // Forward declaration for TriggerGame to use
 class MainApp;
@@ -647,6 +648,7 @@ public:
 	void renderRain(const glm::mat4& mv, const glm::mat4& p);
 	void renderSnow(const glm::mat4& mv, const glm::mat4& p);
 	void renderCheckpoints(int nextcp, const glm::mat4& mv, const glm::mat4& p);
+	void buildSkyVao();
 
 	void keyEvent(const SDL_KeyboardEvent &ke);
 	void mouseMoveEvent(int dx, int dy);
@@ -681,10 +683,18 @@ private:
     ShaderProgram* sp_map_marker;
     ShaderProgram* sp_water;
     ShaderProgram* sp_bckgnd;
+    ShaderProgram* sp_snow;
+    ShaderProgram* sp_rain;
+    ShaderProgram* sp_chkpt;
+    ShaderProgram* sp_map;
+    ShaderProgram* sp_sky;
 
     VAO* map_marker_vao;
     VAO* rpm_dial_vao;
     VAO* bckgnd_vao;
+    VAO* snow_vao;
+    VAO* sky_vao;
+    size_t sky_size = 0;
 
     /// Map marker
     // 2f position, 1f alpha
@@ -722,6 +732,20 @@ private:
     };
 
     unsigned short bckgnd_ibo[4] = {
+        0, 1, 2, 3,
+    };
+
+    /// Snow
+    // GL_T2F_V3F
+    // Texture coordinates will be ignored if texturing is disabled
+    float snow_vbo[20] = {
+        1.0f, 1.0f,  0.0f, 0.0f, 0.0f,
+        0.0f, 1.0f,  0.0f, 0.0f, 1.0f,
+        1.0f, 0.0f,  1.0f, 1.0f, 0.0f,
+        0.0f, 0.0f,  1.0f, 1.0f, 1.0f,
+    };
+
+    unsigned short snow_ibo[4] = {
         0, 1, 2, 3,
     };
 };

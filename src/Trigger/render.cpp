@@ -152,76 +152,78 @@ void MainApp::renderWater(const glm::mat4& mv, const glm::mat4& p)
     glBlendFunc(GL_ONE,GL_ZERO);
 }
 
+void MainApp::buildSkyVao()
+{
+    const int CLRANGE = 10;
+    const float CLFACTOR = 0.02f; //0.014
+
+    int x_stride = 2 * CLRANGE + 1;
+    float* vbo = new float[(2 * CLRANGE + 1)*(2 * CLRANGE)*5];
+    unsigned short* ibo = new unsigned short[(2 * CLRANGE + 2)*(2 * CLRANGE)*2];
+
+    for (int y=-CLRANGE; y<CLRANGE; y++)
+    {
+        int y3 = y + CLRANGE;
+        for (int x=-CLRANGE; x<CLRANGE+1; x++)
+        {
+            int x3 = x + CLRANGE;
+            vbo[(y3 * x_stride + x3) * 5 + 0] = x;
+            vbo[(y3 * x_stride + x3) * 5 + 1] = y;
+            vbo[(y3 * x_stride + x3) * 5 + 2] = x;
+            vbo[(y3 * x_stride + x3) * 5 + 3] = y;
+            vbo[(y3 * x_stride + x3) * 5 + 4] = 0.3-(x*x+y*y)*CLFACTOR;
+        }
+    }
+
+    for (int y2 = 0; y2 < 2 * CLRANGE; y2++) {
+        for (int x2 = 0; x2 < 2 * CLRANGE + 1; x2++) {
+            ibo[(y2 * (x_stride+1) + x2)*2 + 0] = (y2 + 1) * (x_stride) + (x2 + 0);
+            ibo[(y2 * (x_stride+1) + x2)*2 + 1] = (y2 + 0) * (x_stride) + (x2 + 0);
+        }
+        ibo[(y2 * (x_stride+1) + 2*CLRANGE+1)*2 + 0] = 0; // Restart strip
+        ibo[(y2 * (x_stride+1) + 2*CLRANGE+1)*2 + 1] = 0;
+    }
+
+    sky_vao = new VAO(
+        vbo, 5 * sizeof(float) * (2 * CLRANGE + 1)*(2 * CLRANGE),
+        ibo, (2 * CLRANGE + 2)*(2 * CLRANGE)*2 * sizeof(unsigned short)
+    );
+
+    sky_size = (2 * CLRANGE + 1)*(2 * CLRANGE)*2;
+
+    delete[] vbo;
+    delete[] ibo;
+}
+
 void MainApp::renderSky(const glm::mat4 &cammat, const glm::mat4& p)
 {
     glFogf(GL_FOG_DENSITY, game->weather.fog.density_sky);
     glDepthRange(0.999,1.0);
     glDisable(GL_CULL_FACE);
 
-    {
-#define CLRANGE     10
-#define CLFACTOR    0.02//0.014
-      {
-        int x_stride = 2 * CLRANGE + 1;
-        float* vbo = new float[(2 * CLRANGE + 1)*(2 * CLRANGE)*5];
-        unsigned short* ibo = new unsigned short[(2 * CLRANGE + 2)*(2 * CLRANGE)*2];
+    glm::mat4 t(1.0);
+    t = glm::translate(t, glm::vec3(cloudscroll, 0.0f, 0.0f));
+    t = glm::rotate(t, 30.0f / 360.0f * 2 * 3.141592653f, glm::vec3(0.0f, 0.0f, 1.0f));
+    t = glm::scale(t, glm::vec3(0.4f, 0.4f, 1.0f));
 
-        glm::mat4 t(1.0);
-        t = glm::translate(t, glm::vec3(cloudscroll, 0.0f, 0.0f));
-        t = glm::rotate(t, 30.0f / 360.0f * 2 * 3.141592653f, glm::vec3(0.0f, 0.0f, 1.0f));
-        t = glm::scale(t, glm::vec3(0.4f, 0.4f, 1.0f));
+    sp_sky->use();
+    sky_vao->bind();
 
-        for (int y=-CLRANGE; y<CLRANGE; y++)
-        {
-            int y3 = y + CLRANGE;
-            for (int x=-CLRANGE; x<CLRANGE+1; x++)
-            {
-                int x3 = x + CLRANGE;
-                glm::vec4 k = t * glm::vec4(x, y, 0.0f, 1.0f);
-                vbo[(y3 * x_stride + x3) * 5 + 0] = k.x;
-                vbo[(y3 * x_stride + x3) * 5 + 1] = k.y;
-                vbo[(y3 * x_stride + x3) * 5 + 2] = x;
-                vbo[(y3 * x_stride + x3) * 5 + 3] = y;
-                vbo[(y3 * x_stride + x3) * 5 + 4] = 0.3-(x*x+y*y)*CLFACTOR;
-            }
-        }
+    sp_sky->attrib("tex_coord", 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), 0);
+    sp_sky->attrib("vert_coord", 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), 2 * sizeof(float));
 
-        for (int y2 = 0; y2 < 2 * CLRANGE; y2++) {
-            for (int x2 = 0; x2 < 2 * CLRANGE + 1; x2++) {
-                ibo[(y2 * (x_stride+1) + x2)*2 + 0] = (y2 + 1) * (x_stride) + (x2 + 0);
-                ibo[(y2 * (x_stride+1) + x2)*2 + 1] = (y2 + 0) * (x_stride) + (x2 + 0);
-            }
-            ibo[(y2 * (x_stride+1) + 2*CLRANGE+1)*2 + 0] = 0; // Restart strip
-            ibo[(y2 * (x_stride+1) + 2*CLRANGE+1)*2 + 1] = 0;
-        }
+    sp_sky->uniform("t_transform", t);
 
-        glActiveTexture(GL_TEXTURE0);
-        tex_sky[0]->bind();
-        VAO vao(
-                vbo, 5 * sizeof(float) * (2 * CLRANGE + 1)*(2 * CLRANGE),
-                ibo, (2 * CLRANGE + 2)*(2 * CLRANGE)*2 * sizeof(unsigned short)
-                );
+    glActiveTexture(GL_TEXTURE0);
+    tex_sky[0]->bind();
+    sp_sky->uniform("tex", 0);
+    sp_sky->uniform("mv", cammat);
+    sp_sky->uniform("p", p);
 
-        ShaderProgram sp("sky");
-        sp.use();
+    glDrawElements(GL_TRIANGLE_STRIP, sky_size, GL_UNSIGNED_SHORT, 0);
+    sp_sky->unuse();
+    sky_vao->unbind();
 
-        vao.bind();
-
-        sp.attrib("tex_coord", 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), 0);
-        sp.attrib("vert_coord", 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), 2 * sizeof(float));
-
-        sp.uniform("t_transform", t);
-
-        sp.uniform("tex", 0);
-        sp.uniform("mv", cammat);
-        sp.uniform("p", p);
-
-        glDrawElements(GL_TRIANGLE_STRIP, (2 * CLRANGE + 1)*(2 * CLRANGE)*2, GL_UNSIGNED_SHORT, 0);
-
-        delete[] ibo;
-        delete[] vbo;
-      }
-    }
     glEnable(GL_CULL_FACE);
     glDepthRange(0.0,0.999);
     glFogf(GL_FOG_DENSITY, game->weather.fog.density);
@@ -887,7 +889,7 @@ void MainApp::renderStateGame(float eyetranslation)
     mv = cammat * mv;
 
     mv = glm::translate(mv, -campos_gl);
-    glLoadMatrixf(glm::value_ptr(mv));
+    //glLoadMatrixf(glm::value_ptr(mv));
 
     float lpos[] = { 0.2, 0.5, 1.0, 0.0 };
     glLightfv(GL_LIGHT0, GL_POSITION, lpos);
@@ -1436,8 +1438,8 @@ void MainApp::renderStateGame(float eyetranslation)
 
 void MainApp::renderRain(const glm::mat4& mv, const glm::mat4& p)
 {
-#define RAINDROP_WIDTH          0.015
-    const glm::vec4 raindrop_col(0.5,0.5,0.5,0.4);
+    glm::vec4 raindrop_col(0.5f, 0.5f, 0.5f, 0.4f);
+    const float raindrop_width = 0.015f;
 
     vec3f offsetdrops = campos - campos_prev;
 
@@ -1465,7 +1467,7 @@ void MainApp::renderRain(const glm::mat4& mv, const glm::mat4& p)
         vec3f pt2 = rain[i].drop_pt + rain[i].drop_vect * rain[i].life;
         vec3f zag = campos - rain[i].drop_pt;
         zag = zag.cross(rain[i].drop_vect);
-        zag *= RAINDROP_WIDTH / zag.length();
+        zag *= raindrop_width / zag.length();
 
         for (unsigned int j = 0; j < 6; j++)
         {
@@ -1483,8 +1485,21 @@ void MainApp::renderRain(const glm::mat4& mv, const glm::mat4& p)
         ibo[i * 8 + 7] = 0;
     }
 
-    glInterleavedArrays(GL_C4F_N3F_V3F, 10 * sizeof(float), vbo);
-    glDrawElements(GL_TRIANGLE_STRIP, rain.size() * 8, GL_UNSIGNED_SHORT, ibo);
+    VAO vao(
+        vbo, rain.size() * 6 * 10 * sizeof(float),
+        ibo, rain.size() * 8 * sizeof(unsigned short)
+    );
+    vao.bind();
+
+    sp_rain->use();
+    sp_rain->attrib("color", 4, GL_FLOAT, GL_FALSE, 10 * sizeof(float), 0);
+    sp_rain->attrib("normal", 3, GL_FLOAT, GL_FALSE, 10 * sizeof(float), 4 * sizeof(float));
+    sp_rain->attrib("position", 3, GL_FLOAT, GL_FALSE, 10 * sizeof(float), 7 * sizeof(float));
+    sp_rain->uniform("mv", mv);
+    sp_rain->uniform("p", p);
+    //glInterleavedArrays(GL_C4F_N3F_V3F, 10 * sizeof(float), vbo);
+    glDrawElements(GL_TRIANGLE_STRIP, rain.size() * 8, GL_UNSIGNED_SHORT, 0);
+    sp_rain->unuse();
 
     delete[] ibo;
     delete[] vbo;
@@ -1514,6 +1529,7 @@ void MainApp::renderSnow(const glm::mat4& mv, const glm::mat4& p)
         glPointSize(SNOWFLAKE_POINT_SIZE);
     }
     else*/
+    snow_vao->bind();
     if (cfg_snowflaketype == SnowFlakeType::textured)
     {
         glEnable(GL_TEXTURE_2D);
@@ -1521,18 +1537,11 @@ void MainApp::renderSnow(const glm::mat4& mv, const glm::mat4& p)
         tex_snowflake->bind();
     }
 
-    // GL_T2F_V3F
-    // Texture coordinates will be ignored if texturing is disabled
-    float snow_vbo[20] = {
-        1.0f, 1.0f,  0.0f, 0.0f, 0.0f,
-        0.0f, 1.0f,  0.0f, 0.0f, 1.0f,
-        1.0f, 0.0f,  1.0f, 1.0f, 0.0f,
-        0.0f, 0.0f,  1.0f, 1.0f, 1.0f,
-    };
-
-    unsigned short snow_ibo[] = {
-        0, 1, 2, 3,
-    };
+    sp_snow->use();
+    sp_snow->attrib("tex_coord", 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GL_FLOAT), 0);
+    sp_snow->attrib("position", 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GL_FLOAT), 2 * sizeof(GL_FLOAT));
+    sp_snow->uniform("p", p);
+    sp_snow->uniform("snow", 0);
 
     for (const SnowFlake &sf: snowfall)
     {
@@ -1573,13 +1582,10 @@ void MainApp::renderSnow(const glm::mat4& mv, const glm::mat4& p)
             t = glm::translate(mv, glm::vec3(pt.x, pt.y, pt.z));
             t = glm::scale(t, glm::vec3(zag.x, zag.y, zag.z + SNOWFLAKE_BOX_SIZE));
 
-            glPushMatrix();
-            glLoadMatrixf(glm::value_ptr(t));
+            sp_snow->uniform("mv", t);
+            sp_snow->uniform("alpha", alpha);
 
-            glColor4f(1.0f, 1.0f, 1.0f, alpha);
-            glInterleavedArrays(GL_T2F_V3F, 5 * sizeof(float), snow_vbo);
-            glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_SHORT, snow_ibo);
-            glPopMatrix();
+            glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_SHORT, 0);
         }
     }
 
@@ -1592,6 +1598,8 @@ void MainApp::renderSnow(const glm::mat4& mv, const glm::mat4& p)
         glDisable(GL_TEXTURE_2D);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
+    sp_snow->unuse();
+    snow_vao->unbind();
 }
 
 void MainApp::renderCheckpoints(int nextcp, const glm::mat4& mv, const glm::mat4& p)
