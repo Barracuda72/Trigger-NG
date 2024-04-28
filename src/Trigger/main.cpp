@@ -1297,6 +1297,7 @@ void MainApp::loadShadersAndVao()
     );
 
     buildSkyVao();
+    buildChkptVao();
 
     sp_map_marker = new ShaderProgram("map_marker");
     sp_rpm_dial = new ShaderProgram("rpm_dial");
@@ -1312,7 +1313,6 @@ void MainApp::loadShadersAndVao()
 
 void MainApp::unload()
 {
-
   delete sp_map_marker;
   delete sp_rpm_dial;
   delete sp_rpm_needle;
@@ -1329,6 +1329,7 @@ void MainApp::unload()
   delete bckgnd_vao;
   delete snow_vao;
   delete sky_vao;
+  delete chkpt_vao;
 
   endGame(Gamefinish::not_finished);
 

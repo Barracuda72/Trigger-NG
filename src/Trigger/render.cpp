@@ -1596,69 +1596,74 @@ void MainApp::renderSnow(const glm::mat4& mv, const glm::mat4& p)
     snow_vao->unbind();
 }
 
+void MainApp::buildChkptVao()
+{
+    // GL_C4F_N3F_V3F
+    const int N_SPLITS = 20;
+
+    float* check_vbo = new float[(N_SPLITS) * 3 * 10];
+    memset(check_vbo, 0, (N_SPLITS) * 3 * 10 * sizeof(float));
+    unsigned short* check_ibo = new unsigned short[(N_SPLITS+1)*4];
+    vec4f col = checkpoint_col[2];
+
+    for (int i = 0; i < N_SPLITS; i++)
+    {
+        float a = i * 2 * PI / N_SPLITS;
+
+        for (int j = 0; j < 3; j++)
+        {
+            check_vbo[(i*3 + j) * 10 + 0] = 0.0f;
+            check_vbo[(i*3 + j) * 10 + 1] = 0.0f;
+            check_vbo[(i*3 + j) * 10 + 2] = 0.0f;
+            check_vbo[(i*3 + j) * 10 + 3] = (j == 1);
+            // Skip normal
+            check_vbo[(i*3 + j) * 10 + 7] = cosf(a);
+            check_vbo[(i*3 + j) * 10 + 8] = sinf(a);
+            check_vbo[(i*3 + j) * 10 + 9] = j - 1;
+        }
+    }
+
+    for (int i = 0; i < N_SPLITS+1; i++) {
+        check_ibo[i * 2 + 0] = (i % N_SPLITS) * 3 + 0;
+        check_ibo[i * 2 + 1] = (i % N_SPLITS) * 3 + 1;
+
+        check_ibo[(i + N_SPLITS + 1) * 2 + 0] = (i % N_SPLITS) * 3 + 1;
+        check_ibo[(i + N_SPLITS + 1) * 2 + 1] = (i % N_SPLITS) * 3 + 2;
+    }
+
+    chkpt_vao = new VAO(
+        check_vbo, (N_SPLITS) * 3 * 10 * sizeof(float),
+        check_ibo, (N_SPLITS+1)*4 * sizeof(unsigned short)
+    );
+
+    delete[] check_vbo;
+    delete[] check_ibo;
+
+    chkpt_size = (N_SPLITS+1)*4;
+}
+
 void MainApp::renderCheckpoints(int nextcp, const glm::mat4& mv, const glm::mat4& p)
 {
-        ShaderProgram sp("chkpt");
-        sp.use();
-        sp.uniform("p", p);
+    chkpt_vao->bind();
+    sp_chkpt->use();
+    sp_chkpt->uniform("p", p);
 
-        // GL_C4F_N3F_V3F
-        const int N_SPLITS = 20;
+    sp_chkpt->attrib("d_color", 4, GL_FLOAT, GL_FALSE, 10 * sizeof(float), 0);
+    sp_chkpt->attrib("normal", 3, GL_FLOAT, GL_FALSE, 10 * sizeof(float), 4 * sizeof(float));
+    sp_chkpt->attrib("position", 3, GL_FLOAT, GL_FALSE, 10 * sizeof(float), 7 * sizeof(float));
 
-        float* check_vbo = new float[(N_SPLITS) * 3 * 10];
-        memset(check_vbo, 0, (N_SPLITS) * 3 * 10 * sizeof(float));
-        unsigned short* check_ibo = new unsigned short[(N_SPLITS+1)*4];
-        vec4f col = checkpoint_col[2];
+    for (unsigned int i=0; i<game->checkpt.size(); i++)
+    {
+        vec4f colr = checkpoint_col[2];
 
-        for (int i = 0; i < N_SPLITS; i++)
-        {
-            float a = i * 2 * PI / N_SPLITS;
+        if ((int)i == nextcp)
+            colr = checkpoint_col[0];
+        else if ((int)i == (nextcp + 1) % (int)game->checkpt.size())
+            colr = checkpoint_col[1];
 
-            for (int j = 0; j < 3; j++)
-            {
-                check_vbo[(i*3 + j) * 10 + 0] = 0.0f;
-                check_vbo[(i*3 + j) * 10 + 1] = 0.0f;
-                check_vbo[(i*3 + j) * 10 + 2] = 0.0f;
-                check_vbo[(i*3 + j) * 10 + 3] = (j == 1);
-                // Skip normal
-                check_vbo[(i*3 + j) * 10 + 7] = cosf(a);
-                check_vbo[(i*3 + j) * 10 + 8] = sinf(a);
-                check_vbo[(i*3 + j) * 10 + 9] = j - 1;
-
-            }
-        }
-
-        for (int i = 0; i < N_SPLITS+1; i++) {
-            check_ibo[i * 2 + 0] = (i % N_SPLITS) * 3 + 0;
-            check_ibo[i * 2 + 1] = (i % N_SPLITS) * 3 + 1;
-
-            check_ibo[(i + N_SPLITS + 1) * 2 + 0] = (i % N_SPLITS) * 3 + 1;
-            check_ibo[(i + N_SPLITS + 1) * 2 + 1] = (i % N_SPLITS) * 3 + 2;
-        }
-
-        VAO vao(
-            check_vbo, (N_SPLITS) * 3 * 10 * sizeof(float),
-            check_ibo, (N_SPLITS+1)*4 * sizeof(unsigned short)
-        );
-
-        vao.bind();
-
-        sp.attrib("d_color", 4, GL_FLOAT, GL_FALSE, 10 * sizeof(float), 0);
-        sp.attrib("normal", 3, GL_FLOAT, GL_FALSE, 10 * sizeof(float), 4 * sizeof(float));
-        sp.attrib("position", 3, GL_FLOAT, GL_FALSE, 10 * sizeof(float), 7 * sizeof(float));
-
-        for (unsigned int i=0; i<game->checkpt.size(); i++)
-        {
-            vec4f colr = checkpoint_col[2];
-
-            if ((int)i == nextcp)
-                colr = checkpoint_col[0];
-            else if ((int)i == (nextcp + 1) % (int)game->checkpt.size())
-                colr = checkpoint_col[1];
-
-            glm::mat4 t(1.0f);
-            t = glm::translate(mv, glm::vec3(game->checkpt[i].pt.x, game->checkpt[i].pt.y, game->checkpt[i].pt.z));
-            t = glm::scale(t, glm::vec3(25.0f, 25.0f, 1.0f));
+        glm::mat4 t(1.0f);
+        t = glm::translate(mv, glm::vec3(game->checkpt[i].pt.x, game->checkpt[i].pt.y, game->checkpt[i].pt.z));
+        t = glm::scale(t, glm::vec3(25.0f, 25.0f, 1.0f));
 
 #if 0 // Checkpoint style one (one strip)
             glPushMatrix(); // 1
@@ -1686,18 +1691,19 @@ void MainApp::renderCheckpoints(int nextcp, const glm::mat4& mv, const glm::mat4
             glEnd();
             glPopMatrix(); // 1
 #else // Regular checkpoint style (two strips)
-            float ht = sinf(cprotate * 6.0f) * 7.0f + 8.0f;
+        float ht = sinf(cprotate * 6.0f) * 7.0f + 8.0f;
 
-            t = glm::translate(t, glm::vec3(0.0f, 0.0f, ht));
+        t = glm::translate(t, glm::vec3(0.0f, 0.0f, ht));
 
-            sp.uniform("color", glm::vec4(colr[0], colr[1], colr[2], colr[3]));
-            sp.uniform("mv", t);
-            glDrawElements(GL_TRIANGLE_STRIP, (N_SPLITS+1)*4, GL_UNSIGNED_SHORT, 0);
+        sp_chkpt->uniform("color", glm::vec4(colr[0], colr[1], colr[2], colr[3]));
+        sp_chkpt->uniform("mv", t);
+
+        glDrawElements(GL_TRIANGLE_STRIP, chkpt_size, GL_UNSIGNED_SHORT, 0);
 #endif
-        }
+    }
 
-        delete[] check_vbo;
-        delete[] check_ibo;
+    sp_chkpt->unuse();
+    chkpt_vao->unbind();
 
 // codriver checkpoints rendering
 #ifdef INDEVEL

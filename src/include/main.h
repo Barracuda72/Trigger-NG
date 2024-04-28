@@ -649,6 +649,7 @@ public:
 	void renderSnow(const glm::mat4& mv, const glm::mat4& p);
 	void renderCheckpoints(int nextcp, const glm::mat4& mv, const glm::mat4& p);
 	void buildSkyVao();
+	void buildChkptVao();
 
 	void keyEvent(const SDL_KeyboardEvent &ke);
 	void mouseMoveEvent(int dx, int dy);
@@ -694,7 +695,9 @@ private:
     VAO* bckgnd_vao;
     VAO* snow_vao;
     VAO* sky_vao;
+    VAO* chkpt_vao;
     size_t sky_size = 0;
+    size_t chkpt_size = 0;
 
     /// Map marker
     // 2f position, 1f alpha
