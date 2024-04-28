@@ -719,43 +719,52 @@ void MainApp::renderRpmDial(float rpm, const glm::mat4& p)
         0, 1, 2, 3,
     };
 
-      glMatrixMode(GL_PROJECTION);
-      glPushMatrix();
-      glLoadMatrixf(glm::value_ptr(p));
-      glMatrixMode(GL_MODELVIEW);
+    VAO vao(
+        vbo, 5 * 4 * sizeof(float),
+        ibo, 4 * sizeof(unsigned short)
+    );
 
-      glPushMatrix(); // 1
+      vao.bind();
+      ShaderProgram sp_dial("rpm_dial");
+      sp_dial.use();
+      sp_dial.attrib("tex_coord", 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GL_FLOAT), 0);
+      sp_dial.attrib("position", 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GL_FLOAT), 2 * sizeof(GL_FLOAT));
+
       // position of rpm dial and needle
       //glTranslatef( hratio * (1.f - (5.75f/50.f)) - 0.3f, -vratio * (40.f/50.f) + 0.22f, 0.0f);
 
       glm::mat4 t = glm::translate(glm::mat4(1.0f), glm::vec3(hratio * (1.f - (2.5f/50.f)) - 0.3f, -vratio * (43.5f/50.f) + 0.22f, 0.0f));
       t = glm::scale(t, glm::vec3(0.30f, 0.30f, 1.0f));
-      glLoadMatrixf(glm::value_ptr(t));
 
+      glActiveTexture(GL_TEXTURE0);
       tex_hud_revs->bind();
 
-      glColor3f(1.0f, 1.0f, 1.0f);
-      glInterleavedArrays(GL_T2F_V3F, 5 * sizeof(float), vbo);
-      glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_SHORT, ibo);
+      sp_dial.uniform("mv", t);
+      sp_dial.uniform("p", p);
+      sp_dial.uniform("dial", 0);
+      glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_SHORT, 0);
+      sp_dial.unuse();
 
+      ShaderProgram sp_needle("rpm_needle");
+      sp_needle.use();
+      sp_needle.attrib("tex_coord", 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GL_FLOAT), 0);
+      sp_needle.attrib("position", 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GL_FLOAT), 2 * sizeof(GL_FLOAT));
       // draw the needle of the RPM dial
       const float my_pi = 3.67f; // TODO: I know that's stupid, but... whatever
       t = glm::rotate(t, (my_pi / 4 * 5) - (rpm / 1000.0f) * (my_pi / 12.0f), glm::vec3(0.0f, 0.0f, 1.0f));
       t = glm::translate(t, glm::vec3(0.62f, 0.0f, 0.0f));
       t = glm::scale(t, glm::vec3(0.16f, 0.16f, 0.16f));
-      glLoadMatrixf(glm::value_ptr(t));
 
+      glActiveTexture(GL_TEXTURE0);
       tex_hud_revneedle->bind();
 
-      glColor3f(1.0f, 1.0f, 1.0f);
-      glInterleavedArrays(GL_T2F_V3F, 5 * sizeof(float), vbo);
-      glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_SHORT, ibo);
+      sp_needle.uniform("mv", t);
+      sp_needle.uniform("p", p);
+      sp_needle.uniform("needle", 0);
+
+      glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_SHORT, 0);
 
       glDisable(GL_TEXTURE_2D); // TODO: WTH it's here???
-      glPopMatrix(); // 1
-      glMatrixMode(GL_PROJECTION);
-      glPopMatrix();
-      glMatrixMode(GL_MODELVIEW);
 }
 
 void MainApp::renderMapMarker(const glm::vec2& vpos, float angle, const glm::vec4& col, float sc, const glm::mat4& mv, const glm::mat4& p)
