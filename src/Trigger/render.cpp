@@ -862,14 +862,10 @@ void MainApp::renderStateGame(float eyetranslation)
     glClear(GL_DEPTH_BUFFER_BIT);
     //glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-
     float fnear = 0.1f, fov = 0.6f;
     float aspect = (float)getWidth() / (float)getHeight();
     glm::mat4 p = stereoFrustum(-fnear*aspect*fov,fnear*aspect*fov,-fnear*fov,fnear*fov,fnear,100000.0f,
                   0.8f, eyetranslation);
-    glMatrixMode(GL_MODELVIEW);
 
     glColor3f(1.0,1.0,1.0);
 
