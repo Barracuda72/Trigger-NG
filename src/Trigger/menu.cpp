@@ -1194,10 +1194,6 @@ void MainApp::renderStateLevel(float eyetranslation)
 
   tex_splash_screen->bind();
 
-  //glColor4f(0.0f, 0.0f, 0.2f, 1.0f); // make image dark blue
-  glColor4f(1.0f, 1.0f, 1.0f, 1.0f); // use image's normal colors
-  //glColor4f(0.5f, 0.5f, 0.5f, 1.0f); // make image darker
-
   renderTexturedFullscreenQuad(glm::mat4(1.0f), o);
 
   const GLdouble margin = (800.0 - 600.0 * cx / cy) / 2.0;
@@ -1208,7 +1204,7 @@ void MainApp::renderStateLevel(float eyetranslation)
 
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-  glColor4f(1.0f, 1.0f, 1.0f, 0.2f);
+  //glColor4f(1.0f, 1.0f, 1.0f, 0.2f);
 
   tex_fontSourceCodeOutlined->bind();
 
@@ -1344,7 +1340,7 @@ void Gui::render(const glm::mat4& p)
     if ((int)i == defwidget)
       colc += vec4f(0.1f, -0.1f, -0.1f, 0.0f) * sinf(defflash);
 
-    glColor4fv(colc);
+    glm::vec4 col_c = glm::vec4(colc.x, colc.y, colc.z, colc.w);
 
     widget[i].tex->bind();
 
@@ -1356,22 +1352,23 @@ void Gui::render(const glm::mat4& p)
 
     switch(widget[i].type) {
     case GWT_LABEL: {
-      ssRender->drawText(widget[i].text, PTEXT_HZA_LEFT | PTEXT_VTA_BOTTOM, t, p);
+      ssRender->drawText(widget[i].text, col_c, PTEXT_HZA_LEFT | PTEXT_VTA_BOTTOM, t, p);
       } break;
 
     case GWT_GRAPHIC: {
-      renderGraphicWidget(t, p);
+      renderGraphicWidget(col_c, t, p);
       } break;
     }
   }
 }
 
-void Gui::renderGraphicWidget(const glm::mat4& mv, const glm::mat4& p)
+void Gui::renderGraphicWidget(const glm::vec4& color, const glm::mat4& mv, const glm::mat4& p)
 {
     vao_widget->bind();
     sp_widget->use();
     sp_widget->attrib("tex_coord", 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GL_FLOAT), 0);
     sp_widget->attrib("position", 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GL_FLOAT), 2 * sizeof(GL_FLOAT));
+    sp_widget->uniform("color", color);
     sp_widget->uniform("mv", mv);
     sp_widget->uniform("p", p);
     sp_widget->uniform("widget", 0);

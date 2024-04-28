@@ -304,8 +304,6 @@ void MainApp::renderStateLoading(float eyetranslation)
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-
     renderTexturedFullscreenQuad(o);
 
     tex_loading_screen->bind();
@@ -415,8 +413,6 @@ void MainApp::renderStateEnd(float eyetranslation)
     glDisable(GL_LIGHTING);
     glBlendFunc(GL_ONE, GL_ZERO);
 
-    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-
     renderTexturedFullscreenQuad(o);
 
     tex_fontSourceCodeOutlined->bind();
@@ -460,9 +456,9 @@ void MainApp::renderStateEnd(float eyetranslation)
             glm::mat4 q = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, (float)i * -2.0f, 0.0f));
             q = glm::scale(q, glm::vec3(enlarge, enlarge, 0.0f));
 
-            glColor4f(1.0f, 1.0f, 1.0f, level);
+            glm::vec4 cl = glm::vec4(1.0f, 1.0f, 1.0f, level);
 
-            getSSRender().drawText(creditstext[i], PTEXT_HZA_CENTER | PTEXT_VTA_CENTER, t * q, o);
+            getSSRender().drawText(creditstext[i], cl, PTEXT_HZA_CENTER | PTEXT_VTA_CENTER, t * q, o);
         }
     }
 
@@ -575,10 +571,6 @@ void MainApp::renderStateChoose(float eyetranslation)
 
   tex_splash_screen->bind();
 
-  //glColor4f(0.0f, 0.0f, 0.2f, 1.0f); // make image dark blue
-  glColor4f(1.0f, 1.0f, 1.0f, 1.0f); // use image's normal colors
-  //glColor4f(0.5f, 0.5f, 0.5f, 1.0f); // make image darker
-
   renderTexturedFullscreenQuad(o);
 
     float fnear = 0.1f, fov = 0.6f;
@@ -626,55 +618,47 @@ void MainApp::renderStateChoose(float eyetranslation)
 
     glm::mat4 q(1.0f);
 
+    glm::vec4 cl_weak = glm::vec4(gwc.weak.x, gwc.weak.y, gwc.weak.z, gwc.weak.w);
+    glm::vec4 cl_strong = glm::vec4(gwc.strong.x, gwc.strong.y, gwc.strong.z, gwc.strong.w);
+    glm::vec4 cl_header = glm::vec4(gwc.header.x, gwc.header.y, gwc.header.z, gwc.header.w);
+
     q = glm::translate(glm::mat4(1.0f), glm::vec3(10.0f, 570.0f, 0.0f));
-    glColor4f(gwc.weak.x, gwc.weak.y, gwc.weak.z, gwc.weak.w);
-    getSSRender().drawText("Trigger Rally", PTEXT_HZA_LEFT | PTEXT_VTA_CENTER, q * scale_big, o2);
+    getSSRender().drawText("Trigger Rally", cl_weak, PTEXT_HZA_LEFT | PTEXT_VTA_CENTER, q * scale_big, o2);
 
     q = glm::translate(glm::mat4(1.0f), glm::vec3(790.0f, 570.0f, 0.0f));
-    glColor4f(gwc.weak.x, gwc.weak.y, gwc.weak.z, gwc.weak.w);
     getSSRender().drawText(
         "car selection " + std::to_string(choose_type + 1) + '/' + std::to_string(game->vehiclechoices.size()),
-        PTEXT_HZA_RIGHT | PTEXT_VTA_CENTER, q * scale_small, o2);
+        cl_weak, PTEXT_HZA_RIGHT | PTEXT_VTA_CENTER, q * scale_small, o2);
 
     q = glm::translate(glm::mat4(1.0f), glm::vec3(100.0f, 230.0f, 0.0f));
-    glColor4f(gwc.header.x, gwc.header.y, gwc.header.z, gwc.header.w);
-    getSSRender().drawText(vtype->proper_name.substr(0, 9), PTEXT_HZA_LEFT | PTEXT_VTA_CENTER, q * scale_big, o2);
+    getSSRender().drawText(vtype->proper_name.substr(0, 9), cl_header, PTEXT_HZA_LEFT | PTEXT_VTA_CENTER, q * scale_big, o2);
 
     q = glm::translate(glm::mat4(1.0f), glm::vec3(100.0f, 200.0f, 0.0f));
-    glColor4f(gwc.strong.x, gwc.strong.y, gwc.strong.z, gwc.strong.w);
-    getSSRender().drawText(vtype->proper_class.substr(0, 8), PTEXT_HZA_LEFT | PTEXT_VTA_CENTER, q * scale_small, o2);
+    getSSRender().drawText(vtype->proper_class.substr(0, 8), cl_strong, PTEXT_HZA_LEFT | PTEXT_VTA_CENTER, q * scale_small, o2);
 
     q = glm::translate(glm::mat4(1.0f), glm::vec3(500.0f, 230.0f, 0.0f));
-    glColor4f(gwc.weak.x, gwc.weak.y, gwc.weak.z, gwc.weak.w);
-    getSSRender().drawText("Weight (Kg)", PTEXT_HZA_RIGHT | PTEXT_VTA_CENTER, q * scale_small, o2);
+    getSSRender().drawText("Weight (Kg)", cl_weak, PTEXT_HZA_RIGHT | PTEXT_VTA_CENTER, q * scale_small, o2);
 
     q = glm::translate(glm::mat4(1.0f), glm::vec3(500.0f, 190.0f, 0.0f));
-    glColor4f(gwc.weak.x, gwc.weak.y, gwc.weak.z, gwc.weak.w);
-    getSSRender().drawText("Engine (BHP)", PTEXT_HZA_RIGHT | PTEXT_VTA_CENTER, q * scale_small, o2);
+    getSSRender().drawText("Engine (BHP)", cl_weak, PTEXT_HZA_RIGHT | PTEXT_VTA_CENTER, q * scale_small, o2);
 
     q = glm::translate(glm::mat4(1.0f), glm::vec3(500.0f, 150.0f, 0.0f));
-    glColor4f(gwc.weak.x, gwc.weak.y, gwc.weak.z, gwc.weak.w);
-    getSSRender().drawText("Wheel drive", PTEXT_HZA_RIGHT | PTEXT_VTA_CENTER, q * scale_small, o2);
+    getSSRender().drawText("Wheel drive", cl_weak, PTEXT_HZA_RIGHT | PTEXT_VTA_CENTER, q * scale_small, o2);
 
     q = glm::translate(glm::mat4(1.0f), glm::vec3(500.0f, 110.0f, 0.0f));
-    glColor4f(gwc.weak.x, gwc.weak.y, gwc.weak.z, gwc.weak.w);
-    getSSRender().drawText("Roadholding", PTEXT_HZA_RIGHT | PTEXT_VTA_CENTER, q * scale_small, o2);
+    getSSRender().drawText("Roadholding", cl_weak, PTEXT_HZA_RIGHT | PTEXT_VTA_CENTER, q * scale_small, o2);
 
     q = glm::translate(glm::mat4(1.0f), glm::vec3(520.0f, 230.0f, 0.0f));
-    glColor4f(gwc.strong.x, gwc.strong.y, gwc.strong.z, gwc.strong.w);
-    getSSRender().drawText(std::to_string(static_cast<int>(vtype->mass)), PTEXT_HZA_LEFT | PTEXT_VTA_CENTER, q * scale_big, o2);
+    getSSRender().drawText(std::to_string(static_cast<int>(vtype->mass)), cl_strong, PTEXT_HZA_LEFT | PTEXT_VTA_CENTER, q * scale_big, o2);
 
     q = glm::translate(glm::mat4(1.0f), glm::vec3(520.0f, 190.0f, 0.0f));
-    glColor4f(gwc.strong.x, gwc.strong.y, gwc.strong.z, gwc.strong.w);
-    getSSRender().drawText(vtype->pstat_enginepower, PTEXT_HZA_LEFT | PTEXT_VTA_CENTER, q * scale_big, o2);
+    getSSRender().drawText(vtype->pstat_enginepower, cl_strong, PTEXT_HZA_LEFT | PTEXT_VTA_CENTER, q * scale_big, o2);
 
     q = glm::translate(glm::mat4(1.0f), glm::vec3(520.0f, 150.0f, 0.0f));
-    glColor4f(gwc.strong.x, gwc.strong.y, gwc.strong.z, gwc.strong.w);
-    getSSRender().drawText(vtype->pstat_wheeldrive, PTEXT_HZA_LEFT | PTEXT_VTA_CENTER, q * scale_big, o2);
+    getSSRender().drawText(vtype->pstat_wheeldrive, cl_strong, PTEXT_HZA_LEFT | PTEXT_VTA_CENTER, q * scale_big, o2);
 
     q = glm::translate(glm::mat4(1.0f), glm::vec3(520.0f, 110.0f, 0.0f));
-    glColor4f(gwc.strong.x, gwc.strong.y, gwc.strong.z, gwc.strong.w);
-    getSSRender().drawText(vtype->pstat_roadholding, PTEXT_HZA_LEFT | PTEXT_VTA_CENTER, q * scale_big, o2);
+    getSSRender().drawText(vtype->pstat_roadholding, cl_strong, PTEXT_HZA_LEFT | PTEXT_VTA_CENTER, q * scale_big, o2);
 
     std::string racename;
 
@@ -685,8 +669,7 @@ void MainApp::renderStateChoose(float eyetranslation)
         racename = levels[lss.currentlevel].name;
 
     q = glm::translate(glm::mat4(1.0f), glm::vec3(400.0f, 30.0f, 0.0f));
-    glColor4f(gwc.weak.x, gwc.weak.y, gwc.weak.z, gwc.weak.w);
-    getSSRender().drawText(racename, PTEXT_HZA_CENTER | PTEXT_VTA_CENTER, q * scale_small, o2);
+    getSSRender().drawText(racename, cl_weak, PTEXT_HZA_CENTER | PTEXT_VTA_CENTER, q * scale_small, o2);
 
     glBlendFunc(GL_ONE, GL_ZERO);
     glEnable(GL_DEPTH_TEST);
@@ -853,8 +836,6 @@ void MainApp::renderStateGame(float eyetranslation)
     glm::mat4 p = stereoFrustum(-fnear*aspect*fov,fnear*aspect*fov,-fnear*fov,fnear*fov,fnear,100000.0f,
                   0.8f, eyetranslation);
 
-    glColor3f(1.0,1.0,1.0);
-
     vec4f fogcolor(game->weather.fog.color, 1.0f);
     glFogfv(GL_FOG_COLOR, fogcolor);
 
@@ -875,8 +856,6 @@ void MainApp::renderStateGame(float eyetranslation)
     float lpos[] = { 0.2, 0.5, 1.0, 0.0 };
     glLightfv(GL_LIGHT0, GL_POSITION, lpos);
 
-    glColor3ub(255,255,255);
-
     glDisable(GL_LIGHTING);
 
     // draw terrain
@@ -885,8 +864,6 @@ void MainApp::renderStateGame(float eyetranslation)
     if (renderowncar)
     {
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-        glColor4f(1.0f, 1.0f, 1.0f, 0.7f);
 
         vec3f vpos = game->vehicle[0]->body->pos;
         vec3f forw = makevec3f(game->vehicle[0]->body->getOrientationMatrix().row[0]);
@@ -1027,8 +1004,6 @@ void MainApp::renderStateGame(float eyetranslation)
 
       // time counter
 
-      glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-
       // time position (other time strings inherit this position)
       // -hratio is left border, 0 is center, +hratio is right
       // hratio * (1/50) gives 1% of the entire width
@@ -1040,37 +1015,40 @@ void MainApp::renderStateGame(float eyetranslation)
 
       if (game->gamestate == Gamestate::finished)
       {
+          glm::vec4 cl(1.0f, 1.0f, 1.0f, 1.0f);
           getSSRender().drawText(
-              PUtil::formatTime(game->coursetime),
+              PUtil::formatTime(game->coursetime), cl,
               PTEXT_HZA_LEFT | PTEXT_VTA_TOP, t, o);
       }
       else if (game->coursetime < game->cptime + 1.50f)
       {
+          glm::vec4 cl(1.0f, 1.0f, 1.0f, 1.0f);
           getSSRender().drawText(
-              PUtil::formatTime(game->cptime),
+              PUtil::formatTime(game->cptime), cl,
               PTEXT_HZA_LEFT | PTEXT_VTA_TOP, t, o);
       }
       else if (game->coursetime < game->cptime + 3.50f)
       {
           float a = (((game->cptime + 3.50f) - game->coursetime) / 2);
-          glColor4f(1.0f, 1.0f, 1.0f, a);
+          glm::vec4 cl(1.0f, 1.0f, 1.0f, a);
           getSSRender().drawText(
-              PUtil::formatTime(game->cptime),
+              PUtil::formatTime(game->cptime), cl,
               PTEXT_HZA_LEFT | PTEXT_VTA_TOP, t, o);
       }
       else
       {
+          glm::vec4 cl(1.0f, 1.0f, 1.0f, 1.0f);
           getSSRender().drawText(
-              PUtil::formatTime(game->coursetime),
+              PUtil::formatTime(game->coursetime), cl,
               PTEXT_HZA_LEFT | PTEXT_VTA_TOP, t, o);
       }
 
       // show target time
 
-      glColor4f(0.5f, 1.0f, 0.5f, 1.0f);
+      glm::vec4 cl_target_time(0.5f, 1.0f, 0.5f, 1.0f);
 
       glm::mat4 q = glm::translate(t, glm::vec3(0.0f, -0.8f, 0.0f));
-      getSSRender().drawText(PUtil::formatTime(game->targettime), PTEXT_HZA_LEFT | PTEXT_VTA_TOP, q, o);
+      getSSRender().drawText(PUtil::formatTime(game->targettime), cl_target_time, PTEXT_HZA_LEFT | PTEXT_VTA_TOP, q, o);
 
     {
         // show the time penalty if there is any
@@ -1078,18 +1056,18 @@ void MainApp::renderStateGame(float eyetranslation)
 
         if (timepen >= 0.1f)
         {
-            glColor4f(1.0f, 1.0f, 0.5f, 1.0f);
+            glm::vec4 cl_time_pen(1.0f, 1.0f, 0.5f, 1.0f);
             glm::mat4 p = glm::translate(q, glm::vec3(0.0f, -1.60f, 0.0f));
-            getSSRender().drawText(PUtil::formatTime(timepen) + '+', PTEXT_HZA_LEFT | PTEXT_VTA_TOP, p, o);
+            getSSRender().drawText(PUtil::formatTime(timepen) + '+', cl_time_pen, PTEXT_HZA_LEFT | PTEXT_VTA_TOP, p, o);
         }
     }
 
       // time label
     {
-      glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+      glm::vec4 cl_time(1.0f, 1.0f, 1.0f, 1.0f);
       glm::mat4 k = glm::translate(t, glm::vec3(0.0f, .52f, 0.0f));
       k = glm::scale(k, glm::vec3(0.65f, 0.65f, 1.0f));
-      getSSRender().drawText("TIME", PTEXT_HZA_LEFT | PTEXT_VTA_TOP, k, o);
+      getSSRender().drawText("TIME", cl_time, PTEXT_HZA_LEFT | PTEXT_VTA_TOP, k, o);
     }
     }
 
@@ -1097,7 +1075,7 @@ void MainApp::renderStateGame(float eyetranslation)
       {
           // checkpoint counter
 
-          glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+          glm::vec4 cl_chkpt(1.0f, 1.0f, 1.0f, 1.0f);
           const std::string totalcp = std::to_string(game->checkpt.size());
           const std::string nextcp = std::to_string(vehic->nextcp);
 
@@ -1106,15 +1084,15 @@ void MainApp::renderStateGame(float eyetranslation)
           k = glm::scale(k, glm::vec3(0.125f, 0.125f, 1.0f));
 
             if (game->getFinishState() != Gamefinish::not_finished)
-                getSSRender().drawText(totalcp + '/' + totalcp, PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, k, o);
+                getSSRender().drawText(totalcp + '/' + totalcp, cl_chkpt, PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, k, o);
             else
-                getSSRender().drawText(nextcp + '/' + totalcp, PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, k, o);
+                getSSRender().drawText(nextcp + '/' + totalcp, cl_chkpt, PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, k, o);
 
           // checkpoint label
 
           k = glm::translate(k, glm::vec3(0, 0.52f, 0.0f));
           k = glm::scale(k, glm::vec3(0.65f, 0.65f, 1.0f));
-          getSSRender().drawText("CKPT", PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, k, o);
+          getSSRender().drawText("CKPT", cl_chkpt, PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, k, o);
       }
 
         // show Current/Total laps
@@ -1123,32 +1101,30 @@ void MainApp::renderStateGame(float eyetranslation)
             const std::string currentlap = std::to_string(vehic->currentlap);
             const std::string number_of_laps = std::to_string(game->number_of_laps);
 
-            glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+            glm::vec4 cl_laps(1.0f, 1.0f, 1.0f, 1.0f);
             glm::mat4 k = glm::translate(glm::mat4(1.0f), glm::vec3(hratio - hratio * (2.5f/50.f), vratio - vratio * (5.5f/50.f) - 0.20f, 0.0f));
             k = glm::scale(k, glm::vec3(0.125f, 0.125f, 1.0f));
 
             if (game->getFinishState() != Gamefinish::not_finished)
-                getSSRender().drawText(number_of_laps + '/' + number_of_laps, PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, k, o);
+                getSSRender().drawText(number_of_laps + '/' + number_of_laps, cl_laps, PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, k, o);
             else
-                getSSRender().drawText(currentlap + '/' + number_of_laps, PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, k, o);
+                getSSRender().drawText(currentlap + '/' + number_of_laps, cl_laps, PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, k, o);
 
             k = glm::translate(k, glm::vec3(0, 0.52f, 0.0f));
             k = glm::scale(k, glm::vec3(0.65f, 0.65f, 1.0f));
-            getSSRender().drawText("LAP", PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, k, o);
+            getSSRender().drawText("LAP", cl_laps, PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, k, o);
         }
 
 #ifdef INDEVEL
         // show codriver checkpoint text (the pace notes)
         if (!game->codrivercheckpt.empty() && vehic->nextcdcp != 0)
         {
-            glColor3f(1.0f, 1.0f, 0.0f);
+            glm::vec4 cl_codrv(1.0f, 1.0f, 0.0f, 1.0f);
             glm::mat4 k = glm::translate(t, glm::vec3(0.0f, 0.3f, 0.0f));
             k = glm::scale(k, glm::vec3(0.1f, 0.1f, 1.0f));
-            getSSRender().drawText(game->codrivercheckpt[vehic->nextcdcp - 1].notes, PTEXT_HZA_CENTER | PTEXT_VTA_CENTER, k);
+            getSSRender().drawText(game->codrivercheckpt[vehic->nextcdcp - 1].notes, cl_codrv, PTEXT_HZA_CENTER | PTEXT_VTA_CENTER, k);
         }
 #endif
-
-        glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
       tex_fontSourceCodeBold->bind();
 
@@ -1168,7 +1144,6 @@ void MainApp::renderStateGame(float eyetranslation)
           const int speed = std::fabs(vehic->getWheelSpeed()) * hud_speedo_mps_speed_mult;
           std::string speedstr = std::to_string(speed);
 
-          //glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
           k = glm::translate(k, glm::vec3(1.1f, -0.625f, 0.0f));
           k = glm::scale(k, glm::vec3(0.5f, 0.5f, 1.0f));
           getSSRender().drawText(speedstr, PTEXT_HZA_RIGHT | PTEXT_VTA_CENTER, k, o);
@@ -1197,7 +1172,6 @@ void MainApp::renderStateGame(float eyetranslation)
     {
     glm::mat4 k = glm::scale(t, glm::vec3(0.1f, 0.1f, 1.0f));
     k = glm::translate(k, glm::vec3(0.0f, -4.0f, 0.0f));
-    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
     tex_fontSourceCodeOutlined->bind();
     getSSRender().drawText(std::string("true time penalty: ") +
         std::to_string(game->offroadtime_total * game->offroadtime_penalty_multiplier),
@@ -1216,8 +1190,6 @@ void MainApp::renderStateGame(float eyetranslation)
         if (!game->terrain->getRmapOnRoad(bodypos))
         {
             glm::mat4 t = glm::scale(glm::mat4(1.0f), glm::vec3(0.25f, 0.25f, 1.0f));
-
-            glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
             float vbo[16] = {
                 0.0f,   1.0f,  -1.0f,   1.0f,
@@ -1254,11 +1226,11 @@ void MainApp::renderStateGame(float eyetranslation)
 
             glm::mat4 k = glm::scale(glm::mat4(1.0f), glm::vec3(0.1f, 0.1f, 1.0f));
             k = glm::translate(k, glm::vec3(0.0f, -2.5f, 0.0f));
-            glColor4f(1.0f, 1.0f, 0.0f, 1.0f);
+            glm::vec4 cl_offroad(1.0f, 1.0f, 0.0f, 1.0f);
             tex_fontSourceCodeOutlined->bind();
             getSSRender().drawText(
                 std::to_string(static_cast<int> (game->getOffroadTime() * game->offroadtime_penalty_multiplier)) +
-                " seconds",
+                " seconds", cl_offroad,
                 PTEXT_HZA_CENTER | PTEXT_VTA_TOP, k, o);
         }
     }
@@ -1294,8 +1266,8 @@ void MainApp::renderStateGame(float eyetranslation)
             glPopMatrix();
         }
 
-        glColor3f(1.0f, 1.0f, 1.0f);
-        getSSRender().drawText(s, PTEXT_HZA_CENTER | PTEXT_VTA_TOP);
+        glm::vec4 cl_terrinfo(1.0f, 1.0f, 1.0f);
+        getSSRender().drawText(s, cl_terrinfo, PTEXT_HZA_CENTER | PTEXT_VTA_TOP, mv, o);
         glPopMatrix(); // 2
     }
     #endif
@@ -1345,8 +1317,6 @@ void MainApp::renderStateGame(float eyetranslation)
 
       tex_fontSourceCodeOutlined->bind();
 
-      glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
-
       glm::mat4 q = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.2f, 0.0f));
       q = glm::scale(q, glm::vec3(0.6f, 0.6f, 1.0f));
 
@@ -1354,34 +1324,35 @@ void MainApp::renderStateGame(float eyetranslation)
       {
           float sizer = fmodf(game->othertime, 1.0f) + 0.5f;
           glm::mat4 k = glm::scale(q, glm::vec3(sizer, sizer, 1.0f));
+          glm::vec4 cl_gamestate(1.0f, 0.0f, 0.0f, 1.0f);
           getSSRender().drawText(
-              PUtil::formatInt(((int)game->othertime + 1), 1),
+              PUtil::formatInt(((int)game->othertime + 1), 1), cl_gamestate,
               PTEXT_HZA_CENTER | PTEXT_VTA_CENTER, k, o);
       }
       else if (game->gamestate == Gamestate::finished)
       {
           if (game->getFinishState() == Gamefinish::pass)
           {
-              glColor4f(0.5f, 1.0f, 0.5f, 1.0f);
-              getSSRender().drawText("WIN", PTEXT_HZA_CENTER | PTEXT_VTA_CENTER, q, o);
+              glm::vec4 cl_gamestate(0.5f, 1.0f, 0.5f, 1.0f);
+              getSSRender().drawText("WIN", cl_gamestate, PTEXT_HZA_CENTER | PTEXT_VTA_CENTER, q, o);
           }
           else
           {
               glm::mat4 k = glm::scale(q, glm::vec3(0.5f, 0.5f, 1.0f));
-              glColor4f(0.5f, 0.0f, 0.0f, 1.0f);
-              getSSRender().drawText("TIME EXCEEDED", PTEXT_HZA_CENTER | PTEXT_VTA_CENTER, k, o);
+              glm::vec4 cl_gamestate(0.5f, 0.0f, 0.0f, 1.0f);
+              getSSRender().drawText("TIME EXCEEDED", cl_gamestate, PTEXT_HZA_CENTER | PTEXT_VTA_CENTER, k, o);
           }
       }
       else if (game->coursetime < 1.0f)
       {
-          glColor4f(0.5f, 1.0f, 0.5f, 1.0f);
-          getSSRender().drawText("GO!", PTEXT_HZA_CENTER | PTEXT_VTA_CENTER, q, o);
+          glm::vec4 cl_gamestate(0.5f, 1.0f, 0.5f, 1.0f);
+          getSSRender().drawText("GO!", cl_gamestate, PTEXT_HZA_CENTER | PTEXT_VTA_CENTER, q, o);
       }
       else if (game->coursetime < 2.0f)
       {
           float a = 1.0f - (game->coursetime - 1.0f);
-          glColor4f(0.5f, 1.0f, 0.5f, a);
-          getSSRender().drawText("GO!", PTEXT_HZA_CENTER | PTEXT_VTA_CENTER, q, o);
+          glm::vec4 cl_gamestate(0.5f, 1.0f, 0.5f, a);
+          getSSRender().drawText("GO!", cl_gamestate, PTEXT_HZA_CENTER | PTEXT_VTA_CENTER, q, o);
       }
 
       if (game->gamestate == Gamestate::countdown)
@@ -1390,21 +1361,21 @@ void MainApp::renderStateGame(float eyetranslation)
           k = glm::scale(k, glm::vec3(0.08f, 0.08f, 1.0f));
           if (game->othertime < 1.0f)
           {
-              glColor4f(1.0f, 1.0f, 1.0f, game->othertime);
-              getSSRender().drawText(game->comment, PTEXT_HZA_CENTER | PTEXT_VTA_CENTER, k, o);
+              glm::vec4 cl_gamestate(1.0f, 1.0f, 1.0f, game->othertime);
+              getSSRender().drawText(game->comment, cl_gamestate, PTEXT_HZA_CENTER | PTEXT_VTA_CENTER, k, o);
           }
           else
           {
-              glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-              getSSRender().drawText(game->comment, PTEXT_HZA_CENTER | PTEXT_VTA_CENTER, k, o);
+              glm::vec4 cl_gamestate(1.0f, 1.0f, 1.0f, 1.0f);
+              getSSRender().drawText(game->comment, cl_gamestate, PTEXT_HZA_CENTER | PTEXT_VTA_CENTER, k, o);
           }
       }
 
         if (pauserace)
         {
             glm::mat4 k = glm::scale(q, glm::vec3(0.25f, 0.25f, 1.0f));
-            glColor4f(0.25f, 0.25f, 1.0f, 1.0f);
-            getSSRender().drawText("PAUSED", PTEXT_HZA_CENTER | PTEXT_VTA_CENTER, k, o);
+            glm::vec4 cl_pause(0.25f, 0.25f, 1.0f, 1.0f);
+            getSSRender().drawText("PAUSED", cl_pause, PTEXT_HZA_CENTER | PTEXT_VTA_CENTER, k, o);
         }
     }
 

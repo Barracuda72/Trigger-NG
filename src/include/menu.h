@@ -230,7 +230,7 @@ public:
 
   void render(const glm::mat4& p);
 
-  void renderGraphicWidget(const glm::mat4& mv, const glm::mat4& p);
+  void renderGraphicWidget(const glm::vec4& color, const glm::mat4& mv, const glm::mat4& p);
 
   void clear() { widget.clear(); highlight = -1; defwidget = -1; }
 

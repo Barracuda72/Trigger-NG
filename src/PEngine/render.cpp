@@ -250,6 +250,13 @@ void PSSRender::drawModel(PModel &model, PSSEffect &ssEffect, PSSTexture &ssText
 ///
 void PSSRender::drawText(const std::string &text, uint32 flags, const glm::mat4& mv, const glm::mat4& p)
 {
+    glm::vec4 default_color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+
+    drawText(text, default_color, flags, mv, p);
+}
+
+void PSSRender::drawText(const std::string &text, const glm::vec4& color, uint32 flags, const glm::mat4& mv, const glm::mat4& p)
+{
     // FIXME: what the aspect should be...
     const GLfloat font_aspect = 8.0f / 12.0f;
     // FIXME: what the aspect must be, because of the menu...
@@ -272,9 +279,7 @@ void PSSRender::drawText(const std::string &text, uint32 flags, const glm::mat4&
     if (flags & PTEXT_HZA_RIGHT)
         x_offset = -1.0f;
 
-    glm::mat4 m;
-    glGetFloatv(GL_MODELVIEW_MATRIX, glm::value_ptr(m));
-    glm::mat4 t = glm::translate(mv * m, glm::vec3(x_offset * text.length() * font_aspect, y_offset, 0.0f));
+    glm::mat4 t = glm::translate(mv, glm::vec3(x_offset * text.length() * font_aspect, y_offset, 0.0f));
 
     float* vbo = new float[(text.length()) * 4 * 5]; // N letters, each letter has 4 vertices, each vertex has 5 attributes
     unsigned short* ibo = new unsigned short[text.length() * 6]; // N letters, each has 6 indices
@@ -331,6 +336,7 @@ void PSSRender::drawText(const std::string &text, uint32 flags, const glm::mat4&
 
     //glActiveTexture(GL_TEXTURE0);
     sp_text->uniform("font", 0);
+    sp_text->uniform("text_color", color);
     sp_text->uniform("mv", t);
     sp_text->uniform("p", p);
 

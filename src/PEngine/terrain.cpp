@@ -909,7 +909,6 @@ void PTerrain::render(const glm::vec3 &campos, const glm::mat4 &camorim, PTextur
   glAlphaFunc(GL_GEQUAL, 0.5);
   glEnable(GL_ALPHA_TEST);
   glDisable(GL_CULL_FACE);
-  glColor3f(1.0f, 1.0f, 1.0f);
 
   //glEnableClientState(GL_TEXTURE_COORD_ARRAY);
   //glEnableClientState(GL_VERTEX_ARRAY);
