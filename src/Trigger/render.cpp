@@ -884,12 +884,8 @@ void MainApp::renderStateGame(float eyetranslation)
     //glTranslatef(0.0,0.0,-40.0);
     glm::mat4 mv = glm::translate(glm::mat4(1.0f), glm::vec3(-eyetranslation, 0.0f, 0.0f));
 
-    //glTranslatef(-eyetranslation, 0.0f, 0.0f);
-
-    //glMultMatrixf(cammat);
     mv = cammat * mv;
 
-    //glTranslatef(-campos.x, -campos.y, -campos.z);
     mv = glm::translate(mv, -campos_gl);
     glLoadMatrixf(glm::value_ptr(mv));
 
