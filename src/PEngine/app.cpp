@@ -245,12 +245,13 @@ int PApp::run(int argc, char *argv[])
   srand(SDL_GetTicks());
 
   PUtil::outLog() << "Create window and set video mode" << std::endl;
-#if 1
+#define MODERN_GL
+#ifndef MODERN_GL
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
     SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
-#elif 1
+#else
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG);
@@ -430,6 +431,13 @@ int PApp::run(int argc, char *argv[])
 
   glEnable(GL_DEBUG_OUTPUT);
   glDebugMessageCallback(MessageCallback, 0);
+
+#ifdef MODERN_GL
+    // TODO: this is a really cheap hack to workaround OpenGL 3.0+ core profile requirement of VAO
+  	GLuint vao;
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+#endif
 
   switch (stereo) {
   default: break;
