@@ -911,26 +911,21 @@ void PTerrain::render(const glm::vec3 &campos, const glm::mat4 &camorim, PTextur
 
   // Draw foliage
   #if 1
-  glAlphaFunc(GL_GEQUAL, 0.5);
-  glEnable(GL_ALPHA_TEST);
   glDisable(GL_CULL_FACE);
-
-  //glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-  //glEnableClientState(GL_VERTEX_ARRAY);
 
   sp_terrain->use();
   sp_terrain->uniform("p", p);
   sp_terrain->uniform("mv", mv);
   for (unsigned int b = 0; b < foliageband.size(); b++) {
-
+    glActiveTexture(GL_TEXTURE0);
     foliageband[b].sprite_tex->bind();
+    sp_terrain->uniform("image", 0);
 
     for (std::list<PTerrainTile *>::iterator t = drawtile.begin(); t != drawtile.end(); t++) {
 
       if ((*t)->foliage[b].numelem) {
         (*t)->foliage[b].vao->bind();
 
-        //glInterleavedArrays(GL_T2F_V3F, sizeof(PVert_tv), 0);
         sp_terrain->attrib("tex_coord", 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GL_FLOAT), 0);
         sp_terrain->attrib("position", 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GL_FLOAT), 2 * sizeof(GL_FLOAT));
         glDrawElements(GL_TRIANGLES, (*t)->foliage[b].numelem, GL_UNSIGNED_SHORT, 0);
@@ -991,10 +986,7 @@ void PTerrain::render(const glm::vec3 &campos, const glm::mat4 &camorim, PTextur
 
   #endif
 
-  //glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-  //glDisableClientState(GL_VERTEX_ARRAY);
   glEnable(GL_CULL_FACE);
-  glDisable(GL_ALPHA_TEST);
 }
 
 /*
