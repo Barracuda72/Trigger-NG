@@ -12,12 +12,14 @@ PSSRender::PSSRender(PApp &parentApp) : PSubsystem(parentApp)
   PUtil::outLog() << "Initialising render subsystem" << std::endl;
   sp_model = new ShaderProgram("model");
   sp_text = new ShaderProgram("text");
+  sp_particle = new ShaderProgram("particle");
 }
 
 PSSRender::~PSSRender()
 {
   delete sp_model;
   delete sp_text;
+  delete sp_particle;
   PUtil::outLog() << "Shutting down render subsystem" << std::endl;
 }
 
@@ -32,7 +34,7 @@ void PSSRender::tick(float delta, const vec3f &eyepos, const mat44f &eyeori, con
 }
 
 
-void PSSRender::render(PParticleSystem *psys)
+void PSSRender::render(PParticleSystem *psys, const glm::mat4& mv, const glm::mat4& p)
 {
   vec3f pushx = makevec3f(cam_orimat.row[0]);
   vec3f pushy = makevec3f(cam_orimat.row[1]);
@@ -43,8 +45,10 @@ void PSSRender::render(PParticleSystem *psys)
   if (psys->tex) psys->tex->bind();
   else glDisable(GL_TEXTURE_2D);
 
-  float* vbo = new float[psys->part.size() * 4 * 5];
-  unsigned int* ibo = new unsigned int[psys->part.size() * 6];
+  // TODO: this should be rewritten to use matrix transforms and static VAO
+  float* vbo = new float[psys->part.size() * 4 * 12];
+  memset(vbo, 0, psys->part.size() * 4 * 12 * sizeof(float));
+  unsigned short* ibo = new unsigned short[psys->part.size() * 6];
 
   for (unsigned int i=0; i<psys->part.size(); i++) {
     PParticle_s &part = psys->part[i];
@@ -54,7 +58,7 @@ void PSSRender::render(PParticleSystem *psys)
     vec3f pushx2 = pushxt * part.orix.x + pushyt * part.orix.y;
     vec3f pushy2 = pushxt * part.oriy.x + pushyt * part.oriy.y;
 
-    glColor4f(INTERP(psys->colorend[0], psys->colorstart[0], part.life),
+    glm::vec4 col(INTERP(psys->colorend[0], psys->colorstart[0], part.life),
         INTERP(psys->colorend[1], psys->colorstart[1], part.life),
         INTERP(psys->colorend[2], psys->colorstart[2], part.life),
         INTERP(psys->colorend[3], psys->colorstart[3], part.life));
@@ -63,12 +67,17 @@ void PSSRender::render(PParticleSystem *psys)
       for (int x = 0; x < 2; x++) {
         vert = part.pos + ((2*x - 1.0f) * pushx2) + ((2*y-1.0f) * pushy2);
 
-        vbo[(i * 4 + (y * 2 + x)) * 5 + 0] = (float)x;
-        vbo[(i * 4 + (y * 2 + x)) * 5 + 1] = (float)y;
+        vbo[(i * 4 + (y * 2 + x)) * 12 + 0] = (float)x;
+        vbo[(i * 4 + (y * 2 + x)) * 12 + 1] = (float)y;
+        // Skip normal
+        vbo[(i * 4 + (y * 2 + x)) * 12 + 2] = col.r;
+        vbo[(i * 4 + (y * 2 + x)) * 12 + 3] = col.g;
+        vbo[(i * 4 + (y * 2 + x)) * 12 + 4] = col.b;
+        vbo[(i * 4 + (y * 2 + x)) * 12 + 5] = col.a;
 
-        vbo[(i * 4 + (y * 2 + x)) * 5 + 2] = vert.x;
-        vbo[(i * 4 + (y * 2 + x)) * 5 + 3] = vert.y;
-        vbo[(i * 4 + (y * 2 + x)) * 5 + 4] = vert.z;
+        vbo[(i * 4 + (y * 2 + x)) * 12 + 9] = vert.x;
+        vbo[(i * 4 + (y * 2 + x)) * 12 +10] = vert.y;
+        vbo[(i * 4 + (y * 2 + x)) * 12 +11] = vert.z;
       }
 
     ibo[i * 6 + 0] = i * 4 + 0;
@@ -80,8 +89,25 @@ void PSSRender::render(PParticleSystem *psys)
     ibo[i * 6 + 5] = i * 4 + 2;
   }
 
-  glInterleavedArrays(GL_T2F_V3F, 5*sizeof(GL_FLOAT), vbo);
-  glDrawElements(GL_TRIANGLES, psys->part.size() * 6, GL_UNSIGNED_INT, ibo);
+  VAO vao(
+    vbo, psys->part.size() * 4 * 12 * sizeof(GL_FLOAT),
+    ibo, psys->part.size() * 6 * sizeof(unsigned short)
+  );
+
+  vao.bind();
+
+  sp_particle->use();
+  sp_particle->attrib("tex_coord", 2, GL_FLOAT, GL_FALSE, 12 * sizeof(GL_FLOAT), 0);
+  sp_particle->attrib("color", 4, GL_FLOAT, GL_FALSE, 12 * sizeof(GL_FLOAT), 2 * sizeof(GL_FLOAT));
+  sp_particle->attrib("normal", 3, GL_FLOAT, GL_FALSE, 12 * sizeof(GL_FLOAT), 6 * sizeof(GL_FLOAT));
+  sp_particle->attrib("position", 3, GL_FLOAT, GL_FALSE, 12 * sizeof(GL_FLOAT), 9 * sizeof(GL_FLOAT));
+  sp_particle->uniform("particle", 0);
+  sp_particle->uniform("mv", mv);
+  sp_particle->uniform("p", p);
+
+  glDrawElements(GL_TRIANGLES, psys->part.size() * 6, GL_UNSIGNED_SHORT, 0);
+
+  sp_particle->unuse();
 
   delete[] ibo;
   delete[] vbo;

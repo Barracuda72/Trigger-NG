@@ -91,6 +91,7 @@ private:
   mat44f cam_orimat;
   ShaderProgram* sp_model;
   ShaderProgram* sp_text;
+  ShaderProgram* sp_particle;
 
 public:
   PSSRender(PApp &parentApp);
@@ -98,7 +99,7 @@ public:
 
   void tick(float delta, const vec3f &eyepos, const mat44f &eyeori, const vec3f &eyevel);
 
-  void render(PParticleSystem *psys);
+  void render(PParticleSystem *psys, const glm::mat4& mv, const glm::mat4& p);
 
   void drawModel(PModel &model, PSSEffect &ssEffect, PSSTexture &ssTexture, const glm::mat4& mv, const glm::mat4& p);
 
