@@ -889,7 +889,6 @@ void MainApp::renderStateGame(float eyetranslation)
     mv = cammat * mv;
 
     mv = glm::translate(mv, -campos_gl);
-    //glLoadMatrixf(glm::value_ptr(mv));
 
     float lpos[] = { 0.2, 0.5, 1.0, 0.0 };
     glLightfv(GL_LIGHT0, GL_POSITION, lpos);
