@@ -644,6 +644,8 @@ public:
 	void renderRpmDial(float rpm, const glm::mat4& p);
 	void renderMap(int nextcp, const glm::mat4& p);
 	void renderMapMarker(const glm::vec2& vpos, float angle, const glm::vec4& col, float sc, const glm::mat4& mv, const glm::mat4& p);
+	void renderRain(const glm::mat4& mv, const glm::mat4& p);
+	void renderSnow(const glm::mat4& mv, const glm::mat4& p);
 
 	void keyEvent(const SDL_KeyboardEvent &ke);
 	void mouseMoveEvent(int dx, int dy);

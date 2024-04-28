@@ -940,159 +940,9 @@ void MainApp::renderStateGame(float eyetranslation)
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-#define RAINDROP_WIDTH          0.015
-    const glm::vec4 raindrop_col(0.5,0.5,0.5,0.4);
+    renderRain(mv, p);
 
-    vec3f offsetdrops = campos - campos_prev;
-
-    float* vbo = new float[rain.size() * 6 * 10]; // 10 = 4 color, 3 normal (unused), 3 position
-    memset(vbo, 0, rain.size() * 6 * 10 * sizeof(float));
-    unsigned short* ibo = new unsigned short[rain.size() * 8]; // 2 extra for primitive restart
-
-    // Set color for all vertices
-    for (unsigned int i = 0; i < rain.size(); i++)
-    {
-        for (unsigned int j = 0; j < 6; j++)
-        {
-            vbo[(i * 6 + j)* 10 + 0] = raindrop_col.r;
-            vbo[(i * 6 + j)* 10 + 1] = raindrop_col.g;
-            vbo[(i * 6 + j)* 10 + 2] = raindrop_col.b;
-            vbo[(i * 6 + j)* 10 + 3] = raindrop_col.a * (j == 2 || j == 3);
-        }
-    }
-
-    for (unsigned int i = 0; i < rain.size(); i++)
-    {
-        vec3f tempv;
-        const float prevlife = rain[i].prevlife;
-        vec3f pt1 = rain[i].drop_pt + rain[i].drop_vect * prevlife + offsetdrops;
-        vec3f pt2 = rain[i].drop_pt + rain[i].drop_vect * rain[i].life;
-        vec3f zag = campos - rain[i].drop_pt;
-        zag = zag.cross(rain[i].drop_vect);
-        zag *= RAINDROP_WIDTH / zag.length();
-
-        for (unsigned int j = 0; j < 6; j++)
-        {
-            float sign = j / 2 - 1.0f;
-            vec3f pt = (j%2 == 0) ? pt1 : pt2;
-            vec3f v = pt + sign * zag;
-
-            vbo[(i * 6 + j)* 10 + 7] = v.x;
-            vbo[(i * 6 + j)* 10 + 8] = v.y;
-            vbo[(i * 6 + j)* 10 + 9] = v.z;
-
-            ibo[i * 8 + j] = i * 6 + j;
-        }
-        ibo[i * 8 + 6] = 0; // Restart
-        ibo[i * 8 + 7] = 0;
-    }
-
-    glInterleavedArrays(GL_C4F_N3F_V3F, 10 * sizeof(float), vbo);
-    glDrawElements(GL_TRIANGLE_STRIP, rain.size() * 8, GL_UNSIGNED_SHORT, ibo);
-
-    delete[] ibo;
-    delete[] vbo;
-
-#define SNOWFLAKE_POINT_SIZE        3.0f
-#define SNOWFLAKE_BOX_SIZE          0.175f
-
-// NOTE: must be greater than 1.0f
-#define SNOWFLAKE_MAXLIFE           4.5f
-
-    /*
-     * TODO: while we could use points for snowflakes in modern OpenGL, it is kinda point-less,
-     * because it won't lead to significant preformance improvements (if any at all).
-     * Rendering snowflakes as circles instead of points doesn't look as a good idea either.
-     * Thus I commented out the support for points but decided not to delete it entirely... just in case.
-     */
-
-    //GLfloat ops; // Original Point Size, for to be restored
-
-    /*if (cfg_snowflaketype == SnowFlakeType::point)
-    {
-        glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
-        glGetFloatv(GL_POINT_SIZE, &ops);
-        glPointSize(SNOWFLAKE_POINT_SIZE);
-    }
-    else*/
-    if (cfg_snowflaketype == SnowFlakeType::textured)
-    {
-        glEnable(GL_TEXTURE_2D);
-        glBlendFunc(GL_SRC_COLOR, GL_ONE);
-        tex_snowflake->bind();
-    }
-
-    // GL_T2F_V3F
-    // Texture coordinates will be ignored if texturing is disabled
-    float snow_vbo[20] = {
-        1.0f, 1.0f,  0.0f, 0.0f, 0.0f,
-        0.0f, 1.0f,  0.0f, 0.0f, 1.0f,
-        1.0f, 0.0f,  1.0f, 1.0f, 0.0f,
-        0.0f, 0.0f,  1.0f, 1.0f, 1.0f,
-    };
-
-    unsigned short snow_ibo[] = {
-        0, 1, 2, 3,
-    };
-
-    for (const SnowFlake &sf: snowfall)
-    {
-        const vec3f pt = sf.drop_pt + sf.drop_vect * sf.life;
-        GLfloat alpha;
-
-        if (sf.life > SNOWFLAKE_MAXLIFE)
-        {
-            alpha = 0.0f;
-        }
-        else
-        if (sf.life > 1.0f)
-        {
-#define ML      SNOWFLAKE_MAXLIFE
-            // this equation ensures that snowflaks fade in
-            alpha = (sf.life - ML) / (1 - ML);
-#undef ML
-        }
-        else
-            alpha = 1.0f;
-
-        /*if (cfg_snowflaketype == SnowFlakeType::point)
-        {
-            glBegin(GL_POINTS);
-            glColor4f(1.0f, 1.0f, 1.0f, alpha);
-            glVertex3fv(pt);
-            glEnd();
-        }
-        else*/
-        {
-            vec3f zag = campos - sf.drop_pt;
-
-            zag = zag.cross(sf.drop_vect);
-            zag.normalize();
-            zag *= SNOWFLAKE_BOX_SIZE;
-
-            glm::mat4 t(1.0f);
-            t = glm::translate(mv, glm::vec3(pt.x, pt.y, pt.z));
-            t = glm::scale(t, glm::vec3(zag.x, zag.y, zag.z + SNOWFLAKE_BOX_SIZE));
-
-            glPushMatrix();
-            glLoadMatrixf(glm::value_ptr(t));
-
-            glColor4f(1.0f, 1.0f, 1.0f, alpha);
-            glInterleavedArrays(GL_T2F_V3F, 5 * sizeof(float), snow_vbo);
-            glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_SHORT, snow_ibo);
-            glPopMatrix();
-        }
-    }
-
-    /*if (cfg_snowflaketype == SnowFlakeType::point)
-        glPointSize(ops); // restore original point size*/
-
-    // disable textures
-    if (cfg_snowflaketype == SnowFlakeType::textured)
-    {
-        glDisable(GL_TEXTURE_2D);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    }
+    renderSnow(mv, p);
 
     if (showcheckpoint)
     {
@@ -1754,4 +1604,164 @@ void MainApp::renderStateGame(float eyetranslation)
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_LIGHTING);
+}
+
+void MainApp::renderRain(const glm::mat4& mv, const glm::mat4& p)
+{
+#define RAINDROP_WIDTH          0.015
+    const glm::vec4 raindrop_col(0.5,0.5,0.5,0.4);
+
+    vec3f offsetdrops = campos - campos_prev;
+
+    float* vbo = new float[rain.size() * 6 * 10]; // 10 = 4 color, 3 normal (unused), 3 position
+    memset(vbo, 0, rain.size() * 6 * 10 * sizeof(float));
+    unsigned short* ibo = new unsigned short[rain.size() * 8]; // 2 extra for primitive restart
+
+    // Set color for all vertices
+    for (unsigned int i = 0; i < rain.size(); i++)
+    {
+        for (unsigned int j = 0; j < 6; j++)
+        {
+            vbo[(i * 6 + j)* 10 + 0] = raindrop_col.r;
+            vbo[(i * 6 + j)* 10 + 1] = raindrop_col.g;
+            vbo[(i * 6 + j)* 10 + 2] = raindrop_col.b;
+            vbo[(i * 6 + j)* 10 + 3] = raindrop_col.a * (j == 2 || j == 3);
+        }
+    }
+
+    for (unsigned int i = 0; i < rain.size(); i++)
+    {
+        vec3f tempv;
+        const float prevlife = rain[i].prevlife;
+        vec3f pt1 = rain[i].drop_pt + rain[i].drop_vect * prevlife + offsetdrops;
+        vec3f pt2 = rain[i].drop_pt + rain[i].drop_vect * rain[i].life;
+        vec3f zag = campos - rain[i].drop_pt;
+        zag = zag.cross(rain[i].drop_vect);
+        zag *= RAINDROP_WIDTH / zag.length();
+
+        for (unsigned int j = 0; j < 6; j++)
+        {
+            float sign = j / 2 - 1.0f;
+            vec3f pt = (j%2 == 0) ? pt1 : pt2;
+            vec3f v = pt + sign * zag;
+
+            vbo[(i * 6 + j)* 10 + 7] = v.x;
+            vbo[(i * 6 + j)* 10 + 8] = v.y;
+            vbo[(i * 6 + j)* 10 + 9] = v.z;
+
+            ibo[i * 8 + j] = i * 6 + j;
+        }
+        ibo[i * 8 + 6] = 0; // Restart
+        ibo[i * 8 + 7] = 0;
+    }
+
+    glInterleavedArrays(GL_C4F_N3F_V3F, 10 * sizeof(float), vbo);
+    glDrawElements(GL_TRIANGLE_STRIP, rain.size() * 8, GL_UNSIGNED_SHORT, ibo);
+
+    delete[] ibo;
+    delete[] vbo;
+}
+
+void MainApp::renderSnow(const glm::mat4& mv, const glm::mat4& p)
+{
+#define SNOWFLAKE_POINT_SIZE        3.0f
+#define SNOWFLAKE_BOX_SIZE          0.175f
+
+// NOTE: must be greater than 1.0f
+#define SNOWFLAKE_MAXLIFE           4.5f
+
+    /*
+     * TODO: while we could use points for snowflakes in modern OpenGL, it is kinda point-less,
+     * because it won't lead to significant preformance improvements (if any at all).
+     * Rendering snowflakes as circles instead of points doesn't look as a good idea either.
+     * Thus I commented out the support for points but decided not to delete it entirely... just in case.
+     */
+
+    //GLfloat ops; // Original Point Size, for to be restored
+
+    /*if (cfg_snowflaketype == SnowFlakeType::point)
+    {
+        glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
+        glGetFloatv(GL_POINT_SIZE, &ops);
+        glPointSize(SNOWFLAKE_POINT_SIZE);
+    }
+    else*/
+    if (cfg_snowflaketype == SnowFlakeType::textured)
+    {
+        glEnable(GL_TEXTURE_2D);
+        glBlendFunc(GL_SRC_COLOR, GL_ONE);
+        tex_snowflake->bind();
+    }
+
+    // GL_T2F_V3F
+    // Texture coordinates will be ignored if texturing is disabled
+    float snow_vbo[20] = {
+        1.0f, 1.0f,  0.0f, 0.0f, 0.0f,
+        0.0f, 1.0f,  0.0f, 0.0f, 1.0f,
+        1.0f, 0.0f,  1.0f, 1.0f, 0.0f,
+        0.0f, 0.0f,  1.0f, 1.0f, 1.0f,
+    };
+
+    unsigned short snow_ibo[] = {
+        0, 1, 2, 3,
+    };
+
+    for (const SnowFlake &sf: snowfall)
+    {
+        const vec3f pt = sf.drop_pt + sf.drop_vect * sf.life;
+        GLfloat alpha;
+
+        if (sf.life > SNOWFLAKE_MAXLIFE)
+        {
+            alpha = 0.0f;
+        }
+        else
+        if (sf.life > 1.0f)
+        {
+#define ML      SNOWFLAKE_MAXLIFE
+            // this equation ensures that snowflaks fade in
+            alpha = (sf.life - ML) / (1 - ML);
+#undef ML
+        }
+        else
+            alpha = 1.0f;
+
+        /*if (cfg_snowflaketype == SnowFlakeType::point)
+        {
+            glBegin(GL_POINTS);
+            glColor4f(1.0f, 1.0f, 1.0f, alpha);
+            glVertex3fv(pt);
+            glEnd();
+        }
+        else*/
+        {
+            vec3f zag = campos - sf.drop_pt;
+
+            zag = zag.cross(sf.drop_vect);
+            zag.normalize();
+            zag *= SNOWFLAKE_BOX_SIZE;
+
+            glm::mat4 t(1.0f);
+            t = glm::translate(mv, glm::vec3(pt.x, pt.y, pt.z));
+            t = glm::scale(t, glm::vec3(zag.x, zag.y, zag.z + SNOWFLAKE_BOX_SIZE));
+
+            glPushMatrix();
+            glLoadMatrixf(glm::value_ptr(t));
+
+            glColor4f(1.0f, 1.0f, 1.0f, alpha);
+            glInterleavedArrays(GL_T2F_V3F, 5 * sizeof(float), snow_vbo);
+            glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_SHORT, snow_ibo);
+            glPopMatrix();
+        }
+    }
+
+    /*if (cfg_snowflaketype == SnowFlakeType::point)
+        glPointSize(ops); // restore original point size*/
+
+    // disable textures
+    if (cfg_snowflaketype == SnowFlakeType::textured)
+    {
+        glDisable(GL_TEXTURE_2D);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    }
 }
