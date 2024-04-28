@@ -11,11 +11,13 @@ PSSRender::PSSRender(PApp &parentApp) : PSubsystem(parentApp)
 {
   PUtil::outLog() << "Initialising render subsystem" << std::endl;
   sp_model = new ShaderProgram("model");
+  sp_text = new ShaderProgram("text");
 }
 
 PSSRender::~PSSRender()
 {
   delete sp_model;
+  delete sp_text;
   PUtil::outLog() << "Shutting down render subsystem" << std::endl;
 }
 
@@ -323,17 +325,18 @@ void PSSRender::drawText(const std::string &text, uint32 flags, const glm::mat4&
 
     vao.bind();
 
-    ShaderProgram sp("text");
-    sp.use();
-    sp.attrib("tex_coord", 2, GL_FLOAT, GL_FALSE, 5*sizeof(GL_FLOAT), 0);
-    sp.attrib("position", 3, GL_FLOAT, GL_FALSE, 5*sizeof(GL_FLOAT), 2 * sizeof(GL_FLOAT));
+    sp_text->use();
+    sp_text->attrib("tex_coord", 2, GL_FLOAT, GL_FALSE, 5*sizeof(GL_FLOAT), 0);
+    sp_text->attrib("position", 3, GL_FLOAT, GL_FALSE, 5*sizeof(GL_FLOAT), 2 * sizeof(GL_FLOAT));
 
     //glActiveTexture(GL_TEXTURE0);
-    sp.uniform("font", 0);
-    sp.uniform("mv", t);
-    sp.uniform("p", p);
+    sp_text->uniform("font", 0);
+    sp_text->uniform("mv", t);
+    sp_text->uniform("p", p);
 
     glDrawElements(GL_TRIANGLES, text.length() * 6, GL_UNSIGNED_SHORT, 0);
+
+    sp_text->unuse();
 
     delete[] ibo;
     delete[] vbo;

@@ -90,6 +90,7 @@ private:
   vec3f cam_pos;
   mat44f cam_orimat;
   ShaderProgram* sp_model;
+  ShaderProgram* sp_text;
 
 public:
   PSSRender(PApp &parentApp);
