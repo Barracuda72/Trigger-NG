@@ -579,14 +579,10 @@ void MainApp::renderStateChoose(float eyetranslation)
 
   renderTexturedFullscreenQuad(o);
 
-    glMatrixMode(GL_PROJECTION);
-
     float fnear = 0.1f, fov = 0.6f;
     float aspect = (float)getWidth() / (float)getHeight();
     glm::mat4 p = stereoFrustum(-fnear*aspect*fov,fnear*aspect*fov,-fnear*fov,fnear*fov,fnear,100000.0f,
                   0.8f, eyetranslation);
-
-    glMatrixMode(GL_MODELVIEW);
 
     glm::mat4 t = glm::translate(glm::mat4(1.0f), glm::vec3(-eyetranslation, 0.9f, -5.0f));
     t = glm::rotate(t, 28.0f * 3.141592653f / 180.0f, glm::vec3(1.0f, 0.0f, 0.0f));
@@ -609,11 +605,6 @@ void MainApp::renderStateChoose(float eyetranslation)
     renderVehicleType(vtype, t, p);
 
     glDisable(GL_LIGHTING);
-
-    glMatrixMode(GL_PROJECTION);
-    glPushMatrix();
-    glLoadMatrixf(glm::value_ptr(o)); // Already have it
-    glMatrixMode(GL_MODELVIEW);
 
     // use the same colors as the menu
     const GuiWidgetColors gwc = gui.getColors();
@@ -699,10 +690,6 @@ void MainApp::renderStateChoose(float eyetranslation)
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_FOG);
     glEnable(GL_LIGHTING);
-
-    glMatrixMode(GL_PROJECTION);
-    glPopMatrix();
-    glMatrixMode(GL_MODELVIEW);
 }
 
 void MainApp::renderRpmDial(float rpm, const glm::mat4& p)
