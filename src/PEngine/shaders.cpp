@@ -2,10 +2,12 @@
 #include <fstream>
 #include <sstream>
 
+#include "pengine.h"
 #include "shaders.h"
 
 ShaderProgram::ShaderProgram(const std::string& name)
 {
+    PUtil::outLog() << "Compiling shader \"" << name << "\"" << std::endl;
     shader_id = createShaderProgram(name + "_vsh.glsl", name + "_fsh.glsl");
 }
 
