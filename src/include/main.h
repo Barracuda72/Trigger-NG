@@ -579,7 +579,7 @@ private:
 
 protected:
 
-	void renderWater();
+	void renderWater(const glm::mat4 &mv, const glm::mat4& p);
 	void renderSky(const glm::mat4 &cammat, const glm::mat4& p);
 
 	bool startGame(const std::string &filename);
@@ -676,9 +676,12 @@ private:
     ShaderProgram* sp_rpm_needle;
     ShaderProgram* sp_rpm_dial;
     ShaderProgram* sp_map_marker;
+    ShaderProgram* sp_water;
+    ShaderProgram* sp_bckgnd;
 
     VAO* map_marker_vao;
     VAO* rpm_dial_vao;
+    VAO* bckgnd_vao;
 
     /// Map marker
     // 2f position, 1f alpha
@@ -704,6 +707,18 @@ private:
     };
 
     const unsigned short rpm_dial_ibo[4] = {
+        0, 1, 2, 3,
+    };
+
+    /// Background
+    float bckgnd_vbo[20] = {
+        0.0f, 1.0f,  -1.0f, 1.0f, 0.0f,
+        0.0f, 0.0f,  -1.0f,-1.0f, 0.0f,
+        1.0f, 1.0f,   1.0f, 1.0f, 0.0f,
+        1.0f, 0.0f,   1.0f,-1.0f, 0.0f,
+    };
+
+    unsigned short bckgnd_ibo[4] = {
         0, 1, 2, 3,
     };
 };

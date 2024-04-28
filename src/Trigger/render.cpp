@@ -59,10 +59,8 @@ void MainApp::resize()
     glEnable(GL_NORMALIZE);
 }
 
-void MainApp::renderWater()
+void MainApp::renderWater(const glm::mat4& mv, const glm::mat4& p)
 {
-    tex_water->bind();
-
     glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
 
@@ -71,17 +69,14 @@ void MainApp::renderWater()
     if (game->water.useralpha)
         alpha = maxalpha = game->water.alpha;
 
-    glPushMatrix();
     {
         int off_x = (int)(campos.x / 20.0);
         int off_y = (int)(campos.y / 20.0);
 
         glm::mat4 t(1.0f);
 
-        glGetFloatv(GL_MODELVIEW_MATRIX, glm::value_ptr(t));
-        t = glm::scale(t, glm::vec3(20.0f, 20.0f, 1.0f));
+        t = glm::scale(mv, glm::vec3(20.0f, 20.0f, 1.0f));
         t = glm::translate(t, glm::vec3(off_x, off_y, 0.0f));
-        glLoadMatrixf(glm::value_ptr(t));
 
         int minx = - 20,
             maxx = + 20,
@@ -92,7 +87,7 @@ void MainApp::renderWater()
 
         float* vbo = new float[(maxx-minx)*(maxy-miny+1)*12];
         memset(vbo, 0, (maxx-minx)*(maxy-miny+1)*12*sizeof(float));
-        unsigned int* ibo = new unsigned int[(maxx-minx+1)*(maxy-miny)*2];
+        unsigned short* ibo = new unsigned short[(maxx-minx+1)*(maxy-miny)*2];
 
         for (int y=miny; y<maxy; ++y)
         {
@@ -128,13 +123,32 @@ void MainApp::renderWater()
             ibo[(y2 * (x_stride+1) + (maxx-minx))*2 + 1] = 0;
         }
 
-        glInterleavedArrays(GL_T2F_C4F_N3F_V3F, 12 * sizeof(GL_FLOAT), vbo);
-        glDrawElements(GL_TRIANGLE_STRIP, (maxx-minx+1)*(maxy-miny)*2, GL_UNSIGNED_INT, ibo);
+        VAO vao(
+            vbo, (maxx-minx)*(maxy-miny+1)*12*sizeof(float),
+            ibo, (maxx-minx+1)*(maxy-miny)*2*sizeof(unsigned short)
+        );
 
+        vao.bind();
+
+        sp_water->use();
+        sp_water->attrib("tex_coord", 2, GL_FLOAT, GL_FALSE, 12 * sizeof(GL_FLOAT), 0);
+        sp_water->attrib("color", 4, GL_FLOAT, GL_FALSE, 12 * sizeof(GL_FLOAT), 2 * sizeof(GL_FLOAT));
+        sp_water->attrib("normal", 3, GL_FLOAT, GL_FALSE, 12 * sizeof(GL_FLOAT), 6 * sizeof(GL_FLOAT));
+        sp_water->attrib("position", 3, GL_FLOAT, GL_FALSE, 12 * sizeof(GL_FLOAT), 9 * sizeof(GL_FLOAT));
+
+        sp_water->uniform("mv", t);
+        sp_water->uniform("p", p);
+        glActiveTexture(GL_TEXTURE0);
+        tex_water->bind();
+        sp_water->uniform("water", 0);
+
+        glDrawElements(GL_TRIANGLE_STRIP, (maxx-minx+1)*(maxy-miny)*2, GL_UNSIGNED_SHORT, 0);
+
+        sp_water->unuse();
         delete[] ibo;
         delete[] vbo;
     }
-    glPopMatrix();
+
     glBlendFunc(GL_ONE,GL_ZERO);
 }
 
@@ -253,39 +267,25 @@ void MainApp::renderTexturedFullscreenQuad(const glm::mat4& p)
 
 void MainApp::renderTexturedFullscreenQuad(const glm::mat4& mv, const glm::mat4& p)
 {
-  float vbo[20] = {
-    0.0f, 1.0f,  -1.0f, 1.0f, 0.0f,
-    0.0f, 0.0f,  -1.0f,-1.0f, 0.0f,
-    1.0f, 1.0f,   1.0f, 1.0f, 0.0f,
-    1.0f, 0.0f,   1.0f,-1.0f, 0.0f,
-  };
+  bckgnd_vao->bind();
 
-  unsigned short ibo[4] = {
-    0, 1, 2, 3,
-  };
+  sp_bckgnd->use();
 
-  VAO vao(
-    vbo, 5 * 4 * sizeof(GL_FLOAT),
-    ibo, 4 * sizeof(unsigned short)
-  );
-  vao.bind();
+  sp_bckgnd->attrib("tex_coord", 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GL_FLOAT), 0);
+  sp_bckgnd->attrib("position", 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GL_FLOAT), 2 * sizeof(GL_FLOAT));
 
-  ShaderProgram sp_bckgnd("bckgnd");
-  sp_bckgnd.use();
-
-  sp_bckgnd.attrib("tex_coord", 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GL_FLOAT), 0);
-  sp_bckgnd.attrib("position", 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GL_FLOAT), 2 * sizeof(GL_FLOAT));
-
-  sp_bckgnd.uniform("mv", mv);
-  sp_bckgnd.uniform("p", p);
+  sp_bckgnd->uniform("mv", mv);
+  sp_bckgnd->uniform("p", p);
   glActiveTexture(GL_TEXTURE0);
-  sp_bckgnd.uniform("background", 0);
+  sp_bckgnd->uniform("background", 0);
 
   {
   // the background image is square and cut out a piece based on aspect ratio
   //glInterleavedArrays(GL_T2F_V3F, 5 * sizeof(GL_FLOAT), vbo);
   glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_SHORT, 0);
   }
+  sp_bckgnd->unuse();
+  bckgnd_vao->unbind();
 }
 
 void MainApp::renderStateLoading(float eyetranslation)
@@ -1274,7 +1274,7 @@ void MainApp::renderStateGame(float eyetranslation)
     glEnable(GL_TEXTURE_2D);
 
     if (game->water.enabled)
-        renderWater();
+        renderWater(mv, p);
 
     if (psys_dirt != nullptr) // cfg_dirteffect == false
         getSSRender().render(psys_dirt);

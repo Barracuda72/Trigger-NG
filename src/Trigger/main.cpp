@@ -1286,9 +1286,16 @@ void MainApp::loadShadersAndVao()
         map_marker_ibo, 6 * sizeof(unsigned short)
     );
 
+    bckgnd_vao = new VAO(
+        bckgnd_vbo, 5 * 4 * sizeof(GL_FLOAT),
+        bckgnd_ibo, 4 * sizeof(unsigned short)
+    );
+
     sp_map_marker = new ShaderProgram("map_marker");
     sp_rpm_dial = new ShaderProgram("rpm_dial");
     sp_rpm_needle = new ShaderProgram("rpm_needle");
+    sp_water = new ShaderProgram("water");
+    sp_bckgnd = new ShaderProgram("bckgnd");
 }
 
 void MainApp::unload()
@@ -1297,8 +1304,12 @@ void MainApp::unload()
   delete sp_map_marker;
   delete sp_rpm_dial;
   delete sp_rpm_needle;
+  delete sp_water;
+  delete sp_bckgnd;
+
   delete map_marker_vao;
   delete rpm_dial_vao;
+  delete bckgnd_vao;
 
   endGame(Gamefinish::not_finished);
 
