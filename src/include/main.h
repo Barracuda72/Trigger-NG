@@ -618,6 +618,7 @@ public:
 	void copyDefaultPlayers() const;
 	void loadConfig();
 	bool loadAll();
+	void loadShadersAndVao();
 	bool loadLevelsAndEvents();
 	bool loadLevel(TriggerLevel &tl);
 
@@ -670,5 +671,39 @@ private:
         vec4f(1.0f, 0.0f, 0.0f, 0.8f),  // 0 = next checkpoint
         vec4f(0.7f, 0.7f, 0.1f, 0.6f),  // 1 = checkpoint after next
         vec4f(0.2f, 0.8f, 0.2f, 0.4f)  // 2 = all other checkpoints
+    };
+
+    ShaderProgram* sp_rpm_needle;
+    ShaderProgram* sp_rpm_dial;
+    ShaderProgram* sp_map_marker;
+
+    VAO* map_marker_vao;
+    VAO* rpm_dial_vao;
+
+    /// Map marker
+    // 2f position, 1f alpha
+    const float map_marker_vbo[15] = {
+        0.0f, 0.0f,  1.0f,
+        1.0f, 0.0f,  0.0f,
+        0.0f, 1.0f,  0.0f,
+       -1.0f, 0.0f,  0.0f,
+        0.0f,-1.0f,  0.0f,
+    };
+    // Fan
+    const unsigned short map_marker_ibo[6] = {
+        0, 1, 2, 3, 4, 1,
+    };
+
+    /// RPM dial
+    // GL_T2F_V3F
+    const float rpm_dial_vbo[20] = {
+      0.0f,1.0f, -1.0f, 1.0f, 0.0f,
+      0.0f,0.0f, -1.0f,-1.0f, 0.0f,
+      1.0f,1.0f,  1.0f, 1.0f, 0.0f,
+      1.0f,0.0f,  1.0f,-1.0f, 0.0f,
+    };
+
+    const unsigned short rpm_dial_ibo[4] = {
+        0, 1, 2, 3,
     };
 };

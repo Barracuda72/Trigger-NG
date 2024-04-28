@@ -1269,11 +1269,37 @@ bool MainApp::loadAll()
 
   choose_spin = 0.0f;
 
+  loadShadersAndVao();
+
   return true;
+}
+
+void MainApp::loadShadersAndVao()
+{
+    rpm_dial_vao = new VAO(
+        rpm_dial_vbo, 5 * 4 * sizeof(float),
+        rpm_dial_ibo, 4 * sizeof(unsigned short)
+    );
+
+    map_marker_vao = new VAO(
+        map_marker_vbo, 5 * 3 * sizeof(float),
+        map_marker_ibo, 6 * sizeof(unsigned short)
+    );
+
+    sp_map_marker = new ShaderProgram("map_marker");
+    sp_rpm_dial = new ShaderProgram("rpm_dial");
+    sp_rpm_needle = new ShaderProgram("rpm_needle");
 }
 
 void MainApp::unload()
 {
+
+  delete sp_map_marker;
+  delete sp_rpm_dial;
+  delete sp_rpm_needle;
+  delete map_marker_vao;
+  delete rpm_dial_vao;
+
   endGame(Gamefinish::not_finished);
 
   delete psys_dirt;

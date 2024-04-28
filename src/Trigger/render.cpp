@@ -694,28 +694,10 @@ void MainApp::renderStateChoose(float eyetranslation)
 
 void MainApp::renderRpmDial(float rpm, const glm::mat4& p)
 {
-    // GL_T2F_V3F
-    const float vbo[20] = {
-      0.0f,1.0f, -1.0f, 1.0f, 0.0f,
-      0.0f,0.0f, -1.0f,-1.0f, 0.0f,
-      1.0f,1.0f,  1.0f, 1.0f, 0.0f,
-      1.0f,0.0f,  1.0f,-1.0f, 0.0f,
-    };
-
-    const unsigned short ibo[4] = {
-        0, 1, 2, 3,
-    };
-
-    VAO vao(
-        vbo, 5 * 4 * sizeof(float),
-        ibo, 4 * sizeof(unsigned short)
-    );
-
-      vao.bind();
-      ShaderProgram sp_dial("rpm_dial");
-      sp_dial.use();
-      sp_dial.attrib("tex_coord", 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GL_FLOAT), 0);
-      sp_dial.attrib("position", 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GL_FLOAT), 2 * sizeof(GL_FLOAT));
+      rpm_dial_vao->bind();
+      sp_rpm_dial->use();
+      sp_rpm_dial->attrib("tex_coord", 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GL_FLOAT), 0);
+      sp_rpm_dial->attrib("position", 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GL_FLOAT), 2 * sizeof(GL_FLOAT));
 
       // position of rpm dial and needle
       //glTranslatef( hratio * (1.f - (5.75f/50.f)) - 0.3f, -vratio * (40.f/50.f) + 0.22f, 0.0f);
@@ -726,16 +708,15 @@ void MainApp::renderRpmDial(float rpm, const glm::mat4& p)
       glActiveTexture(GL_TEXTURE0);
       tex_hud_revs->bind();
 
-      sp_dial.uniform("mv", t);
-      sp_dial.uniform("p", p);
-      sp_dial.uniform("dial", 0);
+      sp_rpm_dial->uniform("mv", t);
+      sp_rpm_dial->uniform("p", p);
+      sp_rpm_dial->uniform("dial", 0);
       glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_SHORT, 0);
-      sp_dial.unuse();
+      sp_rpm_dial->unuse();
 
-      ShaderProgram sp_needle("rpm_needle");
-      sp_needle.use();
-      sp_needle.attrib("tex_coord", 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GL_FLOAT), 0);
-      sp_needle.attrib("position", 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GL_FLOAT), 2 * sizeof(GL_FLOAT));
+      sp_rpm_needle->use();
+      sp_rpm_needle->attrib("tex_coord", 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GL_FLOAT), 0);
+      sp_rpm_needle->attrib("position", 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GL_FLOAT), 2 * sizeof(GL_FLOAT));
       // draw the needle of the RPM dial
       const float my_pi = 3.67f; // TODO: I know that's stupid, but... whatever
       t = glm::rotate(t, (my_pi / 4 * 5) - (rpm / 1000.0f) * (my_pi / 12.0f), glm::vec3(0.0f, 0.0f, 1.0f));
@@ -745,30 +726,21 @@ void MainApp::renderRpmDial(float rpm, const glm::mat4& p)
       glActiveTexture(GL_TEXTURE0);
       tex_hud_revneedle->bind();
 
-      sp_needle.uniform("mv", t);
-      sp_needle.uniform("p", p);
-      sp_needle.uniform("needle", 0);
+      sp_rpm_needle->uniform("mv", t);
+      sp_rpm_needle->uniform("p", p);
+      sp_rpm_needle->uniform("needle", 0);
 
       glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_SHORT, 0);
 
+      sp_rpm_needle->unuse();
+
       glDisable(GL_TEXTURE_2D); // TODO: WTH it's here???
+
+      rpm_dial_vao->unbind();
 }
 
 void MainApp::renderMapMarker(const glm::vec2& vpos, float angle, const glm::vec4& col, float sc, const glm::mat4& mv, const glm::mat4& p)
 {
-    // 2f position, 1f alpha
-    float vbo[15] = {
-        0.0f, 0.0f,  1.0f,
-        1.0f, 0.0f,  0.0f,
-        0.0f, 1.0f,  0.0f,
-       -1.0f, 0.0f,  0.0f,
-        0.0f,-1.0f,  0.0f,
-    };
-    // Fan
-    unsigned short ibo[6] = {
-        0, 1, 2, 3, 4, 1,
-    };
-
     glm::mat4 t(1.0f);
 
     t = glm::translate(mv, glm::vec3(vpos.x, vpos.y, 0.0f));
@@ -776,23 +748,21 @@ void MainApp::renderMapMarker(const glm::vec2& vpos, float angle, const glm::vec
     t = glm::scale(t, glm::vec3(30.0f, 30.0f, 1.0f));
     t = glm::scale(t, glm::vec3(sc, sc, 1.0f));
 
-    VAO vao(
-        vbo, 5 * 3 * sizeof(float),
-        ibo, 6 * sizeof(unsigned short)
-        );
-    vao.bind();
+    map_marker_vao->bind();
 
-    ShaderProgram sp("map_marker");
-    sp.use();
+    sp_map_marker->use();
 
-    sp.attrib("position", 2, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
-    sp.attrib("alpha", 1, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 2 * sizeof(float));
+    sp_map_marker->attrib("position", 2, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
+    sp_map_marker->attrib("alpha", 1, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 2 * sizeof(float));
 
-    sp.uniform("v_color", col);
-    sp.uniform("mv", t);
-    sp.uniform("p", p);
+    sp_map_marker->uniform("v_color", col);
+    sp_map_marker->uniform("mv", t);
+    sp_map_marker->uniform("p", p);
 
     glDrawElements(GL_TRIANGLE_FAN, 6, GL_UNSIGNED_SHORT, 0);
+
+    sp_map_marker->unuse();
+    map_marker_vao->unbind();
 }
 
 void MainApp::renderMap(int nextcp, const glm::mat4& p)
