@@ -788,35 +788,19 @@ void MainApp::renderMap(int nextcp, const glm::mat4& p)
         tex_t = glm::rotate(tex_t, camera_angle, glm::vec3(0.0f, 0.0f, 1.0f));
         tex_t = glm::scale(tex_t, glm::vec3(1.0f / 0.003f, 1.0f / 0.003f, 1.0f));
 
-        float map_vbo[8] = {
-           -1.0f,  1.0f,
-           -1.0f, -1.0f,
-            1.0f,  1.0f,
-            1.0f, -1.0f,
-        };
-        unsigned short map_ibo[4] = {
-            0, 1, 2, 3,
-        };
-
-        VAO vao(
-            map_vbo, 8 * sizeof(float),
-            map_ibo, 4 * sizeof(unsigned short)
-            );
-        vao.bind();
-
-        ShaderProgram sp("map");
-        sp.use();
-        sp.attrib("position", 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GL_FLOAT), 0);
+        map_vao->bind();
+        sp_map->use();
+        sp_map->attrib("position", 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GL_FLOAT), 0);
 
         glActiveTexture(GL_TEXTURE0);
-        sp.uniform("map_texure", 0);
-        sp.uniform("tex_transform", tex_t);
-        sp.uniform("mv", s);
-        sp.uniform("p", p);
+        sp_map->uniform("map_texure", 0);
+        sp_map->uniform("tex_transform", tex_t);
+        sp_map->uniform("mv", s);
+        sp_map->uniform("p", p);
 
         glDrawElements(GL_TRIANGLE_STRIP, 6, GL_UNSIGNED_SHORT, 0);
-        sp.unuse();
-        vao.unbind();
+        sp_map->unuse();
+        map_vao->unbind();
 
         glDisable(GL_TEXTURE_2D);
 

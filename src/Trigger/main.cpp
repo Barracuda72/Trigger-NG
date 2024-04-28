@@ -1296,6 +1296,11 @@ void MainApp::loadShadersAndVao()
         snow_ibo, 4 * sizeof(unsigned short)
     );
 
+    map_vao = new VAO(
+        map_vbo, 8 * sizeof(float),
+        map_ibo, 4 * sizeof(unsigned short)
+    );
+
     buildSkyVao();
     buildChkptVao();
 
@@ -1330,6 +1335,7 @@ void MainApp::unload()
   delete snow_vao;
   delete sky_vao;
   delete chkpt_vao;
+  delete map_vao;
 
   endGame(Gamefinish::not_finished);
 

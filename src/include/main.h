@@ -696,6 +696,7 @@ private:
     VAO* snow_vao;
     VAO* sky_vao;
     VAO* chkpt_vao;
+    VAO* map_vao;
     size_t sky_size = 0;
     size_t chkpt_size = 0;
 
@@ -711,6 +712,17 @@ private:
     // Fan
     const unsigned short map_marker_ibo[6] = {
         0, 1, 2, 3, 4, 1,
+    };
+
+    /// Map
+    float map_vbo[8] = {
+        -1.0f,  1.0f,
+        -1.0f, -1.0f,
+        1.0f,  1.0f,
+        1.0f, -1.0f,
+    };
+    unsigned short map_ibo[4] = {
+        0, 1, 2, 3,
     };
 
     /// RPM dial
