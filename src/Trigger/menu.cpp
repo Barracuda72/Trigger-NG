@@ -1184,7 +1184,6 @@ void MainApp::renderStateLevel(float eyetranslation)
 
   glBlendFunc(GL_ONE, GL_ZERO);
   glDisable(GL_DEPTH_TEST);
-  glDisable(GL_FOG);
   glDisable(GL_LIGHTING);
 
   {
@@ -1213,7 +1212,6 @@ void MainApp::renderStateLevel(float eyetranslation)
 
   glBlendFunc(GL_ONE, GL_ZERO);
   glEnable(GL_DEPTH_TEST);
-  glEnable(GL_FOG);
   glEnable(GL_LIGHTING);
 }
 

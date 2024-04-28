@@ -646,7 +646,7 @@ public:
 
   void unload();
 
-  void render(const glm::vec3 &campos, const glm::mat4 &camorim, PTexture* tex_detail, const glm::mat4& mv, const glm::mat4& p);
+  void render(const glm::vec3 &campos, const glm::mat4 &camorim, PTexture* tex_detail, const vec3f& fog_color, float fog_density, const glm::mat4& mv, const glm::mat4& p);
 
   void drawShadow(float x, float y, float scale, float angle, PTexture* tex_shadow, const glm::mat4& mv, const glm::mat4& p);
 

@@ -819,7 +819,7 @@ PTerrainTile *PTerrain::getTile(int tilex, int tiley)
 }
 
 
-void PTerrain::render(const glm::vec3 &campos, const glm::mat4 &camorim, PTexture* tex_detail, const glm::mat4& mv, const glm::mat4& p)
+void PTerrain::render(const glm::vec3 &campos, const glm::mat4 &camorim, PTexture* tex_detail, const vec3f& fog_color, float fog_density, const glm::mat4& mv, const glm::mat4& p)
 {
   //float blah = camorim.row[0][0]; blah = blah; // unused
 
@@ -864,6 +864,11 @@ void PTerrain::render(const glm::vec3 &campos, const glm::mat4 &camorim, PTextur
   glm::vec3 tex_gen_parameters = glm::vec3(0.0f, 0.0f, scale_tile_inv);
 
   sp_tile->use();
+
+  glm::vec3 f_color(fog_color[0], fog_color[1], fog_color[2]);
+  sp_tile->uniform("fog_density", fog_density);
+  sp_tile->uniform("fog_color", f_color);
+
   glActiveTexture(GL_TEXTURE1);
   glEnable(GL_TEXTURE_2D);
   tex_detail->bind();

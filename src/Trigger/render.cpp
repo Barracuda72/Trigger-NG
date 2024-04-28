@@ -35,9 +35,6 @@ void MainApp::resize()
 
     glEnable(GL_CULL_FACE);
 
-    glEnable(GL_FOG);
-    glFogi(GL_FOG_MODE, GL_EXP);
-
     glEnable(GL_LIGHT0);
     glEnable(GL_LIGHTING);
 
@@ -197,9 +194,11 @@ void MainApp::buildSkyVao()
 
 void MainApp::renderSky(const glm::mat4 &cammat, const glm::mat4& p)
 {
-    glFogf(GL_FOG_DENSITY, game->weather.fog.density_sky);
     glDepthRange(0.999,1.0);
     glDisable(GL_CULL_FACE);
+
+    vec3f& fc = game->weather.fog.color;
+    glm::vec3 fog_color(fc[0], fc[1], fc[2]);
 
     glm::mat4 t(1.0);
     t = glm::translate(t, glm::vec3(cloudscroll, 0.0f, 0.0f));
@@ -213,6 +212,8 @@ void MainApp::renderSky(const glm::mat4 &cammat, const glm::mat4& p)
     sp_sky->attrib("vert_coord", 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), 2 * sizeof(float));
 
     sp_sky->uniform("t_transform", t);
+    sp_sky->uniform("fog_density", game->weather.fog.density_sky);
+    sp_sky->uniform("fog_color", fog_color);
 
     glActiveTexture(GL_TEXTURE0);
     tex_sky[0]->bind();
@@ -226,7 +227,6 @@ void MainApp::renderSky(const glm::mat4 &cammat, const glm::mat4& p)
 
     glEnable(GL_CULL_FACE);
     glDepthRange(0.0,0.999);
-    glFogf(GL_FOG_DENSITY, game->weather.fog.density);
 }
 
 void MainApp::render(float eyetranslation)
@@ -299,7 +299,6 @@ void MainApp::renderStateLoading(float eyetranslation)
     tex_splash_screen->bind();
 
     glDisable(GL_DEPTH_TEST);
-    glDisable(GL_FOG);
     glDisable(GL_LIGHTING);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -313,7 +312,6 @@ void MainApp::renderStateLoading(float eyetranslation)
     renderTexturedFullscreenQuad(s, o);
 
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_FOG);
     glEnable(GL_LIGHTING);
 }
 
@@ -409,7 +407,6 @@ void MainApp::renderStateEnd(float eyetranslation)
     tex_end_screen->bind();
 
     glDisable(GL_DEPTH_TEST);
-    glDisable(GL_FOG);
     glDisable(GL_LIGHTING);
     glBlendFunc(GL_ONE, GL_ZERO);
 
@@ -463,7 +460,6 @@ void MainApp::renderStateEnd(float eyetranslation)
     }
 
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_FOG);
     glEnable(GL_LIGHTING);
 }
 
@@ -566,7 +562,6 @@ void MainApp::renderStateChoose(float eyetranslation)
 
   glBlendFunc(GL_ONE, GL_ZERO);
   glDisable(GL_DEPTH_TEST);
-  glDisable(GL_FOG);
   glDisable(GL_LIGHTING);
 
   tex_splash_screen->bind();
@@ -581,7 +576,6 @@ void MainApp::renderStateChoose(float eyetranslation)
     glm::mat4 t = glm::translate(glm::mat4(1.0f), glm::vec3(-eyetranslation, 0.9f, -5.0f));
     t = glm::rotate(t, 28.0f * 3.141592653f / 180.0f, glm::vec3(1.0f, 0.0f, 0.0f));
 
-    glDisable(GL_FOG);
     glEnable(GL_LIGHTING);
     glEnable(GL_DEPTH_TEST);
 
@@ -673,7 +667,6 @@ void MainApp::renderStateChoose(float eyetranslation)
 
     glBlendFunc(GL_ONE, GL_ZERO);
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_FOG);
     glEnable(GL_LIGHTING);
 }
 
@@ -836,9 +829,6 @@ void MainApp::renderStateGame(float eyetranslation)
     glm::mat4 p = stereoFrustum(-fnear*aspect*fov,fnear*aspect*fov,-fnear*fov,fnear*fov,fnear,100000.0f,
                   0.8f, eyetranslation);
 
-    vec4f fogcolor(game->weather.fog.color, 1.0f);
-    glFogfv(GL_FOG_COLOR, fogcolor);
-
     glDepthRange(0.0,0.999);
 
     glm::vec3 campos_gl = glm::vec3(campos.x, campos.y, campos.z);
@@ -859,7 +849,7 @@ void MainApp::renderStateGame(float eyetranslation)
     glDisable(GL_LIGHTING);
 
     // draw terrain
-    game->terrain->render(campos_gl, cammat_inv, tex_detail, mv, p);
+    game->terrain->render(campos_gl, cammat_inv, tex_detail, game->weather.fog.color, game->weather.fog.density, mv, p);
 
     if (renderowncar)
     {
@@ -917,7 +907,6 @@ void MainApp::renderStateGame(float eyetranslation)
     glBlendFunc(GL_ONE,GL_ZERO);
     glEnable(GL_LIGHTING);
     glEnable(GL_CULL_FACE);
-    glEnable(GL_FOG);
 
     glDisable(GL_LIGHTING);
 
