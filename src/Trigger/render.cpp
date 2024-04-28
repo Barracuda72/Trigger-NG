@@ -876,8 +876,6 @@ void MainApp::renderStateGame(float eyetranslation)
 
     glDepthRange(0.0,0.999);
 
-    glPushMatrix(); // 0
-
     glm::vec3 campos_gl = glm::vec3(campos.x, campos.y, campos.z);
 
     glm::mat4 cammat = camori.getGLMatrix();
@@ -961,8 +959,6 @@ void MainApp::renderStateGame(float eyetranslation)
     glEnable(GL_FOG);
 
     glDisable(GL_LIGHTING);
-
-    glPopMatrix(); // 0
 
     glDisable(GL_DEPTH_TEST);
 
@@ -1132,7 +1128,6 @@ void MainApp::renderStateGame(float eyetranslation)
 
           // checkpoint label
 
-          //glPushMatrix(); // 3
           k = glm::translate(k, glm::vec3(0, 0.52f, 0.0f));
           k = glm::scale(k, glm::vec3(0.65f, 0.65f, 1.0f));
           getSSRender().drawText("CKPT", PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, k, o);
