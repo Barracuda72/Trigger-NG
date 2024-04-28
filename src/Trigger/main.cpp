@@ -107,6 +107,8 @@ void MainApp::load()
       break;
     }
   }
+
+  loadShadersAndVao();
 }
 
 namespace
@@ -1268,8 +1270,6 @@ bool MainApp::loadAll()
   choose_type = 0;
 
   choose_spin = 0.0f;
-
-  loadShadersAndVao();
 
   return true;
 }
