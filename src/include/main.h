@@ -25,6 +25,8 @@
 
 #include <glm/vec4.hpp>
 
+#include <light.h>
+
 // Forward declaration for TriggerGame to use
 class MainApp;
 
@@ -763,4 +765,7 @@ private:
     unsigned short snow_ibo[4] = {
         0, 1, 2, 3,
     };
+
+    Light default_light;
+    Material default_material;
 };

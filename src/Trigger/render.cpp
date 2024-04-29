@@ -35,23 +35,14 @@ void MainApp::resize()
 
     glEnable(GL_CULL_FACE);
 
-    glEnable(GL_LIGHT0);
-    glEnable(GL_LIGHTING);
+    default_light.ambient = glm::vec3(0.1f, 0.1f, 0.1f);
+    default_light.diffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+    default_light.specular = glm::vec3(0.6f, 0.6f, 0.6f);
 
-    const GLfloat ambcol[] = {0.1f, 0.1f, 0.1f, 0.0f};
-    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambcol);
-
-    float white[] = { 1.0,1.0,1.0,1.0 };
-    //float black[] = { 0.0,0.0,0.0,1.0 };
-    glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE,white);
-
-    float spec[] = { 0.3f, 0.5f, 0.5f, 1.0f };
-    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, spec);
-    glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 6.0f);
-
-    float litcol[] = { 0.6,0.6,0.6,0.0 };
-    glLightfv(GL_LIGHT0,GL_DIFFUSE,litcol);
-    glLightfv(GL_LIGHT0,GL_SPECULAR,litcol);
+    default_material.ambient = glm::vec3(1.0f, 1.0f, 1.0f);
+    default_material.diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
+    default_material.specular = glm::vec3(0.3f, 0.5f, 0.5f);
+    default_material.shininess = 6.0f;
 
     glEnable(GL_NORMALIZE);
 }
@@ -299,7 +290,6 @@ void MainApp::renderStateLoading(float eyetranslation)
     tex_splash_screen->bind();
 
     glDisable(GL_DEPTH_TEST);
-    glDisable(GL_LIGHTING);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -312,7 +302,6 @@ void MainApp::renderStateLoading(float eyetranslation)
     renderTexturedFullscreenQuad(s, o);
 
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_LIGHTING);
 }
 
 const char *creditstext[] =
@@ -407,7 +396,6 @@ void MainApp::renderStateEnd(float eyetranslation)
     tex_end_screen->bind();
 
     glDisable(GL_DEPTH_TEST);
-    glDisable(GL_LIGHTING);
     glBlendFunc(GL_ONE, GL_ZERO);
 
     renderTexturedFullscreenQuad(o);
@@ -460,7 +448,6 @@ void MainApp::renderStateEnd(float eyetranslation)
     }
 
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_LIGHTING);
 }
 
 // FIXME: following two functions are almost the same
@@ -562,7 +549,6 @@ void MainApp::renderStateChoose(float eyetranslation)
 
   glBlendFunc(GL_ONE, GL_ZERO);
   glDisable(GL_DEPTH_TEST);
-  glDisable(GL_LIGHTING);
 
   tex_splash_screen->bind();
 
@@ -576,11 +562,9 @@ void MainApp::renderStateChoose(float eyetranslation)
     glm::mat4 t = glm::translate(glm::mat4(1.0f), glm::vec3(-eyetranslation, 0.9f, -5.0f));
     t = glm::rotate(t, 28.0f * 3.141592653f / 180.0f, glm::vec3(1.0f, 0.0f, 0.0f));
 
-    glEnable(GL_LIGHTING);
     glEnable(GL_DEPTH_TEST);
 
-    vec4f lpos = vec4f(0.0f, 1.0f, 0.0f, 0.0f);
-    glLightfv(GL_LIGHT0, GL_POSITION, lpos);
+    default_light.position = glm::vec3(0.0f, 1.0f, 0.0f);
 
     //float tmp = 1.0f;
     //float tmp = sinf(choose_spin * 2.0f) * 0.5f;
@@ -592,8 +576,6 @@ void MainApp::renderStateChoose(float eyetranslation)
 
     renderVehicleType(vtype, t, p);
 
-    glDisable(GL_LIGHTING);
-
     // use the same colors as the menu
     const GuiWidgetColors gwc = gui.getColors();
 
@@ -601,7 +583,6 @@ void MainApp::renderStateChoose(float eyetranslation)
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glDisable(GL_DEPTH_TEST);
-    glDisable(GL_LIGHTING);
 
     const GLdouble margin = (800.0 - 600.0 * cx / cy) / 2.0;
 
@@ -667,7 +648,6 @@ void MainApp::renderStateChoose(float eyetranslation)
 
     glBlendFunc(GL_ONE, GL_ZERO);
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_LIGHTING);
 }
 
 void MainApp::renderRpmDial(float rpm, const glm::mat4& p)
@@ -843,10 +823,7 @@ void MainApp::renderStateGame(float eyetranslation)
 
     mv = glm::translate(mv, -campos_gl);
 
-    float lpos[] = { 0.2, 0.5, 1.0, 0.0 };
-    glLightfv(GL_LIGHT0, GL_POSITION, lpos);
-
-    glDisable(GL_LIGHTING);
+    default_light.position = glm::vec3(0.2f, 0.5f, 1.0f);
 
     // draw terrain
     game->terrain->render(campos_gl, cammat_inv, tex_detail, game->weather.fog.color, game->weather.fog.density, mv, p);
@@ -865,8 +842,6 @@ void MainApp::renderStateGame(float eyetranslation)
 
     renderSky(cammat, p);
 
-    glEnable(GL_LIGHTING);
-
     for (unsigned int v=0; v<game->vehicle.size(); ++v)
     {
 
@@ -876,8 +851,6 @@ void MainApp::renderStateGame(float eyetranslation)
 
         renderVehicle(vehic, mv, p);
     }
-
-    glDisable(GL_LIGHTING);
 
     glDepthMask(GL_FALSE);
     glDisable(GL_CULL_FACE);
@@ -905,10 +878,7 @@ void MainApp::renderStateGame(float eyetranslation)
 
     glDepthMask(GL_TRUE);
     glBlendFunc(GL_ONE,GL_ZERO);
-    glEnable(GL_LIGHTING);
     glEnable(GL_CULL_FACE);
-
-    glDisable(GL_LIGHTING);
 
     glDisable(GL_DEPTH_TEST);
 
@@ -1371,7 +1341,6 @@ void MainApp::renderStateGame(float eyetranslation)
     glBlendFunc(GL_ONE, GL_ZERO);
 
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_LIGHTING);
 }
 
 void MainApp::renderRain(const glm::mat4& mv, const glm::mat4& p)

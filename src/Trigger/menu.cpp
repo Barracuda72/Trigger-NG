@@ -1184,7 +1184,6 @@ void MainApp::renderStateLevel(float eyetranslation)
 
   glBlendFunc(GL_ONE, GL_ZERO);
   glDisable(GL_DEPTH_TEST);
-  glDisable(GL_LIGHTING);
 
   {
   glm::mat4 o = glm::ortho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
@@ -1212,7 +1211,6 @@ void MainApp::renderStateLevel(float eyetranslation)
 
   glBlendFunc(GL_ONE, GL_ZERO);
   glEnable(GL_DEPTH_TEST);
-  glEnable(GL_LIGHTING);
 }
 
 /// @see GuiWidgetColors
