@@ -119,6 +119,7 @@ void PSSRender::drawModel(PModel &model, PSSEffect &ssEffect, PSSTexture &ssText
                             const Material& material, const glm::mat4& mv, const glm::mat4& p)
 {
   sp_model->use();
+  sp_model->uniform("n_mv", glm::mat3(glm::transpose(glm::inverse(mv))));
   sp_model->uniform("mv", mv);
   sp_model->uniform("p", p);
   glActiveTexture(GL_TEXTURE0);
