@@ -192,7 +192,7 @@ void PTexture::load (PImage &img, bool genMipmaps, bool clamp)
   glGenTextures(1,&texid);
   bind();
 
-    if (SDL_GL_ExtensionSupported("EXT_texture_filter_anisotropic"))
+    if (SDL_GL_ExtensionSupported("GL_EXT_texture_filter_anisotropic"))
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, MainApp::cfg_anisotropy);
     else
         PUtil::outLog() << "Warning: anisotropic filtering is not supported." << std::endl;
