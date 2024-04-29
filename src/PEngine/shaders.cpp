@@ -8,6 +8,7 @@
 ShaderProgram::ShaderProgram(const std::string& name)
 {
     PUtil::outLog() << "Compiling shader \"" << name << "\"" << std::endl;
+    this->name = name;
     shader_id = createShaderProgram(name + "_vsh.glsl", name + "_fsh.glsl");
 }
 
@@ -86,11 +87,17 @@ void ShaderProgram::unuse() {
  */
 
 GLint ShaderProgram::getUniformLocation(const std::string& name) {
-    return glGetUniformLocation(shader_id, name.c_str());
+    GLint location = glGetUniformLocation(shader_id, name.c_str());
+    if (location == -1)
+        PUtil::outLog() << "[" << this->name << "] Uniform location retrieval error: \"" << name << "\"" << std::endl;
+    return location;
 }
 
 GLint ShaderProgram::getAttribLocation(const std::string& name) {
-    return glGetAttribLocation(shader_id, name.c_str());
+    GLint location = glGetAttribLocation(shader_id, name.c_str());
+    if (location == -1)
+        PUtil::outLog() << "[" << this->name << "] Attribute location retrieval error: \"" << name << "\"" << std::endl;
+    return location;
 }
 
 GLuint ShaderProgram::createShader(const std::string& code, GLenum type)
@@ -113,8 +120,8 @@ GLuint ShaderProgram::createShader(const std::string& code, GLenum type)
         {
             char* infoLog = (char*)alloca(infoLen);
             glGetShaderInfoLog(result, infoLen, NULL, infoLog);
-            puts("Shader compilation error");
-            puts(infoLog);
+            PUtil::outLog() << "[" << this->name << "] Compilation error:" << std::endl;
+            PUtil::outLog() << infoLog << std::endl;
         }
         glDeleteShader(result);
         return 0;
@@ -143,8 +150,8 @@ GLuint ShaderProgram::createProgram(GLuint vsh, GLuint fsh)
         {
             char* infoLog = (char*)alloca(infoLen);
             glGetProgramInfoLog(result, infoLen, NULL, infoLog);
-            puts("Shader program linking error");
-            puts(infoLog);
+            PUtil::outLog() << "[" << this->name << "] Linking error:" << std::endl;
+            PUtil::outLog() << infoLog << std::endl;
         }
         glDeleteProgram(result);
         return 0;
@@ -178,7 +185,6 @@ std::string ShaderProgram::readShader(const std::string& path)
     std::ifstream t("../data/shaders/" + path);
     std::stringstream buffer;
     buffer << t.rdbuf();
-    //std::cout << buffer.str() << std::endl;
     return buffer.str();
 }
 

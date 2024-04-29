@@ -35,6 +35,7 @@ class ShaderProgram {
 
         GLuint shader_id = 0;
         std::set<GLint> enabled_attributes;
+        std::string name;
 };
 
 class VAO {
