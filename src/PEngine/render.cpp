@@ -130,7 +130,7 @@ void PSSRender::drawModel(PModel &model, PSSEffect &ssEffect, PSSTexture &ssText
   sp_model->uniform("material.specular", material.specular);
   sp_model->uniform("material.shininess", material.shininess);
 
-  sp_model->uniform("light.position", light.position);
+  sp_model->uniform("light.position", glm::mat3(mv) * light.position); // Legacy OpenGL expected light position in object coordinates
   sp_model->uniform("light.ambient", light.ambient);
   sp_model->uniform("light.diffuse", light.diffuse);
   sp_model->uniform("light.specular", light.specular);
