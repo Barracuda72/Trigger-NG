@@ -749,7 +749,7 @@ void MainApp::renderMap(int nextcp, const glm::mat4& p)
         sp_map->attrib("position", 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GL_FLOAT), 0);
 
         glActiveTexture(GL_TEXTURE0);
-        sp_map->uniform("map_texure", 0);
+        sp_map->uniform("map_texture", 0);
         sp_map->uniform("tex_transform", tex_t);
         sp_map->uniform("mv", s);
         sp_map->uniform("p", p);
