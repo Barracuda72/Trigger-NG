@@ -33,7 +33,7 @@ PSSEffect::PSSEffect(PApp &parentApp) : PSubsystem(parentApp)
 
   def_rs.texunit[0].texindex = -1;
 
-  glGetIntegerv(GL_MAX_TEXTURE_UNITS, &max_tex_units);
+  glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &max_tex_units);
 }
 
 PSSEffect::~PSSEffect()
