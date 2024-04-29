@@ -31,7 +31,7 @@ void MainApp::resize()
 
     glDepthFunc(GL_LEQUAL);
     glEnable(GL_DEPTH_TEST);
-    glClearDepth(1.0);
+    glClearDepthf(1.0f);
 
     glEnable(GL_CULL_FACE);
 
@@ -183,7 +183,7 @@ void MainApp::buildSkyVao()
 
 void MainApp::renderSky(const glm::mat4 &cammat, const glm::mat4& p)
 {
-    glDepthRange(0.999,1.0);
+    glDepthRangef(0.999f, 1.0f);
     glDisable(GL_CULL_FACE);
 
     vec3f& fc = game->weather.fog.color;
@@ -215,7 +215,7 @@ void MainApp::renderSky(const glm::mat4 &cammat, const glm::mat4& p)
     sky_vao->unbind();
 
     glEnable(GL_CULL_FACE);
-    glDepthRange(0.0,0.999);
+    glDepthRangef(0.0f, 0.999f);
 }
 
 void MainApp::render(float eyetranslation)
@@ -807,7 +807,7 @@ void MainApp::renderStateGame(float eyetranslation)
     glm::mat4 p = stereoFrustum(-fnear*aspect*fov,fnear*aspect*fov,-fnear*fov,fnear*fov,fnear,100000.0f,
                   0.8f, eyetranslation);
 
-    glDepthRange(0.0,0.999);
+    glDepthRangef(0.0f, 0.999f);
 
     glm::vec3 campos_gl = glm::vec3(campos.x, campos.y, campos.z);
 
