@@ -86,6 +86,7 @@
 		<Unit filename="../src/include/engine.h" />
 		<Unit filename="../src/include/exception.h" />
 		<Unit filename="../src/include/hiscore1.h" />
+		<Unit filename="../src/include/light.h" />
 		<Unit filename="../src/include/main.h" />
 		<Unit filename="../src/include/menu.h" />
 		<Unit filename="../src/include/pengine.h" />
