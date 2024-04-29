@@ -43,8 +43,6 @@ void MainApp::resize()
     default_material.diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
     default_material.specular = glm::vec3(0.3f, 0.5f, 0.5f);
     default_material.shininess = 6.0f;
-
-    glEnable(GL_NORMALIZE);
 }
 
 void MainApp::renderWater(const glm::mat4& mv, const glm::mat4& p)
