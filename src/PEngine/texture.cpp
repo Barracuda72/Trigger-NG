@@ -332,8 +332,10 @@ void PTexture::loadPiece(PImage &img, int offx, int offy, int sizex, int sizey, 
 
   //uint8 *offsetdata = img.getData() + ((offy*img.getcx())+offx)*img.getcc();
 
+#ifdef USE_GEN_MIPMAPS
   if (genMipmaps)
     glTexParameteri(textarget, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
+#endif
 
   glTexImage2D(GL_TEXTURE_2D,0,fmt2,
     newcx,newcy,
