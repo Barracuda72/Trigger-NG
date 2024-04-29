@@ -124,6 +124,16 @@ void PSSRender::drawModel(PModel &model, PSSEffect &ssEffect, PSSTexture &ssText
   glActiveTexture(GL_TEXTURE0);
   sp_model->uniform("tex", 0);
 
+  sp_model->uniform("material.ambient", material.ambient);
+  sp_model->uniform("material.diffuse", material.diffuse);
+  sp_model->uniform("material.specular", material.specular);
+  sp_model->uniform("material.shininess", material.shininess);
+
+  sp_model->uniform("light.position", light.position);
+  sp_model->uniform("light.ambient", light.ambient);
+  sp_model->uniform("light.diffuse", light.diffuse);
+  sp_model->uniform("light.specular", light.specular);
+
   for (std::vector<PMesh>::iterator mesh = model.mesh.begin();
     mesh != model.mesh.end();
     mesh++) {
