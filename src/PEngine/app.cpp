@@ -807,9 +807,9 @@ void PApp::grabMouse(bool grab)
   grabinput = grab;
 }
 
-void PApp::drawModel(PModel &model, const glm::mat4& mv, const glm::mat4& p)
+void PApp::drawModel(PModel &model, const Light& light, const Material& material, const glm::mat4& mv, const glm::mat4& p)
 {
-  getSSRender().drawModel(model, getSSEffect(), getSSTexture(), mv, p);
+  getSSRender().drawModel(model, getSSEffect(), getSSTexture(), light, material, mv, p);
 }
 
 

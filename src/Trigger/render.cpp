@@ -471,7 +471,7 @@ void MainApp::renderVehicleType(PVehicleType* vtype, const glm::mat4& mv, const 
             {
                 float scale = vtype->part[i].scale;
                 glm::mat4 s = glm::scale(t, glm::vec3(scale,scale,scale));
-                drawModel(*vtype->part[i].model, s, p);
+                drawModel(*vtype->part[i].model, default_light, default_material, s, p);
             }
 
             if (vtype->wheelmodel)
@@ -483,7 +483,7 @@ void MainApp::renderVehicleType(PVehicleType* vtype, const glm::mat4& mv, const 
                     glm::mat4 k = glm::translate(t, glm::vec3(wpos.x, wpos.y, wpos.z));
                     k = glm::scale(k, glm::vec3(scale,scale,scale));
 
-                    drawModel(*vtype->wheelmodel, k, p);
+                    drawModel(*vtype->wheelmodel, default_light, default_material, k, p);
                 }
             }
         }
@@ -509,7 +509,7 @@ void MainApp::renderVehicle(PVehicle* vehic, const glm::mat4& mv, const glm::mat
             t = t * glm::transpose(q);
             t = glm::scale(t, glm::vec3(scale, scale, scale));
 
-            drawModel(*vehic->type->part[i].model, t, p);
+            drawModel(*vehic->type->part[i].model, default_light, default_material, t, p);
         }
 
         if (vehic->type->wheelmodel)
@@ -530,7 +530,7 @@ void MainApp::renderVehicle(PVehicle* vehic, const glm::mat4& mv, const glm::mat
                 t = t * glm::transpose(q);
                 t = glm::scale(t, glm::vec3(scale, scale, scale));
 
-                drawModel(*vehic->type->wheelmodel, t, p);
+                drawModel(*vehic->type->wheelmodel, default_light, default_material, t, p);
             }
         }
     }

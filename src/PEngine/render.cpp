@@ -115,7 +115,8 @@ void PSSRender::render(PParticleSystem *psys, const glm::mat4& mv, const glm::ma
   if (!psys->tex) glEnable(GL_TEXTURE_2D);
 }
 
-void PSSRender::drawModel(PModel &model, PSSEffect &ssEffect, PSSTexture &ssTexture, const glm::mat4& mv, const glm::mat4& p)
+void PSSRender::drawModel(PModel &model, PSSEffect &ssEffect, PSSTexture &ssTexture, const Light& light,
+                            const Material& material, const glm::mat4& mv, const glm::mat4& p)
 {
   sp_model->use();
   sp_model->uniform("mv", mv);
