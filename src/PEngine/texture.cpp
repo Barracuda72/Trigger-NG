@@ -182,7 +182,7 @@ void PTexture::load (PImage &img, bool genMipmaps, bool clamp)
   if (newcx != cx || newcy != cy) {
     PImage newimage (newcx, newcy, img.getcc ());
 
-    gluScaleImage (fmt,
+    scaleImage (fmt,
         cx, cy, GL_UNSIGNED_BYTE, img.getData (),
         newcx, newcy, GL_UNSIGNED_BYTE, newimage.getData ());
 
@@ -299,11 +299,11 @@ void PTexture::loadPiece(PImage &img, int offx, int offy, int sizex, int sizey, 
 
   if (newcx != cx || newcy != cy) {
     PImage newimage (newcx, newcy, img.getcc ());
-    
-    gluScaleImage (fmt,
+
+    scaleImage (fmt,
         cx, cy, GL_UNSIGNED_BYTE, img.getData (),
         newcx, newcy, GL_UNSIGNED_BYTE, newimage.getData ());
-    
+
     img.swap (newimage);
   }
 
@@ -397,11 +397,11 @@ void PTexture::loadAlpha(PImage &img, bool genMipmaps, bool clamp)
 
   if (newcx != cx || newcy != cy) {
     PImage newimage (newcx, newcy, img.getcc ());
-    
-    gluScaleImage (fmt,
+
+    scaleImage (fmt,
         cx, cy, GL_UNSIGNED_BYTE, img.getData (),
         newcx, newcy, GL_UNSIGNED_BYTE, newimage.getData ());
-    
+
     img.swap (newimage);
   }
 
@@ -532,11 +532,11 @@ void PTexture::loadCubeMap(const std::string &filenamePrefix, const std::string 
 
     if (newcx != cx || newcy != cy) {
       PImage newimage (newcx, newcy, img.getcc ());
-      
-      gluScaleImage (fmt,
+
+      scaleImage (fmt,
           cx, cy, GL_UNSIGNED_BYTE, img.getData (),
           newcx, newcy, GL_UNSIGNED_BYTE, newimage.getData ());
-      
+
       img.swap (newimage);
     }
 
@@ -615,5 +615,13 @@ void PTexture::unbind()
   glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 }
 
-
+void PTexture::scaleImage(GLuint format,
+    GLsizei width_in, GLsizei height_in, GLenum type_in, const void* data_in,
+    GLsizei width_out, GLsizei height_out, GLenum type_out, void* data_out
+    )
+{
+    gluScaleImage (format,
+          width_in, height_in, GL_UNSIGNED_BYTE, data_in,
+          width_out, height_out, GL_UNSIGNED_BYTE, data_out);
+}
 

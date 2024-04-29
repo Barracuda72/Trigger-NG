@@ -174,6 +174,11 @@ private:
   GLuint texid;
   GLenum textarget;
 
+  void scaleImage(GLuint format, 
+    GLsizei width_in, GLsizei height_in, GLenum type_in, const void* data_in,
+    GLsizei width_out, GLsizei height_out, GLenum type_out, void* data_out
+    );
+
 public:
   PTexture () : texid (0) { }
   PTexture (const std::string &filename, bool genMipmaps, bool clamp) : texid (0) { load (filename, genMipmaps, clamp); }
