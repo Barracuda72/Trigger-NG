@@ -922,6 +922,7 @@ void PEffect::migrateRenderState(fx_renderstate_s *rs_old, fx_renderstate_s *rs_
     else                    glDisable(GL_DEPTH_TEST);
   }
 
+#if 0
   if (rs_old->lighting != rs_new->lighting) {
     if (rs_new->lighting)   glEnable(GL_LIGHTING);
     else                    glDisable(GL_LIGHTING);
@@ -946,6 +947,7 @@ void PEffect::migrateRenderState(fx_renderstate_s *rs_old, fx_renderstate_s *rs_
       glAlphaFunc(rs_new->alphatest.func, rs_new->alphatest.ref);
     }
   }
+#endif
 
   if (rs_old->cullface != rs_new->cullface) {
     if (rs_old->cullface == CULLFACE_NONE) {
