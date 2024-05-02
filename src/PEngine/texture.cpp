@@ -297,14 +297,26 @@ void PTexture::loadPiece(PImage &img, int offx, int offy, int sizex, int sizey, 
   if (newcx > max) newcx = max;
   if (newcy > max) newcy = max;
 
+  int cc = img.getcc();
+
+  uint8 *offsetdata = img.getData() + ((offy*img.getcx())+offx)*cc;
+
+  char* buffer = new char[sizex * sizey * cc];
+
+  for (int i = 0; i < sizey; i++) {
+    memcpy(buffer + i * sizex * cc, offsetdata + i * img.getcx() * cc, sizey * cc);
+  }
+
   if (newcx != cx || newcy != cy) {
     PImage newimage (newcx, newcy, img.getcc ());
 
     scaleImage (fmt,
-        cx, cy, GL_UNSIGNED_BYTE, img.getData (),
+        cx, cy, GL_UNSIGNED_BYTE, buffer,
         newcx, newcy, GL_UNSIGNED_BYTE, newimage.getData ());
 
     img.swap (newimage);
+
+    memcpy(buffer, img.getData(), newcx * newcy * cc);
   }
 
   glGenTextures(1,&texid);
@@ -326,12 +338,6 @@ void PTexture::loadPiece(PImage &img, int offx, int offy, int sizex, int sizey, 
 
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-  glPixelStorei(GL_UNPACK_ROW_LENGTH, img.getcx());
-  glPixelStorei(GL_UNPACK_SKIP_ROWS, offy);
-  glPixelStorei(GL_UNPACK_SKIP_PIXELS, offx);
-
-  //uint8 *offsetdata = img.getData() + ((offy*img.getcx())+offx)*img.getcc();
-
 #ifdef USE_GEN_MIPMAPS
   if (genMipmaps)
     glTexParameteri(textarget, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
@@ -339,11 +345,9 @@ void PTexture::loadPiece(PImage &img, int offx, int offy, int sizex, int sizey, 
 
   glTexImage2D(GL_TEXTURE_2D,0,fmt2,
     newcx,newcy,
-    0,fmt,GL_UNSIGNED_BYTE,img.getData());
+    0,fmt,GL_UNSIGNED_BYTE,buffer);
 
-  glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-  glPixelStorei(GL_UNPACK_SKIP_ROWS, 0);
-  glPixelStorei(GL_UNPACK_SKIP_PIXELS, 0);
+  delete[] buffer;
 }
 
 void PTexture::loadAlpha(const std::string &filename, bool genMipmaps, bool clamp)
@@ -620,8 +624,49 @@ void PTexture::scaleImage(GLuint format,
     GLsizei width_out, GLsizei height_out, GLenum type_out, void* data_out
     )
 {
-    gluScaleImage (format,
-          width_in, height_in, GL_UNSIGNED_BYTE, data_in,
-          width_out, height_out, GL_UNSIGNED_BYTE, data_out);
+    int depth = 0;
+    int pitch = 0; // Used as is
+
+    unsigned int rm = 0, gm = 0, bm = 0, am = 0; // Masks for colors
+
+    // TODO: those masks may be incorrect in terms of color order, but we don't really care about it as we're just performing scaling
+    switch (format) {
+    case GL_LUMINANCE: // 1 component
+      depth = 8;
+      rm = 0xFF;
+      break;
+    case GL_LUMINANCE_ALPHA: // 2 components
+      depth = 16;
+      rm = 0x00FF;
+      gm = 0xFF00;
+      break;
+    case GL_RGB: // 3 components
+      depth = 24;
+      rm = 0x0000FF;
+      gm = 0x00FF00;
+      bm = 0xFF0000;
+      break;
+    case GL_RGBA: // 4 components
+      depth = 32;
+      rm = 0x000000FF;
+      gm = 0x0000FF00;
+      bm = 0x00FF0000;
+      am = 0xFF000000;
+      break;
+    default:
+      throw MakePException ("Scaling failed, unknown image format");
+    }
+
+    SDL_Rect srcrect = {.x = 0, .y = 0, .w = width_in, .h = height_in};
+    SDL_Rect dstrect = {.x = 0, .y = 0, .w = width_out, .h = height_out};
+    SDL_Surface* src = SDL_CreateRGBSurfaceFrom((void*)data_in, width_in, height_in, depth, pitch, rm, gm, bm, am);
+    SDL_Surface* dst = SDL_CreateRGBSurfaceFrom(data_out, width_out, height_out, depth, pitch, rm, gm, bm, am);
+
+    if (SDL_BlitScaled(src, &srcrect, dst, &dstrect) < 0)
+        throw MakePException ("Scaling failed, error during scaling");
+
+    // This won't affect the data
+    SDL_FreeSurface(src);
+    SDL_FreeSurface(dst);
 }
 
