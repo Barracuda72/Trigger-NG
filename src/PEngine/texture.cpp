@@ -158,13 +158,13 @@ void PTexture::load (PImage &img, bool genMipmaps, bool clamp)
 
   switch (img.getcc()) {
   case 1:
-    fmt = GL_LUMINANCE; fmt2 = GL_LUMINANCE8; break;
+    fmt = GL_LUMINANCE; fmt2 = GL_LUMINANCE; break;
   case 2:
-    fmt = GL_LUMINANCE_ALPHA; fmt2 = GL_LUMINANCE8_ALPHA8; break;
+    fmt = GL_LUMINANCE_ALPHA; fmt2 = GL_LUMINANCE_ALPHA; break;
   case 3:
-    fmt = GL_RGB; fmt2 = GL_RGB8; break;
+    fmt = GL_RGB; fmt2 = GL_RGB; break;
   case 4:
-    fmt = GL_RGBA; fmt2 = GL_RGBA8; break;
+    fmt = GL_RGBA; fmt2 = GL_RGBA; break;
   default:
     throw MakePException ("loading texture failed, unknown image format");
   }
@@ -278,13 +278,13 @@ void PTexture::loadPiece(PImage &img, int offx, int offy, int sizex, int sizey, 
 
   switch (img.getcc()) {
   case 1:
-    fmt = GL_LUMINANCE; fmt2 = GL_LUMINANCE8; break;
+    fmt = GL_LUMINANCE; fmt2 = GL_LUMINANCE; break;
   case 2:
-    fmt = GL_LUMINANCE_ALPHA; fmt2 = GL_LUMINANCE8_ALPHA8; break;
+    fmt = GL_LUMINANCE_ALPHA; fmt2 = GL_LUMINANCE_ALPHA; break;
   case 3:
-    fmt = GL_RGB; fmt2 = GL_RGB8; break;
+    fmt = GL_RGB; fmt2 = GL_RGB; break;
   case 4:
-    fmt = GL_RGBA; fmt2 = GL_RGBA8; break;
+    fmt = GL_RGBA; fmt2 = GL_RGBA; break;
   default:
     throw MakePException ("loading texture failed, unknown image format");
   }
@@ -370,17 +370,17 @@ void PTexture::loadAlpha(PImage &img, bool genMipmaps, bool clamp)
 
   switch (img.getcc()) {
   case 1:
-    fmt = GL_ALPHA; fmt2 = GL_ALPHA8; break;
+    fmt = GL_ALPHA; fmt2 = GL_ALPHA; break;
   case 2:
-    fmt = GL_LUMINANCE_ALPHA; fmt2 = GL_LUMINANCE8_ALPHA8;
+    fmt = GL_LUMINANCE_ALPHA; fmt2 = GL_LUMINANCE_ALPHA;
     PUtil::outLog() << "Warning: loadAlpha() has been used for image with 2 channels" << std::endl;
     break;
   case 3:
-    fmt = GL_RGB; fmt2 = GL_RGB8;
+    fmt = GL_RGB; fmt2 = GL_RGB;
     PUtil::outLog() << "Warning: loadAlpha() has been used for RGB image" << std::endl;
     break;
   case 4:
-    fmt = GL_RGBA; fmt2 = GL_RGBA8;
+    fmt = GL_RGBA; fmt2 = GL_RGBA;
     PUtil::outLog() << "Warning: loadAlpha() has been used for RGBA image" << std::endl;
     break;
   default:
@@ -511,13 +511,13 @@ void PTexture::loadCubeMap(const std::string &filenamePrefix, const std::string 
 
     switch (img.getcc()) {
     case 1:
-      fmt = GL_LUMINANCE; fmt2 = GL_LUMINANCE8; break;
+      fmt = GL_LUMINANCE; fmt2 = GL_LUMINANCE; break;
     case 2:
-      fmt = GL_LUMINANCE_ALPHA; fmt2 = GL_LUMINANCE8_ALPHA8; break;
+      fmt = GL_LUMINANCE_ALPHA; fmt2 = GL_LUMINANCE_ALPHA; break;
     case 3:
-      fmt = GL_RGB; fmt2 = GL_RGB8; break;
+      fmt = GL_RGB; fmt2 = GL_RGB; break;
     case 4:
-      fmt = GL_RGBA; fmt2 = GL_RGBA8; break;
+      fmt = GL_RGBA; fmt2 = GL_RGBA; break;
     default:
       throw MakePException (filename + " load failed, unknown image format");
     }
