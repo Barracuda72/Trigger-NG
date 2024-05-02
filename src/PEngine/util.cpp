@@ -315,6 +315,13 @@ std::list<std::string> PUtil::findFiles(const std::string &basedir, const std::s
 
   char **filelist = PHYSFS_enumerateFiles(basedir.c_str());
 
+  if (!filelist) {
+    auto err = PHYSFS_getLastErrorCode();
+    std::string errstr = PHYSFS_getErrorByCode(err);
+    PUtil::outLog() << "Error enumerating files: " << errstr << std::endl;
+    return results;
+  }
+
   for (char **i = filelist; *i; i++) {
 
     std::string thisfile = basedir + '/' + *i;
