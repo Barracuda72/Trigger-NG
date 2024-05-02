@@ -784,6 +784,10 @@ int PApp::run(int argc, char *argv[])
   //SDL_SetWindowGrab(screen, SDL_FALSE);
   SDL_ShowCursor(SDL_ENABLE);
 
+  #ifdef MODERN_GL
+  glDeleteVertexArrays(1, &vao);
+  #endif
+
     SDL_GL_DeleteContext(context);
     SDL_DestroyWindow(screen);
     SDL_Quit();
