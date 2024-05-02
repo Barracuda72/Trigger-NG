@@ -194,8 +194,10 @@ public:
   Gui() : cursor(vec2f::zero()), defflash(0.0f) {  }
 
   ~Gui() {
-    delete vao_widget;
-    delete sp_widget;
+    if (vao_widget != nullptr)
+        delete vao_widget;
+    if (sp_widget != nullptr)
+        delete sp_widget;
   }
 
   bool loadColors(const std::string &filename);
@@ -267,8 +269,8 @@ private:
     2, 3, 0,
   };
 
-  VAO* vao_widget;
-  ShaderProgram* sp_widget;
+  VAO* vao_widget = nullptr;
+  ShaderProgram* sp_widget = nullptr;
 };
 
 
