@@ -26,7 +26,7 @@ DMACROS         := -DNDEBUG -DUNIX -DPACKAGE_VERSION=\"$(DISTVER)\"
 INCDIRS         := -I'./include' -I'../glm'
 CXXFLAGS        += -std=c++11 $(WARNINGS) $(OPTIMS) -g
 CPPFLAGS        += $(DMACROS) $(INCDIRS)
-EXTRA_LIBS      := -lSDL2main -lGL -lGLU -lGLEW -lSDL2 -lSDL2_image -lphysfs -lopenal -lalut -lpthread -ltinyxml2
+EXTRA_LIBS      := -lSDL2main -lGL -lGLEW -lSDL2 -lSDL2_image -lphysfs -lopenal -lalut -lpthread -ltinyxml2
 LDFLAGS         += $(EXTRA_LIBS)
 INSTALL_PROGRAM := install --mode=0755
 INSTALL_DATA    := install --mode=0644
