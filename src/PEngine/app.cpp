@@ -37,7 +37,7 @@ FIXME: not bothering to close joysticks because I
 suspect SDL does it for you on quit. Am I right?
 */
 
-
+#ifndef GLES2
 void GLAPIENTRY
 MessageCallback( GLenum source,
                  GLenum type,
@@ -59,6 +59,7 @@ MessageCallback( GLenum source,
            ( type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : "" ),
             type, severity, message );
 }
+#endif
 
 int PUtil::deblev = DEBUGLEVEL_ENDUSER;
 
