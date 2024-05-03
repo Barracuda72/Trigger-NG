@@ -166,7 +166,18 @@ int PApp::run(int argc, char *argv[])
 
   PUtil::outLog() << "Initialising PhysFS" << std::endl;
 
-  if (PHYSFS_init((argc >= 1) ? argv[0] : nullptr) == 0) {
+  #ifdef __ANDROID__
+  // Use "/storage/emulated/0/Android/data/etcetcetc" as a base directory for all files
+  const char* app_dir = SDL_AndroidGetExternalStoragePath();
+  // This is required for PhysFS *nix module to pick up this directory correctly as a user home directory
+  setenv("XDG_DATA_HOME", app_dir, 1);
+  #else
+  const char* app_dir = (argc >= 1) ? argv[0] : nullptr;
+  #endif
+
+  PUtil::outLog() << "App dir is " << app_dir << std::endl;
+
+  if (PHYSFS_init(app_dir) == 0) {
     PUtil::outLog() << "PhysFS failed to initialise" << std::endl;
     PUtil::outLog() << "PhysFS: " << physfs_getErrorString() << std::endl;
     return 1;
@@ -223,6 +234,14 @@ int PApp::run(int argc, char *argv[])
 
     // Find any .zip files and add them to search path
     std::list<std::string> zipfiles = PUtil::findFiles("", ".zip");
+    #ifdef __ANDROID__
+    // TODO: this is a hack.
+    // PhysFS seems to be trying to go over all path components in the decending manner when looking for the files.
+    // Unfortunately, this doesn't work for Android and that "/storage/emulated/0/Android/data/etcetcetc" path
+    // we specified above, because regular programs can't access "/storage/emulated" directory on most devices.
+    // File itself will be accessible by PhysFS tho, so no problems here.
+    zipfiles.push_back("data.zip");
+    #endif
 
     for (std::list<std::string>::iterator i = zipfiles.begin();
       i != zipfiles.end(); ++i) {

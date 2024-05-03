@@ -42,7 +42,43 @@ using namespace tinyxml2;
 // Some maths utils and macros
 #include "vmath.h"
 
+#ifdef __ANDROID__
+/*
+ * Simple buffer class to redirect std::cout into android log
+ */
+#include <android/log.h>
+#include <streambuf>
 
+class AndroidLogger : public std::streambuf
+{
+public:
+    static const int buffer_size = 1024;
+
+    AndroidLogger() { setp(buffer, buffer + buffer_size - 2); }
+
+private:
+    int overflow(int c)
+    {
+        *pptr() = traits_type::to_char_type(c);
+        pbump(1);
+        sync();
+        return 0;
+    }
+
+    int sync()
+    {
+        int n = pptr() - pbase(); // N is always less than buffer_size - 1
+        if (n > 0) {
+            buffer[n] = 0;
+            __android_log_write(ANDROID_LOG_INFO, "std", buffer);
+            pbump(-n);
+        }
+        return 0;
+    }
+
+    char buffer[buffer_size];
+};
+#endif
 
 class PUtil;
 
@@ -159,6 +195,12 @@ private:
 
 public:
   // Output streams
+  static void initLog() {
+#ifdef __ANDROID__
+      std::cout.rdbuf(new AndroidLogger());
+#endif
+  }
+
   static std::ostream &outLog() { return std::cout; }
 
   // Debug level
