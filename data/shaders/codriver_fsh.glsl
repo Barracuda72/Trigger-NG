@@ -1,3 +1,4 @@
+precision mediump float;
 uniform sampler2D sign_tex;
 
 varying vec2 tex_position;

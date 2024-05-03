@@ -1,3 +1,4 @@
+precision mediump float;
 varying vec2 tex_position;
 varying vec4 color;
 

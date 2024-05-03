@@ -1,3 +1,4 @@
+precision mediump float;
 varying float v_alpha;
 
 uniform vec4 v_color;

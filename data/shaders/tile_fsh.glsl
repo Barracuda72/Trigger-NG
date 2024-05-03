@@ -1,3 +1,4 @@
+precision mediump float;
 uniform sampler2D tile;
 uniform sampler2D detail;
 uniform vec3 fog_color;

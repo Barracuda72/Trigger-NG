@@ -1,3 +1,4 @@
+precision mediump float;
 uniform sampler2D particle;
 
 varying vec2 tex_position;

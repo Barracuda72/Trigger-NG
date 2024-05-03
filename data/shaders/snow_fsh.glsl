@@ -1,3 +1,4 @@
+precision mediump float;
 uniform sampler2D snow;
 uniform float alpha;
 
