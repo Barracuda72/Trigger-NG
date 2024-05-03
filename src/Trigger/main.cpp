@@ -596,8 +596,10 @@ void MainApp::loadConfig()
       if (val) {
         if (!strcmp(val, "none"))
           setStereoMode(PApp::StereoNone);
+        #ifndef GLES2
         else if (!strcmp(val, "quadbuffer"))
           setStereoMode(PApp::StereoQuadBuffer);
+        #endif
         else if (!strcmp(val, "red-blue"))
           setStereoMode(PApp::StereoRedBlue);
         else if (!strcmp(val, "red-green"))

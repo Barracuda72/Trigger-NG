@@ -27,8 +27,14 @@
 // The PhysicsFS game file system
 #include <physfs.h>
 
+#ifdef GLES2
+#define GL_GLEXT_PROTOTYPES 1
+#include <SDL2/SDL_opengles2.h>
+#include <SDL2/SDL_opengles2_gl2ext.h>
+#else
 #include <GL/glew.h>
 //#include <GL/glext.h>
+#endif
 
 #include <tinyxml2.h>
 using namespace tinyxml2;

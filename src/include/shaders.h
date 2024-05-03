@@ -3,8 +3,13 @@
 #include <string>
 #include <set>
 
+#ifdef GLES2
+#define GL_GLEXT_PROTOTYPES 1
+#include <SDL2/SDL_opengles2.h>
+#else
 #include <GL/glew.h>
 #include <GL/gl.h>
+#endif
 
 #include <glm/gtc/type_ptr.hpp> // For glm::value_ptr
 #include <glm/mat4x4.hpp> // For glm::mat4

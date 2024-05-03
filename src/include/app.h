@@ -36,7 +36,9 @@ class PApp
         enum StereoMode
         {
             StereoNone,
+            #ifndef GLES2
             StereoQuadBuffer,
+            #endif
             StereoRedBlue,
             StereoRedGreen,
             StereoRedCyan,

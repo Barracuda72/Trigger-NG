@@ -245,6 +245,8 @@ int PApp::run(int argc, char *argv[])
   srand(SDL_GetTicks());
 
   PUtil::outLog() << "Create window and set video mode" << std::endl;
+
+#ifndef GLES2
 #define MODERN_GL
 #ifndef MODERN_GL
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
@@ -256,7 +258,9 @@ int PApp::run(int argc, char *argv[])
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-#endif
+#endif // MODERN_GL
+#endif // GLES2
+
   SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
 
   if (reqRGB) {
@@ -276,9 +280,11 @@ int PApp::run(int argc, char *argv[])
   if (reqStencil)
     SDL_GL_SetAttribute( SDL_GL_STENCIL_SIZE, 8 );
 
+  #ifndef GLES2
   if (stereo == StereoQuadBuffer) {
     SDL_GL_SetAttribute( SDL_GL_STEREO, 1 );
   }
+  #endif
 
   if (cx <= 0 || cy <= 0) setScreenModeAutoWindow();
 
@@ -362,6 +368,10 @@ int PApp::run(int argc, char *argv[])
         return 1;
     }
 
+  #ifdef GLES2
+  SDL_Renderer* renderer = SDL_CreateRenderer(screen, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
+  #endif
+
   sdl_mousemap = 0;
 
   sdl_joy.resize(SDL_NumJoysticks());
@@ -407,6 +417,31 @@ int PApp::run(int argc, char *argv[])
 
   SDL_JoystickEventState(SDL_ENABLE);
 
+#ifdef GLES2
+  /*
+   * Previously I've employed a few extensions to GLESv2 to be compatible with core OpenGL.
+   * I've rewritten the code in a way that doesn't require any extension but decided to keep
+   * this check in place for the future.
+   */
+  #if 0
+  std::vector<std::string> extensions = {
+  };
+
+  for (auto& extension: extensions) {
+    int supported = SDL_GL_ExtensionSupported(extension.c_str());
+    if (!supported) {
+        PUtil::outLog() << "Required extension is missing: " << extension << std::endl;
+        SDL_GL_DeleteContext(context);
+        SDL_DestroyWindow(screen);
+        SDL_Quit();
+        if (PHYSFS_deinit() == 0) {
+            PUtil::outLog() << "PhysFS: " << physfs_getErrorString() << std::endl;
+        }
+        return 1;
+    }
+  }
+  #endif
+#else
   glewExperimental = true;
 
   int err = glewInit();
@@ -423,14 +458,17 @@ int PApp::run(int argc, char *argv[])
   }
 
   PUtil::outLog() << "GLEW initialized" << std::endl;
+#endif
 
   PUtil::outLog() << "Graphics: " <<
     glGetString(GL_VENDOR) << " " << glGetString(GL_RENDERER) << std::endl;
 
   PUtil::outLog() << "Using OpenGL " << glGetString(GL_VERSION) << std::endl;
 
+  #ifndef GLES2
   glEnable(GL_DEBUG_OUTPUT);
   glDebugMessageCallback(MessageCallback, 0);
+  #endif
 
 #ifdef MODERN_GL
     // TODO: this is a really cheap hack to workaround OpenGL 3.0+ core profile requirement of VAO
@@ -441,10 +479,12 @@ int PApp::run(int argc, char *argv[])
 
   switch (stereo) {
   default: break;
+  #ifndef GLES2
   case StereoQuadBuffer:
     PUtil::outLog() << "Using hardware quad buffer stereo, separation ="
       << stereoEyeTranslation * 2.0f << std::endl;
     break;
+  #endif
   case StereoRedBlue:
     PUtil::outLog() << "Using red-blue anaglyph stereo, separation = "
       << stereoEyeTranslation * 2.0f << std::endl;
@@ -655,6 +695,7 @@ int PApp::run(int argc, char *argv[])
         SDL_GL_SwapWindow(screen);
         break;
 
+#ifndef GLES2
       case StereoQuadBuffer: // Hardware quad buffer stereo
 
         glDrawBuffer(GL_BACK_LEFT);
@@ -667,6 +708,7 @@ int PApp::run(int argc, char *argv[])
 
         SDL_GL_SwapWindow(screen);
         break;
+#endif
 
       case StereoRedBlue: // Red-blue anaglyph stereo
 
@@ -732,6 +774,7 @@ int PApp::run(int argc, char *argv[])
       }
       repaint = false;
 
+#ifndef GLES2
       if (screenshot_requested) {
         glReadBuffer(GL_FRONT);
         unsigned char *data1 = new unsigned char[cx*(cy+1)*3];
@@ -763,6 +806,7 @@ int PApp::run(int argc, char *argv[])
         delete[] data1;
         screenshot_requested = false;
       }
+#endif
 
     } else {
       SDL_WaitEvent(nullptr);
@@ -786,6 +830,10 @@ int PApp::run(int argc, char *argv[])
 
   #ifdef MODERN_GL
   glDeleteVertexArrays(1, &vao);
+  #endif
+
+  #ifdef GLES2
+  SDL_DestroyRenderer(renderer);
   #endif
 
     SDL_GL_DeleteContext(context);

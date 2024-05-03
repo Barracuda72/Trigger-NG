@@ -26,10 +26,18 @@ DMACROS         := -DNDEBUG -DUNIX -DPACKAGE_VERSION=\"$(DISTVER)\"
 INCDIRS         := -I'./include' -I'../glm'
 CXXFLAGS        += -std=c++11 $(WARNINGS) $(OPTIMS) -g
 CPPFLAGS        += $(DMACROS) $(INCDIRS)
-EXTRA_LIBS      := -lSDL2main -lGL -lGLEW -lSDL2 -lSDL2_image -lphysfs -lopenal -lalut -lpthread -ltinyxml2
-LDFLAGS         += $(EXTRA_LIBS)
+EXTRA_LIBS      := -lSDL2main -lSDL2 -lSDL2_image -lphysfs -lopenal -lalut -lpthread -ltinyxml2
 INSTALL_PROGRAM := install --mode=0755
 INSTALL_DATA    := install --mode=0644
+
+ifeq ($(GLES2),1)
+DMACROS         += -DGLES2
+EXTRA_LIBS      += -lGLESv2
+else
+EXTRA_LIBS      += -lGL -lGLEW
+endif
+
+LDFLAGS         += $(EXTRA_LIBS)
 
 # standard GNU directories
 prefix          ?= /usr/local
