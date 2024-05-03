@@ -2326,5 +2326,5 @@ void MainApp::joyButtonEvent(int which, int button, bool down)
 int main(int argc, char *argv[])
 {
     PUtil::initLog();
-    return MainApp("Trigger Rally", ".trigger-rally").run(argc, argv);
+    return MainApp("Trigger Rally-NG", ".trigger-rally").run(argc, argv);
 }
