@@ -182,7 +182,9 @@ GLuint ShaderProgram::createShaderProgram(const std::string& vsh_path, const std
 
 std::string ShaderProgram::readShader(const std::string& path)
 {
-    std::ifstream t("../data/shaders/" + path);
+    std::string shader_path = "/shaders/" + path;
+    std::string dir = PHYSFS_getRealDir(shader_path.c_str());
+    std::ifstream t(dir + shader_path);
     std::stringstream buffer;
     buffer << t.rdbuf();
     return buffer.str();
