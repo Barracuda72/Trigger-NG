@@ -35,6 +35,8 @@ void MainApp::resize()
 
     glEnable(GL_CULL_FACE);
 
+    glViewport(0, 0, getWidth(), getHeight());
+
     default_light.ambient = glm::vec3(0.1f, 0.1f, 0.1f);
     default_light.diffuse = glm::vec3(0.6f, 0.6f, 0.6f);
     default_light.specular = glm::vec3(0.6f, 0.6f, 0.6f);
