@@ -589,6 +589,7 @@ protected:
 	void toggleSounds(bool to);
 	void startGame2();
 	void endGame(Gamefinish state);
+	void enterGame();
 
 	void quitGame()
 	{

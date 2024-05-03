@@ -916,6 +916,9 @@ void MainApp::mouseButtonEvent(const SDL_MouseButtonEvent &mbe)
   case AS_LOAD_3:
     levelScreenAction(AA_INIT, 0);
     break;
+  case AS_CHOOSE_VEHICLE:
+    enterGame();
+    return;
   default:
     return;
   }
