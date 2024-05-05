@@ -692,6 +692,7 @@ private:
     ShaderProgram* sp_chkpt;
     ShaderProgram* sp_map;
     ShaderProgram* sp_sky;
+    ShaderProgram* sp_offroad;
 
     VAO* map_marker_vao;
     VAO* rpm_dial_vao;
@@ -700,6 +701,7 @@ private:
     VAO* sky_vao;
     VAO* chkpt_vao;
     VAO* map_vao;
+    VAO* offroad_vao;
     size_t sky_size = 0;
     size_t chkpt_size = 0;
 
@@ -764,6 +766,18 @@ private:
     };
 
     unsigned short snow_ibo[4] = {
+        0, 1, 2, 3,
+    };
+
+    /// Offroad sign
+    float offroad_vbo[16] = {
+        0.0f,   1.0f,  -1.0f,   1.0f,
+        0.0f,   0.0f,  -1.0f,  -1.0f,
+        1.0f,   1.0f,   1.0f,   1.0f,
+        1.0f,   0.0f,   1.0f,  -1.0f,
+    };
+
+    unsigned short offroad_ibo[4] = {
         0, 1, 2, 3,
     };
 

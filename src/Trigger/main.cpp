@@ -1303,6 +1303,11 @@ void MainApp::loadShadersAndVao()
         map_ibo, 4 * sizeof(unsigned short)
     );
 
+    offroad_vao = new VAO(
+        offroad_vbo, 16 * sizeof(float),
+        offroad_ibo, 4 * sizeof(unsigned short)
+    );
+
     buildSkyVao();
     buildChkptVao();
 
@@ -1316,6 +1321,7 @@ void MainApp::loadShadersAndVao()
     sp_chkpt = new ShaderProgram("chkpt");
     sp_map = new ShaderProgram("map");
     sp_sky = new ShaderProgram("sky");
+    sp_offroad = new ShaderProgram("offroad_sign");
 }
 
 void MainApp::unload()
@@ -1330,6 +1336,7 @@ void MainApp::unload()
   delete sp_chkpt;
   delete sp_map;
   delete sp_sky;
+  delete sp_offroad;
 
   delete map_marker_vao;
   delete rpm_dial_vao;
@@ -1338,6 +1345,7 @@ void MainApp::unload()
   delete sky_vao;
   delete chkpt_vao;
   delete map_vao;
+  delete offroad_vao;
 
   endGame(Gamefinish::not_finished);
 
