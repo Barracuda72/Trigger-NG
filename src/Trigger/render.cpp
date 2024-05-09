@@ -24,7 +24,7 @@
 void MainApp::resize()
 {
     glClearColor(1.0,1.0,1.0,1.0);
-    glEnable(GL_TEXTURE_2D);
+    //glEnable(GL_TEXTURE_2D);
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_ONE,GL_ZERO);
@@ -692,7 +692,7 @@ void MainApp::renderRpmDial(float rpm, const glm::mat4& p)
 
       sp_rpm_needle->unuse();
 
-      glDisable(GL_TEXTURE_2D); // TODO: WTH it's here???
+      //glDisable(GL_TEXTURE_2D); // TODO: WTH it's here???
 
       rpm_dial_vao->unbind();
 }
@@ -733,7 +733,7 @@ void MainApp::renderMap(int nextcp, const glm::mat4& p)
 
         if (game->terrain->getHUDMapTexture())
         {
-            glEnable(GL_TEXTURE_2D);
+            //glEnable(GL_TEXTURE_2D);
             game->terrain->getHUDMapTexture()->bind();
         }
 
@@ -758,7 +758,7 @@ void MainApp::renderMap(int nextcp, const glm::mat4& p)
         sp_map->unuse();
         map_vao->unbind();
 
-        glDisable(GL_TEXTURE_2D);
+        //glDisable(GL_TEXTURE_2D);
 
         glm::mat4 t(1.0f);
         t = glm::scale(s, glm::vec3(0.003f, 0.003f, 1.0f));
@@ -855,7 +855,7 @@ void MainApp::renderStateGame(float eyetranslation)
     glDepthMask(GL_FALSE);
     glDisable(GL_CULL_FACE);
 
-    glDisable(GL_TEXTURE_2D);
+    //glDisable(GL_TEXTURE_2D);
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -868,7 +868,7 @@ void MainApp::renderStateGame(float eyetranslation)
         renderCheckpoints(vehic->nextcp, mv, p);
     }
 
-    glEnable(GL_TEXTURE_2D);
+    //glEnable(GL_TEXTURE_2D);
 
     if (game->water.enabled)
         renderWater(mv, p);
@@ -938,7 +938,7 @@ void MainApp::renderStateGame(float eyetranslation)
         renderMap(vehic->nextcp, o);
     }
 
-    glEnable(GL_TEXTURE_2D);
+    //glEnable(GL_TEXTURE_2D);
 
     if (showui)
     {
@@ -1423,7 +1423,7 @@ void MainApp::renderSnow(const glm::mat4& mv, const glm::mat4& p)
     snow_vao->bind();
     if (cfg_snowflaketype == SnowFlakeType::textured)
     {
-        glEnable(GL_TEXTURE_2D);
+        //glEnable(GL_TEXTURE_2D);
         glBlendFunc(GL_SRC_COLOR, GL_ONE);
         tex_snowflake->bind();
     }
@@ -1486,7 +1486,7 @@ void MainApp::renderSnow(const glm::mat4& mv, const glm::mat4& p)
     // disable textures
     if (cfg_snowflaketype == SnowFlakeType::textured)
     {
-        glDisable(GL_TEXTURE_2D);
+        //glDisable(GL_TEXTURE_2D);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
     sp_snow->unuse();

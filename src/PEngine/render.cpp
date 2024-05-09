@@ -43,7 +43,7 @@ void PSSRender::render(PParticleSystem *psys, const glm::mat4& mv, const glm::ma
   glBlendFunc(psys->blendparam1, psys->blendparam2);
 
   if (psys->tex) psys->tex->bind();
-  else glDisable(GL_TEXTURE_2D);
+  //else glDisable(GL_TEXTURE_2D);
 
   // TODO: this should be rewritten to use matrix transforms and static VAO
   float* vbo = new float[psys->part.size() * 4 * 12];
@@ -112,7 +112,7 @@ void PSSRender::render(PParticleSystem *psys, const glm::mat4& mv, const glm::ma
   delete[] ibo;
   delete[] vbo;
 
-  if (!psys->tex) glEnable(GL_TEXTURE_2D);
+  //if (!psys->tex) glEnable(GL_TEXTURE_2D);
 }
 
 void PSSRender::drawModel(PModel &model, PSSEffect &ssEffect, PSSTexture &ssTexture, const Light& light,

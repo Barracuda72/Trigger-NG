@@ -870,7 +870,7 @@ void PTerrain::render(const glm::vec3 &campos, const glm::mat4 &camorim, PTextur
   sp_tile->uniform("fog_color", f_color);
 
   glActiveTexture(GL_TEXTURE1);
-  glEnable(GL_TEXTURE_2D);
+  //glEnable(GL_TEXTURE_2D);
   tex_detail->bind();
   sp_tile->uniform("detail", 1);
   glActiveTexture(GL_TEXTURE0);
@@ -906,7 +906,7 @@ void PTerrain::render(const glm::vec3 &campos, const glm::mat4 &camorim, PTextur
   // Don't apply terrain detail texture to foliage.
   // http://sourceforge.net/p/trigger-rally/discussion/527953/thread/b53361ba/
   glActiveTexture(GL_TEXTURE1);
-  glDisable(GL_TEXTURE_2D);
+  //glDisable(GL_TEXTURE_2D);
   glActiveTexture(GL_TEXTURE0);
 
   // Draw foliage
