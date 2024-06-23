@@ -148,7 +148,12 @@ public:
 		flag_gearchange = false;
 		return ret;
 	}
-  
+ 
+  int getShiftDirection()
+  {
+    return targetgear_rel;
+  }
+
 	///
 	/// @brief Reset the engine, used i.e. with the 'recover' key
 	///
