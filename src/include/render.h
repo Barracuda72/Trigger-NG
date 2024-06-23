@@ -4,8 +4,8 @@
 // Copyright 2004-2006 Jasmine Langridge, jas@jareiko.net
 // License: GPL version 2 (see included gpl.txt)
 
-+#ifndef RENDER_H_INCLUDED
-+#define RENDER_H_INCLUDED
+#ifndef RENDER_H_INCLUDED
+#define RENDER_H_INCLUDED
 
 #include <cmath>
 #include <glm/mat4x4.hpp>
