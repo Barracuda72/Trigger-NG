@@ -456,8 +456,8 @@ void MainApp::renderVehicleType(PVehicleType* vtype, const glm::mat4& mv, const 
 {
    for (unsigned int i=0; i<vtype->part.size(); ++i)
         {
-            vec3f vpos = vtype->part[i].ref_local.pos;
-            mat44f vorim = vtype->part[i].ref_local.ori_mat_inv;
+            vec3f vpos = vtype->part[i].render_ref_local.pos;
+            mat44f vorim = vtype->part[i].render_ref_local.ori_mat_inv;
 
             glm::mat4 t = glm::translate(mv, glm::vec3(vpos.x, vpos.y, vpos.y));
             glm::mat4 q = {
@@ -536,6 +536,7 @@ void MainApp::renderVehicle(PVehicle* vehic, const glm::mat4& mv, const glm::mat
     }
 }
 
+// render the car selection menu
 void MainApp::renderStateChoose(float eyetranslation)
 {
     PVehicleType *vtype = game->vehiclechoices[choose_type];
