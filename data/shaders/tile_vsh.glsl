@@ -1,3 +1,4 @@
+#version 100
 attribute vec3 position;
 
 uniform vec3 tex_gen_parameters;

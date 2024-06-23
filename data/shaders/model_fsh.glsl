@@ -1,3 +1,4 @@
+#version 100
 precision mediump float;
 struct Material {
   vec3 ambient;

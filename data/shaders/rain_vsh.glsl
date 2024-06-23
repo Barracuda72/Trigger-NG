@@ -1,3 +1,4 @@
+#version 100
 attribute vec4 color;
 attribute vec3 normal;
 attribute vec3 position;

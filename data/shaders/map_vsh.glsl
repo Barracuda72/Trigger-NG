@@ -1,3 +1,4 @@
+#version 100
 attribute vec2 position;
 
 varying vec2 tex_position;

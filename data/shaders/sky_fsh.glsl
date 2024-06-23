@@ -1,3 +1,4 @@
+#version 100
 precision mediump float;
 uniform sampler2D tex;
 uniform vec3 fog_color;

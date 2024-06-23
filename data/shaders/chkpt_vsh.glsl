@@ -1,3 +1,4 @@
+#version 100
 attribute vec4 d_color; // Only alpha value is used
 attribute vec3 normal;  // Unused, should be 0
 attribute vec3 position;

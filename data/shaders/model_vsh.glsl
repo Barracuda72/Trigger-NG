@@ -1,3 +1,4 @@
+#version 100
 attribute vec2 tex_coord;
 attribute vec3 normal;
 attribute vec3 position;
