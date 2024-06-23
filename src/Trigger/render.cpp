@@ -1134,7 +1134,7 @@ void MainApp::renderStateGame(float eyetranslation)
     k = glm::translate(k, glm::vec3(0.0f, -4.0f, 0.0f));
     tex_fontSourceCodeOutlined->bind();
     getSSRender().drawText(std::string("true time penalty: ") +
-        std::to_string(game->offroadtime_total * game->offroadtime_penalty_multiplier),
+        std::to_string(game->getOffroadTime() * game->offroadtime_penalty_multiplier),
         PTEXT_HZA_CENTER | PTEXT_VTA_TOP, k, o);
     }
 #endif
