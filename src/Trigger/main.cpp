@@ -20,15 +20,6 @@ bool MainApp::cfg_foliage = true;
 bool MainApp::cfg_roadsigns = true;
 bool MainApp::cfg_weather = true;
 
-// current camera views: Chase, Bumper, Side, Hood, Periscope, [Piggyback - disabled]
-#define CAMERA_VIEW_CHASE		0
-#define CAMERA_VIEW_BUMPER		1
-#define CAMERA_VIEW_SIDE		2
-#define CAMERA_VIEW_HOOD		3
-#define CAMERA_VIEW_PERISCOPE	4
-#define CAMERA_VIEW_PIGGYBACK	-1
-#define CAMERA_VIEW_NUMBER		5
-
 void MainApp::config()
 {
     PUtil::setDebugLevel(DEBUGLEVEL_DEVELOPER);
@@ -1251,7 +1242,7 @@ bool MainApp::loadAll()
 
   cprotate = 0.0f;
 
-  cameraview = CAMERA_VIEW_CHASE;
+  cameraview = CameraMode::chase;
   camera_user_angle = 0.0f;
 
   showmap = true;
@@ -1806,10 +1797,10 @@ void MainApp::tickStateGame(float delta)
   //tempo.fromThreeAxisAngle(vec3f(-1.3,0.0,0.0));
 
   // allow temporary camera view changes for this frame
-  int cameraview_mod = cameraview;
+  CameraMode cameraview_mod = cameraview;
 
   if (game->gamestate == Gamestate::finished) {
-    cameraview_mod = CAMERA_VIEW_CHASE;
+    cameraview_mod = CameraMode::chase;
     static float spinner = 0.0f;
     spinner += 1.4f * delta;
     tempo.fromThreeAxisAngle(vec3f(-PI*0.5f,0.0f,spinner));
@@ -1817,7 +1808,7 @@ void MainApp::tickStateGame(float delta)
     tempo.fromThreeAxisAngle(vec3f(-PI*0.5f,0.0f,0.0f));
   }
 
-  renderowncar = (cameraview_mod != CAMERA_VIEW_HOOD && cameraview_mod != CAMERA_VIEW_BUMPER);
+  renderowncar = (cameraview_mod != CameraMode::hood && cameraview_mod != CameraMode::bumper);
 
   campos_prev = campos;
 
@@ -1825,16 +1816,14 @@ void MainApp::tickStateGame(float delta)
   PReferenceFrame *rf = &vehic->getBody();
 
   vec3f forw = makevec3f(rf->getOrientationMatrix().row[0]);
-  vec3f nose = makevec3f(rf->getOrientationMatrix().row[1]);
   float forwangle = atan2(forw.y, forw.x);
-  float noseangle = atan2(nose.z, nose.y);
-
+  
   mat44f cammat;
 
   switch (cameraview_mod) {
   
-  default:
-  case CAMERA_VIEW_CHASE: {
+	default:
+	case CameraMode::chase: {
     quatf temp2;
     temp2.fromZAngle(forwangle + camera_user_angle);
 
@@ -1854,8 +1843,7 @@ void MainApp::tickStateGame(float delta)
       makevec3f(cammat.row[2]) * 5.0f;
     } break;
 
-    // Bumper
-  case 1: {
+	case CameraMode::bumper: {
     quatf temp2;
     temp2.fromZAngle(camera_user_angle);
 
@@ -1876,8 +1864,8 @@ void MainApp::tickStateGame(float delta)
       makevec3f(rfmat.row[2]) * 0.4f;
     } break;
 
-    // Side (right wheel)
-  case CAMERA_VIEW_SIDE: {
+    // Right wheel
+	case CameraMode::side: {
     quatf temp2;
     temp2.fromZAngle(camera_user_angle);
 
@@ -1900,8 +1888,7 @@ void MainApp::tickStateGame(float delta)
       makevec3f(rfmat.row[2]) * 0.1f;
     } break;
 
-    // Hood
-  case CAMERA_VIEW_HOOD: {
+	case CameraMode::hood: {
     quatf temp2;
     temp2.fromZAngle(camera_user_angle);
 
@@ -1924,7 +1911,7 @@ void MainApp::tickStateGame(float delta)
     } break;
 
     // Periscope view
-  case CAMERA_VIEW_PERISCOPE:{
+	case CameraMode::periscope:{
     quatf temp2;
     temp2.fromZAngle(camera_user_angle);
 
@@ -1948,32 +1935,35 @@ void MainApp::tickStateGame(float delta)
     // Piggyback (fixed chase)
     //
     // TODO: broken because of "world turns upside down" bug
+	//		the problem is in noseangle
     //
-  case CAMERA_VIEW_PIGGYBACK:{
-    quatf temp2, temp3, temp4;
-    temp2.fromZAngle(forwangle + camera_user_angle);
-    temp3.fromXAngle(noseangle);
+	case CameraMode::piggyback:
+	{
+		vec3f nose = makevec3f(rf->getOrientationMatrix().row[1]);
+		float noseangle = atan2(nose.z, nose.y);
+		
+		quatf temp2,temp3,temp4;
+		temp2.fromZAngle(forwangle + camera_user_angle);
+		temp3.fromXAngle(noseangle);
 
-    //if (tempo.dot(temp2) < 0.0f) tempo = tempo * -1.0f;
+		temp4 = temp3 * temp2;
 
-    temp4 = temp3 * temp2;
+		quatf target = tempo * temp4;
 
-    quatf target = tempo * temp4;
+		if (target.dot(camori) < 0.0f) target = target * -1.0f;
+		//if (camori.dot(target) < 0.0f) camori = camori * -1.0f;
 
-    if (target.dot(camori) < 0.0f) target = target * -1.0f;
-    //if (camori.dot(target) < 0.0f) camori = camori * -1.0f;
+		PULLTOWARD(camori, target, delta * 3.0f);
 
-    PULLTOWARD(camori, target, delta * 3.0f);
+		camori.normalize();
 
-    camori.normalize();
-
-    cammat = camori.getMatrix();
-    cammat = cammat.transpose();
-    //campos = rf->getPosition() + makevec3f(cammat.row[2]) * 100.0;
-    campos = rf->getPosition() +
-      makevec3f(cammat.row[1]) * 1.6f +
-      makevec3f(cammat.row[2]) * 6.0f;
-    }
+		cammat = camori.getMatrix();
+		cammat = cammat.transpose();
+		//campos = rf->getPosition() + makevec3f(cammat.row[2]) * 100.0;
+		campos = rf->getPosition() +
+			makevec3f(cammat.row[1]) * 1.6f +
+			makevec3f(cammat.row[2]) * 6.0f;
+	}
     break;
   }
 
@@ -2014,8 +2004,14 @@ void MainApp::tickStateGame(float delta)
              audinst.back()->play();
              break;
          }
-         default:
-             break; // Shift flag but neither up nor down?
+         default: // Shift flag but neither up nor down?
+         {
+           audinst.push_back(new PAudioInstance(aud_shiftup));
+           audinst.back()->setPitch(0.9f + randm11*0.09f);
+           audinst.back()->setGain(1.0f * cfg_volume_sfx);
+           audinst.back()->play();
+           break;
+         }
        }
     }
 
@@ -2203,7 +2199,7 @@ void MainApp::keyEvent(const SDL_KeyboardEvent &ke)
       }
       if (ctrl.map[ActionCamMode].type == UserControl::TypeKey &&
         ctrl.map[ActionCamMode].key.sym == ke.keysym.sym) {
-        cameraview = (cameraview + 1) % CAMERA_VIEW_NUMBER;
+        cameraview = static_cast<CameraMode>((static_cast<int>(cameraview) + 1) % static_cast<int>(CameraMode::count));
         camera_user_angle = 0.0f;
         return;
       }
@@ -2337,7 +2333,7 @@ void MainApp::joyButtonEvent(int which, int button, bool down)
       }
       if (ctrl.map[ActionCamMode].type == UserControl::TypeJoyButton &&
         ctrl.map[ActionCamMode].joybutton.button == button) {
-        cameraview = (cameraview + 1) % CAMERA_VIEW_NUMBER;
+		cameraview = static_cast<CameraMode>((static_cast<int>(cameraview) + 1) % static_cast<int>(CameraMode::count));
         camera_user_angle = 0.0f;
         return;
       }
