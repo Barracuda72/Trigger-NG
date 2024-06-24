@@ -546,7 +546,12 @@ private:
 			*tex_race_no_screenshot,
 			*tex_race_no_minimap,
 			*tex_button_next,
-			*tex_button_prev;
+			*tex_button_prev,
+			*tex_damage_front_left,
+			*tex_damage_front_right,
+			*tex_damage_rear_left,
+			*tex_damage_rear_right;
+
 
 	std::unordered_map<std::string, PTexture *> tex_codriversigns;
 	std::unordered_map<std::string, PAudioSample *> aud_codriverwords;
@@ -687,6 +692,10 @@ public:
 	void renderRain(const glm::mat4& mv, const glm::mat4& p);
 	void renderSnow(const glm::mat4& mv, const glm::mat4& p);
 	void renderCheckpoints(int nextcp, const glm::mat4& mv, const glm::mat4& p);
+	void renderDamageIndicator(
+        const PTexture *texture, float posx, float posy, float scalex, float scaley, float damage, const glm::mat4& mv, const glm::mat4& p);
+    void renderDamageIndicatorGroup(const glm::mat4& mv, const glm::mat4& p);
+
 	void buildSkyVao();
 	void buildChkptVao();
 
@@ -730,6 +739,7 @@ private:
     ShaderProgram* sp_map;
     ShaderProgram* sp_sky;
     ShaderProgram* sp_offroad;
+    ShaderProgram* sp_damage;
 
     VAO* map_marker_vao;
     VAO* rpm_dial_vao;
@@ -739,6 +749,7 @@ private:
     VAO* chkpt_vao;
     VAO* map_vao;
     VAO* offroad_vao;
+    VAO* damage_vao;
     size_t sky_size = 0;
     size_t chkpt_size = 0;
 
@@ -815,6 +826,18 @@ private:
     };
 
     unsigned short offroad_ibo[4] = {
+        0, 1, 2, 3,
+    };
+
+    /// Damage indicator
+    float damage_vbo[16] = {
+        0.0f,   1.0f,  -1.0f,   1.0f,
+        0.0f,   0.0f,  -1.0f,  -1.0f,
+        1.0f,   1.0f,   1.0f,   1.0f,
+        1.0f,   0.0f,   1.0f,  -1.0f,
+    };
+
+    unsigned short damage_ibo[4] = {
         0, 1, 2, 3,
     };
 

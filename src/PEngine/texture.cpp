@@ -23,7 +23,7 @@ PSSTexture::PSSTexture(PApp &parentApp) : PSubsystem(parentApp)
 PSSTexture::~PSSTexture()
 {
   PUtil::outLog() << "Shutting down texture subsystem" << std::endl;
-  
+
   texlist.clear();
 }
 
@@ -64,28 +64,28 @@ void PImage::unload ()
 void PImage::load (const std::string &filename)
 {
   data = nullptr;
-  
+
   if (PUtil::isDebugLevel(DEBUGLEVEL_TEST))
     PUtil::outLog() << "Loading image \"" << filename << "\"" << std::endl;
 
   // PhysFS / SDL integration with SDL_rwops
-  
+
   PHYSFS_file *pfile = PHYSFS_openRead(filename.c_str());
-  
+
   if (pfile == nullptr) {
     throw MakePException (filename + ", PhysFS: " + physfs_getErrorString());
   }
-  
+
   SDL_RWops *rwops = PUtil::allocPhysFSops(pfile);
-  
+
   SDL_Surface *img = IMG_Load_RW(rwops, 1); // this closes file and frees rwops
-  
+
   if (!img) {
     throw MakePException (filename + ", SDL_image: " + IMG_GetError ());
   }
-  
+
   if (SDL_MUSTLOCK(img)) SDL_LockSurface(img);
-  
+
   // TGA COLOUR SWITCH HACK
   int colmap_normal[] = { 0,1,2,3 };
   int colmap_flipped[] = { 2,1,0,3 };
@@ -95,12 +95,12 @@ void PImage::load (const std::string &filename)
   if (len > 4) {
     if (!strcmp(fname+len-4,".tga")) colmap = colmap_flipped;
   }
-  
+
   cx = img->w;
   cy = img->h;
   cc = img->format->BytesPerPixel;
   data = new uint8 [cx * cy * cc];
-  
+
   for (int y=0; y<cy; y++) {
     for (int x=0; x<cx; x++) {
       for (int c=0; c<cc; c++) {
@@ -109,7 +109,7 @@ void PImage::load (const std::string &filename)
       }
     }
   }
-  
+
   if (SDL_MUSTLOCK(img)) SDL_UnlockSurface(img);
   SDL_FreeSurface(img);
 }
@@ -119,7 +119,7 @@ void PImage::load (int _cx, int _cy, int _cc)
   cx = _cx;
   cy = _cy;
   cc = _cc;
-  
+
   data = new uint8 [cx * cy * cc];
 }
 
@@ -656,6 +656,8 @@ void PTexture::scaleImage(GLuint format,
     default:
       throw MakePException ("Scaling failed, unknown image format");
     }
+
+    std::cout << "Resize!" << width_in << " " << width_out << " " << height_in << " " << height_out << std::endl;
 
     SDL_Rect srcrect = {.x = 0, .y = 0, .w = width_in, .h = height_in};
     SDL_Rect dstrect = {.x = 0, .y = 0, .w = width_out, .h = height_out};
