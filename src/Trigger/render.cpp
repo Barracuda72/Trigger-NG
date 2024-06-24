@@ -1029,7 +1029,7 @@ void MainApp::renderStateGame(float eyetranslation)
         if (timepen >= 0.1f)
         {
             glm::vec4 cl_time_pen(1.0f, 1.0f, 0.5f, 1.0f);
-            glm::mat4 p = glm::translate(q, glm::vec3(0.0f, -1.60f, 0.0f));
+            glm::mat4 p = glm::translate(q, glm::vec3(0.0f, -0.8f, 0.0f));
             getSSRender().drawText(PUtil::formatTime(timepen) + '+', cl_time_pen, PTEXT_HZA_LEFT | PTEXT_VTA_TOP, p, o);
         }
     }
