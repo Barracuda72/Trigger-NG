@@ -116,7 +116,7 @@ void PSSRender::render(PParticleSystem *psys, const glm::mat4& mv, const glm::ma
 }
 
 void PSSRender::drawModel(PModel &model, PSSEffect &ssEffect, PSSTexture &ssTexture, const Light& light,
-                            const Material& material, const glm::mat4& mv, const glm::mat4& p)
+                            const Material& material, bool is_ghost, const glm::mat4& mv, const glm::mat4& p)
 {
   sp_model->use();
   sp_model->uniform("n_mv", glm::mat3(glm::transpose(glm::inverse(mv))));
@@ -124,6 +124,7 @@ void PSSRender::drawModel(PModel &model, PSSEffect &ssEffect, PSSTexture &ssText
   sp_model->uniform("p", p);
   glActiveTexture(GL_TEXTURE0);
   sp_model->uniform("tex", 0);
+  sp_model->uniform("alpha", is_ghost ? 0.5f : 1.0f);
 
   sp_model->uniform("material.ambient", material.ambient);
   sp_model->uniform("material.diffuse", material.diffuse);

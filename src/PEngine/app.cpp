@@ -433,6 +433,14 @@ int PApp::run(int argc, char *argv[])
       sdl_joy[i].axis.size() << " axis, " <<
       sdl_joy[i].button.size() << " button, " <<
       sdl_joy[i].hat.size() << " hat" << std::endl;
+
+    sdl_joy[i].sdl_haptic = SDL_HapticOpenFromJoystick(sdl_joy[i].sdl_joystick);
+    if (sdl_joy[i].sdl_haptic) {
+      if (SDL_HapticRumbleInit(sdl_joy[i].sdl_haptic) != 0) {
+        SDL_HapticClose(sdl_joy[i].sdl_haptic);
+        sdl_joy[i].sdl_haptic = nullptr;
+      }
+    }
   }
 
   SDL_JoystickEventState(SDL_ENABLE);
@@ -880,9 +888,9 @@ void PApp::grabMouse(bool grab)
   grabinput = grab;
 }
 
-void PApp::drawModel(PModel &model, const Light& light, const Material& material, const glm::mat4& mv, const glm::mat4& p)
+void PApp::drawModel(PModel &model, const Light& light, const Material& material, bool is_ghost, const glm::mat4& mv, const glm::mat4& p)
 {
-  getSSRender().drawModel(model, getSSEffect(), getSSTexture(), light, material, mv, p);
+  getSSRender().drawModel(model, getSSEffect(), getSSTexture(), light, material, is_ghost, mv, p);
 }
 
 

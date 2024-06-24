@@ -103,7 +103,7 @@ public:
 
   void render(PParticleSystem *psys, const glm::mat4& mv, const glm::mat4& p);
 
-  void drawModel(PModel &model, PSSEffect &ssEffect, PSSTexture &ssTexture, const Light& light, const Material& material, const glm::mat4& mv, const glm::mat4& p);
+  void drawModel(PModel &model, PSSEffect &ssEffect, PSSTexture &ssTexture, const Light& light, const Material& material, bool is_ghost, const glm::mat4& mv, const glm::mat4& p);
 
   void drawText(const std::string &text, uint32 flags, const glm::mat4& mv, const glm::mat4& p);
   void drawText(const std::string &text, const glm::vec4& color, uint32 flags, const glm::mat4& mv, const glm::mat4& p);

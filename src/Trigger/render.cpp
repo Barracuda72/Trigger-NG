@@ -471,7 +471,7 @@ void MainApp::renderVehicleType(PVehicleType* vtype, const glm::mat4& mv, const 
             {
                 float scale = vtype->part[i].scale;
                 glm::mat4 s = glm::scale(t, glm::vec3(scale,scale,scale));
-                drawModel(*vtype->part[i].model, default_light, default_material, s, p);
+                drawModel(*vtype->part[i].model, default_light, default_material, false, s, p);
             }
 
             if (vtype->wheelmodel)
@@ -483,20 +483,22 @@ void MainApp::renderVehicleType(PVehicleType* vtype, const glm::mat4& mv, const 
                     glm::mat4 k = glm::translate(t, glm::vec3(wpos.x, wpos.y, wpos.z));
                     k = glm::scale(k, glm::vec3(scale,scale,scale));
 
-                    drawModel(*vtype->wheelmodel, default_light, default_material, k, p);
+                    drawModel(*vtype->wheelmodel, default_light, default_material, false, k, p);
                 }
             }
         }
 }
 
-void MainApp::renderVehicle(PVehicle* vehic, const glm::mat4& mv, const glm::mat4& p)
+void MainApp::renderVehicle(PVehicle* vehic, PGhost::GhostData* ghostdata, const glm::mat4& mv, const glm::mat4& p)
 {
+    bool is_ghost = ghostdata != nullptr;
+
     for (unsigned int i=0; i<vehic->part.size(); ++i)
     {
         if (vehic->type->part[i].model)
         {
-            vec3f vpos = vehic->part[i].ref_world.pos;
-            mat44f vorim = vehic->part[i].ref_world.ori_mat_inv;
+            vec3f vpos = is_ghost ? ghostdata->pos : vehic->part[i].ref_world.pos;
+            mat44f vorim = is_ghost ? ghostdata->ori.getMatrix().transpose() : vehic->part[i].ref_world.ori_mat_inv;
             float scale = vehic->type->part[i].scale;
 
             glm::mat4 t = glm::translate(mv, glm::vec3(vpos.x, vpos.y, vpos.z));
@@ -509,15 +511,15 @@ void MainApp::renderVehicle(PVehicle* vehic, const glm::mat4& mv, const glm::mat
             t = t * glm::transpose(q);
             t = glm::scale(t, glm::vec3(scale, scale, scale));
 
-            drawModel(*vehic->type->part[i].model, default_light, default_material, t, p);
+            drawModel(*vehic->type->part[i].model, default_light, default_material, is_ghost, t, p);
         }
 
         if (vehic->type->wheelmodel)
         {
             for (unsigned int j=0; j<vehic->type->part[i].wheel.size(); j++)
             {
-                vec3f wpos = vehic->part[i].wheel[j].ref_world.getPosition();
-                mat44f worim = vehic->part[i].wheel[j].ref_world.ori_mat_inv;
+                vec3f wpos = is_ghost ? ghostdata->wheel[j].pos : vehic->part[i].wheel[j].ref_world.getPosition();
+                mat44f worim = is_ghost ? ghostdata->wheel[j].ori.getMatrix().transpose() : vehic->part[i].wheel[j].ref_world.ori_mat_inv;
                 float scale = vehic->type->wheelscale * vehic->type->part[i].wheel[j].radius;
 
                 glm::mat4 t = glm::translate(mv, glm::vec3(wpos.x, wpos.y, wpos.z));
@@ -530,7 +532,7 @@ void MainApp::renderVehicle(PVehicle* vehic, const glm::mat4& mv, const glm::mat
                 t = t * glm::transpose(q);
                 t = glm::scale(t, glm::vec3(scale, scale, scale));
 
-                drawModel(*vehic->type->wheelmodel, default_light, default_material, t, p);
+                drawModel(*vehic->type->wheelmodel, default_light, default_material, is_ghost, t, p);
             }
         }
     }
@@ -862,7 +864,23 @@ void MainApp::renderStateGame(float eyetranslation)
 
         PVehicle *vehic = game->vehicle[v];
 
-        renderVehicle(vehic, mv, p);
+        renderVehicle(vehic, nullptr, mv, p);
+    }
+
+    if (cfg_enable_ghost) {
+        glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+        PGhost::GhostData ghostdata;
+        std::string vehiclename = "";
+
+        if (ghost.getReplayData(ghostdata, vehiclename)) {
+            for (unsigned int i = 0; i < game->vehiclechoices.size(); ++i) {
+                if (game->vehiclechoices[i]->getName() == vehiclename) {
+                    renderVehicle(game->vehicle[i], &ghostdata, mv, p);
+                    break;
+                }
+            }
+        }
+        glBlendFunc(GL_ONE, GL_ZERO);
     }
 
     glDepthMask(GL_FALSE);

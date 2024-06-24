@@ -17,6 +17,7 @@ struct Light {
 uniform sampler2D tex;
 uniform Material material;
 uniform Light light;
+uniform float alpha;
 
 varying vec2 tex_position;
 varying vec3 l_position;
@@ -43,5 +44,5 @@ void main() {
   // Combined
   vec3 result = ambient + diffuse + specular;
 
-  gl_FragColor = vec4(result, t_color.a);
+  gl_FragColor = vec4(result, t_color.a * alpha);
 }
