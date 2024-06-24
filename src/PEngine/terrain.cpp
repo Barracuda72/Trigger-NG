@@ -73,100 +73,82 @@ PTerrain::PTerrain (XMLElement *element, const std::string &filepath, PSSTexture
   val = element->Attribute("hudmap");
   if (val) hudmap = val;
 
-    XMLElement *node = element->FirstChildElement("blurfilter");
-    std::vector<std::vector<float> > blurfilter;
+  XMLElement *node = element->FirstChildElement("blurfilter");
+  std::vector<std::vector<float> > blurfilter;
 
-    if (node != nullptr)
-    {
-        for (XMLElement *walk = node->FirstChildElement("row");
-            walk != nullptr;
-            walk = walk->NextSiblingElement("row"))
-        {
-            const char *srow = walk->Attribute("data");
+  if (node != nullptr) {
+    for (XMLElement *walk = node->FirstChildElement("row");
+        walk != nullptr;
+        walk = walk->NextSiblingElement("row")) {
+      const char *srow = walk->Attribute("data");
 
-            if (srow == nullptr)
-                continue;
+      if (srow == nullptr)
+          continue;
 
-            std::stringstream bfrow(srow);
-            float coef;
-            std::vector<float> row;
+      std::stringstream bfrow(srow);
+      float coef;
+      std::vector<float> row;
 
-            while (bfrow >> coef)
-                row.push_back(coef);
+      while (bfrow >> coef)
+          row.push_back(coef);
 
-            blurfilter.push_back(row);
-        }
+      blurfilter.push_back(row);
     }
-    else
-    {
-        blurfilter = {
-            {0.03f, 0.12f, 0.03f},
-            {0.12f, 0.40f, 0.12f},
-            {0.03f, 0.12f, 0.03f}
-        };
-    }
+  }
+  else {
+    blurfilter = {
+      {0.03f, 0.12f, 0.03f},
+      {0.12f, 0.40f, 0.12f},
+      {0.03f, 0.12f, 0.03f}
+    };
+  }
 
   for (XMLElement *walk = element->FirstChildElement();
     walk; walk = walk->NextSiblingElement()) {
 
-    if (strcmp(walk->Value(), "roadsign") == 0 && MainApp::cfg_roadsigns)
-    {
-        road_sign temprs;
-/*
-        val = walk->Attribute("front");
+    if (strcmp(walk->Value(), "roadsign") == 0 && MainApp::cfg_roadsigns) {
+      road_sign temprs;
 
-        if (val != nullptr)
-            temprs.front = ssTexture.loadTexture(PUtil::assemblePath(val, filepath));
+      val = walk->Attribute("sprite");
+      if (val != nullptr)
+        temprs.sprite = ssTexture.loadTexture(PUtil::assemblePath(val, filepath));
 
-        val = walk->Attribute("back");
+      val = walk->Attribute("scale");
+      if (val != nullptr)
+        temprs.scale = atof(val);
 
-        if (val != nullptr)
-            temprs.back = ssTexture.loadTexture(PUtil::assemblePath(val, filepath));
-*/
-        val = walk->Attribute("sprite");
+      val = walk->Attribute("spritecount");
+      if (val != nullptr)
+        temprs.sprite_count = atof(val);
 
-        if (val != nullptr)
-            temprs.sprite = ssTexture.loadTexture(PUtil::assemblePath(val, filepath));
+      for (XMLElement *walk2 = walk->FirstChildElement();
+          walk2 != nullptr;
+          walk2 = walk2->NextSiblingElement())
+      {
+        if (strcmp(walk2->Value(), "location") == 0) {
+          float deg = 0;
 
-        val = walk->Attribute("scale");
+          val = walk2->Attribute("oridegrees");
+          if (val != nullptr)
+            deg = RADIANS(atof(val));
 
-        if (val != nullptr)
-            temprs.scale = atof(val);
+          val = walk2->Attribute("coords");
+          if (val != nullptr) {
+            float x, y;
 
-        for (XMLElement *walk2 = walk->FirstChildElement();
-            walk2 != nullptr;
-            walk2 = walk2->NextSiblingElement())
-        {
-            if (strcmp(walk2->Value(), "location") == 0)
-            {
-                float deg = 0;
+            if (sscanf(val, "%f, %f", &x, &y) == 2) {
+              temprs.x = x;
+              temprs.y = y;
+              temprs.deg = deg;
 
-                val = walk2->Attribute("oridegrees");
-
-                if (val != nullptr)
-                    deg = RADIANS(atof(val));
-
-                val = walk2->Attribute("coords");
-
-                if (val != nullptr)
-                {
-                    float x, y;
-
-                    if (sscanf(val, "%f, %f", &x, &y) == 2)
-                    {
-                        temprs.x = x;
-                        temprs.y = y;
-                        temprs.deg = deg;
-
-                        if (temprs.sprite != nullptr)
-                            roadsigns.push_back(temprs);
-                    }
-                }
+              if (temprs.sprite != nullptr)
+                roadsigns.push_back(temprs);
             }
+          }
         }
+      }
     }
-    else
-    if (!strcmp(walk->Value(), "foliageband") && MainApp::cfg_foliage) {
+    else if (!strcmp(walk->Value(), "foliageband") && MainApp::cfg_foliage) {
 
       PTerrainFoliageBand tfb;
       tfb.middle = 0.5f;
