@@ -675,6 +675,7 @@ public:
 	void cursorMoveEvent(int posx, int posy);
 	void mouseButtonEvent(const SDL_MouseButtonEvent &mbe);
 	void joyButtonEvent(int which, int button, bool down);
+	bool joyAxisEvent(int which, int axis, float value, bool down);
 
     std::unordered_map<std::string, PAudioSample *> getCodriverWords() const
     {
