@@ -591,12 +591,14 @@ void MainApp::renderStateChoose(float eyetranslation)
 
     glm::mat4 scale_small = glm::scale(glm::mat4(1.0f), glm::vec3(20.0f, 20.0f, 1.0f));
     glm::mat4 scale_big = glm::scale(glm::mat4(1.0f), glm::vec3(30.0f, 30.0f, 1.0f));
+    glm::mat4 scale_huge = glm::scale(glm::mat4(1.0f), glm::vec3(40.0f, 40.0f, 1.0f));
 
     glm::mat4 q(1.0f);
 
     glm::vec4 cl_weak = glm::vec4(gwc.weak.x, gwc.weak.y, gwc.weak.z, gwc.weak.w);
     glm::vec4 cl_strong = glm::vec4(gwc.strong.x, gwc.strong.y, gwc.strong.z, gwc.strong.w);
     glm::vec4 cl_header = glm::vec4(gwc.header.x, gwc.header.y, gwc.header.z, gwc.header.w);
+    glm::vec4 cl_marked = glm::vec4(gwc.marked.x, gwc.marked.y, gwc.marked.z, gwc.marked.w);
 
     q = glm::translate(glm::mat4(1.0f), glm::vec3(10.0f, 570.0f, 0.0f));
     getSSRender().drawText("Trigger Rally", cl_weak, PTEXT_HZA_LEFT | PTEXT_VTA_CENTER, q * scale_big, o2);
@@ -646,6 +648,11 @@ void MainApp::renderStateChoose(float eyetranslation)
 
     q = glm::translate(glm::mat4(1.0f), glm::vec3(400.0f, 30.0f, 0.0f));
     getSSRender().drawText(racename, cl_weak, PTEXT_HZA_CENTER | PTEXT_VTA_CENTER, q * scale_small, o2);
+
+    if (vtype->getLocked()) {
+        q = glm::translate(glm::mat4(1.0f), glm::vec3(400.0f, 400.0f, 0.0f));
+        getSSRender().drawText("Locked", cl_marked, PTEXT_HZA_CENTER | PTEXT_VTA_CENTER, q * scale_huge, o2);
+    }
 
     glBlendFunc(GL_ONE, GL_ZERO);
     glEnable(GL_DEPTH_TEST);

@@ -2275,20 +2275,22 @@ void MainApp::keyEvent(const SDL_KeyboardEvent &ke)
 
 void MainApp::enterGame()
 {
-    initAudio();
-    game->chooseVehicle(game->vehiclechoices[choose_type]);
+    if (!game->vehiclechoices[choose_type]->getLocked()) {
+        initAudio();
+        game->chooseVehicle(game->vehiclechoices[choose_type]);
 
-    if (lss.state == AM_TOP_LVL_PREP)
-    {
-        const float bct = best_times.getBestClassTime(
-            race_data.mapname,
-            game->vehicle.front()->type->proper_class);
+        if (lss.state == AM_TOP_LVL_PREP)
+        {
+            const float bct = best_times.getBestClassTime(
+                race_data.mapname,
+                game->vehicle.front()->type->proper_class);
 
-        if (bct >= 0.0f)
-            game->targettime = bct;
+            if (bct >= 0.0f)
+                game->targettime = bct;
+        }
+
+        appstate = AS_IN_GAME;
     }
-
-    appstate = AS_IN_GAME;
 }
 
 void MainApp::mouseMoveEvent(int dx, int dy)
