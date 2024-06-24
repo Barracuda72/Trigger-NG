@@ -656,7 +656,7 @@ void MainApp::renderStateChoose(float eyetranslation)
 
         if (unlockevent != "") {
             q = glm::translate(glm::mat4(1.0f), glm::vec3(400.0f, 375.0f, 0.0f));
-            getSSRender().drawText("Complete " + unlockevent + " to unlock", cl_marked, PTEXT_HZA_CENTER | PTEXT_VTA_CENTER, q * scale_small, o2);
+            getSSRender().drawText("Complete event " + unlockevent + " to unlock", cl_marked, PTEXT_HZA_CENTER | PTEXT_VTA_CENTER, q * scale_small, o2);
         }
     }
 
