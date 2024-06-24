@@ -455,6 +455,7 @@ void MainApp::loadConfig()
   cfg_speed_style = analogue;
   cfg_snowflaketype = SnowFlakeType::point;
   cfg_dirteffect = true;
+  cfg_enable_fps = false;
 
   cfg_datadirs.clear();
 
@@ -780,6 +781,14 @@ void MainApp::loadConfig()
            hud_speedo_mps_deg_mult = MPS_KPH_DEG_MULT;
            hud_speedo_mps_speed_mult = MPS_KPH_SPEED_MULT;
          }
+      }
+
+      val = walk->Attribute("enablefps");
+      if (val) {
+        if (!strcmp(val, "yes"))
+          cfg_enable_fps = true;
+        else if (!strcmp(val, "no"))
+          cfg_enable_fps = false;
       }
 
       val = walk->Attribute("codriver");
@@ -1643,6 +1652,18 @@ void MainApp::tickStateChoose(float delta)
   choose_spin += delta * 2.0f;
 }
 
+void MainApp::tickCalculateFps(float delta)
+{
+  fpstime += delta;
+  fpscount++;
+
+  if (fpstime >= 0.1) {
+    fps = fpscount / fpstime;
+    fpstime = 0.0f;
+    fpscount = 0;
+  }
+}
+
 void MainApp::tickStateGame(float delta)
 {
   PVehicle *vehic = game->vehicle[0];
@@ -2159,6 +2180,8 @@ void MainApp::tickStateGame(float delta)
   cam_pos = campos;
   cam_orimat = cammat;
   cam_linvel = camvel;
+
+  tickCalculateFps(delta);
 }
 
 // TODO: mark instant events with flags, deal with them in tick()
@@ -2306,6 +2329,9 @@ void MainApp::enterGame()
                 game->targettime = bct;
         }
 
+        fpstime = 0.0f;
+        fpscount = 0;
+        fps = 0.0f;
         appstate = AS_IN_GAME;
     }
 }

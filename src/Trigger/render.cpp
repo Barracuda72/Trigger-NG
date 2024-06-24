@@ -858,7 +858,6 @@ void MainApp::renderStateGame(float eyetranslation)
 
     for (unsigned int v=0; v<game->vehicle.size(); ++v)
     {
-
         if (!renderowncar && v == 0) continue;
 
         PVehicle *vehic = game->vehicle[v];
@@ -944,7 +943,7 @@ void MainApp::renderStateGame(float eyetranslation)
     glVertex3f(0.0f, 0.2f, -2.0f);
     glEnd();
 
-    glPopMatrix(); // 1
+    glPopMatrix(); // 2
 #endif
 
     if (showmap)
@@ -1038,7 +1037,7 @@ void MainApp::renderStateGame(float eyetranslation)
       // time label
     {
       glm::vec4 cl_time(1.0f, 1.0f, 1.0f, 1.0f);
-      glm::mat4 k = glm::translate(t, glm::vec3(0.0f, .52f, 0.0f));
+      glm::mat4 k = glm::translate(t, glm::vec3(0.0f, 0.52f, 0.0f));
       k = glm::scale(k, glm::vec3(0.65f, 0.65f, 1.0f));
       getSSRender().drawText("TIME", cl_time, PTEXT_HZA_LEFT | PTEXT_VTA_TOP, k, o);
     }
@@ -1086,6 +1085,24 @@ void MainApp::renderStateGame(float eyetranslation)
             k = glm::translate(k, glm::vec3(0, 0.52f, 0.0f));
             k = glm::scale(k, glm::vec3(0.65f, 0.65f, 1.0f));
             getSSRender().drawText("LAP", cl_laps, PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, k, o);
+        }
+
+        if (cfg_enable_fps)
+        {
+            std::stringstream stream;
+
+            glm::vec4 cl_fps(1.0f, 1.0f, 1.0f, 1.0f);
+
+            glm::mat4 k = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, vratio - vratio * (5.5f/50.f), 0.0f));
+            glm::mat4 s = glm::scale(k, glm::vec3(0.125f, 0.125f, 1.0f));
+
+            stream << std::fixed << std::setprecision(1) << fps;
+
+            getSSRender().drawText(stream.str(), cl_fps, PTEXT_HZA_CENTER | PTEXT_VTA_TOP, s, o);
+
+            k = glm::translate(s, glm::vec3(0.0f, 0.52f, 0.0f));
+            s = glm::scale(k, glm::vec3(0.65f, 0.65f, 1.0f));
+            getSSRender().drawText("FPS", cl_fps, PTEXT_HZA_CENTER | PTEXT_VTA_TOP, s, o);
         }
 
 #ifdef INDEVEL
@@ -1208,7 +1225,7 @@ void MainApp::renderStateGame(float eyetranslation)
         {
             const GLfloat endx = s.length() * 8.0f / 12.0f + 0.1f;
 
-            glPushMatrix();
+            glPushMatrix(); // 3
             glDisable(GL_TEXTURE_2D);
             glTranslatef(-0.5f * s.length() * 8.0f / 12.0f, 0.0f, 0.0f);
             glTranslatef(0.0f, -1.0f, 0.0f);
@@ -1220,7 +1237,7 @@ void MainApp::renderStateGame(float eyetranslation)
                 glVertex2f(endx,    1.1f);
             glEnd();
             glEnable(GL_TEXTURE_2D);
-            glPopMatrix();
+            glPopMatrix(); // 3
         }
 
         glm::vec4 cl_terrinfo(1.0f, 1.0f, 1.0f);
@@ -1253,7 +1270,7 @@ void MainApp::renderStateGame(float eyetranslation)
         glPushMatrix(); // 2
         glTranslatef(0.0f, 0.25f, 0.0f);
         glScalef(0.1f, 0.1f, 1.0f);
-        glPushMatrix();
+        glPushMatrix(); // 3
         glDisable(GL_TEXTURE_2D);
         glTranslatef(-0.5f * s.length() * 8.0f / 12.0f, 0.0f, 0.0f);
         glTranslatef(0.0f, -1.0f, 0.0f);
