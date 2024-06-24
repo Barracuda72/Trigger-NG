@@ -9,6 +9,7 @@
 
 #include <cmath>
 #include <glm/mat4x4.hpp>
+#include "rigidity.h"
 #include "shaders.h"
 #include "light.h"
 
@@ -175,7 +176,7 @@ private:
   GLuint texid;
   GLenum textarget;
 
-  void scaleImage(GLuint format, 
+  void scaleImage(GLuint format,
     GLsizei width_in, GLsizei height_in, GLenum type_in, const void* data_in,
     GLsizei width_out, GLsizei height_out, GLenum type_out, void* data_out
     );
@@ -396,6 +397,7 @@ struct PTerrainFoliage {
   vec3f pos;
   float ang;
   float scale;
+  float rigidity;
 };
 
 struct PTerrainFoliageSet {
@@ -426,10 +428,10 @@ struct PTerrainTile {
 
   vec3f mins,maxs; // AABB
 
-  //
-
   std::vector<PTerrainFoliageSet> foliage;
   std::vector<PRoadSignSet> roadsignset;
+  // Straight vector for rapid search by collision detection
+  std::vector<PTerrainFoliage> straight;
 
   ~PTerrainTile() { delete vao; }
 };
@@ -646,7 +648,7 @@ protected:
   }
 
 public:
-  PTerrain(XMLElement *element, const std::string &filepath, PSSTexture &ssTexture);
+  PTerrain(XMLElement *element, const std::string &filepath, PSSTexture &ssTexture, const PRigidity &rigidity);
   ~PTerrain();
 
   void unload();
@@ -655,6 +657,7 @@ public:
 
   void drawShadow(float x, float y, float scale, float angle, PTexture* tex_shadow, const glm::mat4& mv, const glm::mat4& p);
 
+  const std::vector<PTerrainFoliage> *getFoliageAtPos(const vec3f &pos) const;
 
   struct ContactInfo {
     vec3f pos;
@@ -859,6 +862,12 @@ public:
   PTexture *getHUDMapTexture() { return tex_hud_map; }
 
   float getMapSize() const { return totsize * scale_hz; }
+
+private:
+  const PTerrainTile *getTileAtPos(const vec3f &pos) const;
+
+  // Rigidity map for foliage and road signs
+  const PRigidity &rigidity;
 };
 
 #endif // RENDER_H_INCLUDED
