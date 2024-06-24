@@ -650,8 +650,14 @@ void MainApp::renderStateChoose(float eyetranslation)
     getSSRender().drawText(racename, cl_weak, PTEXT_HZA_CENTER | PTEXT_VTA_CENTER, q * scale_small, o2);
 
     if (vtype->getLocked()) {
-        q = glm::translate(glm::mat4(1.0f), glm::vec3(400.0f, 400.0f, 0.0f));
+        const std::string unlockevent = getVehicleUnlockEvent(vtype->getName());
+        q = glm::translate(glm::mat4(1.0f), glm::vec3(400.0f, 425.0f, 0.0f));
         getSSRender().drawText("Locked", cl_marked, PTEXT_HZA_CENTER | PTEXT_VTA_CENTER, q * scale_huge, o2);
+
+        if (unlockevent != "") {
+            q = glm::translate(glm::mat4(1.0f), glm::vec3(400.0f, 375.0f, 0.0f));
+            getSSRender().drawText("Complete " + unlockevent + " to unlock", cl_marked, PTEXT_HZA_CENTER | PTEXT_VTA_CENTER, q * scale_small, o2);
+        }
     }
 
     glBlendFunc(GL_ONE, GL_ZERO);
