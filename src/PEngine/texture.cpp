@@ -625,7 +625,7 @@ void PTexture::scaleImage(GLuint format,
     )
 {
     int depth = 0;
-    int pitch = 0; // Used as is
+    int pitch_in = 0, pitch_out = 0;
 
     unsigned int rm = 0, gm = 0, bm = 0, am = 0; // Masks for colors
 
@@ -657,12 +657,19 @@ void PTexture::scaleImage(GLuint format,
       throw MakePException ("Scaling failed, unknown image format");
     }
 
+    int bpp = depth >> 3;
+
+    pitch_in = width_in * bpp;
+    pitch_out = width_out * bpp;
+
     std::cout << "Resize!" << width_in << " " << width_out << " " << height_in << " " << height_out << std::endl;
 
     SDL_Rect srcrect = {.x = 0, .y = 0, .w = width_in, .h = height_in};
     SDL_Rect dstrect = {.x = 0, .y = 0, .w = width_out, .h = height_out};
-    SDL_Surface* src = SDL_CreateRGBSurfaceFrom((void*)data_in, width_in, height_in, depth, pitch, rm, gm, bm, am);
-    SDL_Surface* dst = SDL_CreateRGBSurfaceFrom(data_out, width_out, height_out, depth, pitch, rm, gm, bm, am);
+    SDL_Surface* src = SDL_CreateRGBSurfaceFrom((void*)data_in, width_in, height_in, depth, pitch_in, rm, gm, bm, am);
+    SDL_Surface* dst = SDL_CreateRGBSurfaceFrom(data_out, width_out, height_out, depth, pitch_out, rm, gm, bm, am);
+
+    SDL_SetSurfaceBlendMode(src, SDL_BLENDMODE_NONE); // Disable alpha blending with DST values
 
     if (SDL_BlitScaled(src, &srcrect, dst, &dstrect) < 0)
         throw MakePException ("Scaling failed, error during scaling");
