@@ -267,18 +267,17 @@ int PApp::run(int argc, char *argv[])
   PUtil::outLog() << "Create window and set video mode" << std::endl;
 
 #ifndef GLES2
-#define MODERN_GL
-#ifndef MODERN_GL
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
-    SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
+#ifndef GL30PLUS
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+  SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
 #else
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-#endif // MODERN_GL
+#endif // GL30PLUS
 #endif // GLES2
 
   SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
@@ -498,7 +497,7 @@ int PApp::run(int argc, char *argv[])
   glDebugMessageCallback(MessageCallback, 0);
   #endif
 
-#ifdef MODERN_GL
+#ifdef GL30PLUS
     // TODO: this is a really cheap hack to workaround OpenGL 3.0+ core profile requirement of VAO
   	GLuint vao;
     glGenVertexArrays(1, &vao);
@@ -857,7 +856,7 @@ int PApp::run(int argc, char *argv[])
   //SDL_SetWindowGrab(screen, SDL_FALSE);
   SDL_ShowCursor(SDL_ENABLE);
 
-  #ifdef MODERN_GL
+  #ifdef GL30PLUS
   glDeleteVertexArrays(1, &vao);
   #endif
 

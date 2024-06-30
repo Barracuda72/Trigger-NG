@@ -24,4 +24,15 @@ See doc/README.txt
 
 # Dependencies & Building
 
-See doc/BUILDING.txt
+The only new dependency is a GLM. You can either use the one provided by your distro's package manager (beware of obsolete versions!) 
+or download it manually and place in the current directory. However, the simplest way is to just clone this repository using 
+`--recurse-submodules` flag to Git. This will pull a 100% working version of GLM into the project folder.
+
+I've removed a GLU dependency, as it was only required for `gluScaleImage`. Now image scaling is implemented using `SDL_BlitScaled` 
+from SDL_Image (which was also a dependency anyway).
+
+By default the code is compiled with OpenGL 2.1 in mind. Beware that this is the only supported way on Windows/MSYS as of now. 
+- To use OpenGL 3.0+ Core Profile, specify `GL30PLUS=1` when running `make`.
+- To use OpenGL ES 2.0, specify `GLES2=1` when running `make`. Note that you'll need GLESv2 library and corresponding headers available.
+
+Other than that, the general build process is the same as original; see original doc/BUILDING.txt for more information.

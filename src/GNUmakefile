@@ -39,9 +39,14 @@ INSTALL_DATA    := install --mode=0644
 ifeq ($(GLES2),1)
 DMACROS         += -DGLES2
 EXTRA_LIBS      += -lGLESv2
-else
+else # !GLES2
 EXTRA_LIBS      += -lGL -lGLEW
-endif
+
+ifeq ($(GL30PLUS),1)
+DMACROS         += -DGL30PLUS
+endif # GL30PLUS
+
+endif # GLES2
 
 LDFLAGS         += $(EXTRA_LIBS)
 

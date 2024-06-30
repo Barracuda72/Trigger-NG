@@ -46,7 +46,7 @@ LIBDIRS         :=                  \
     -L'$(FMODAPIDIR)/lib'
 CXXFLAGS        ?= -std=c++11 $(MODENV) $(WARNINGS) $(OPTIMS)
 CPPFLAGS        ?= $(DMACROS) $(INCDIRS)
-EXTRA_LIBS      := -lmingw32 -lSDL2main -lopengl32 -lglu32 -lglew32 -lSDL2 -lSDL2_image -lphysfs -ltinyxml2.dll -lfmod64
+EXTRA_LIBS      := -lmingw32 -lSDL2main -lopengl32 -lglew32 -lSDL2 -lSDL2_image -lphysfs -ltinyxml2.dll -lfmod64
 LDFLAGS         ?= $(MODENV) $(LIBDIRS) $(EXTRA_LIBS)
 
 #
