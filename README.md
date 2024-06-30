@@ -29,7 +29,7 @@ or download it manually and place in the current directory. However, the simples
 `--recurse-submodules` flag to Git. This will pull a 100% working version of GLM into the project folder.
 
 I've removed a GLU dependency, as it was only required for `gluScaleImage`. Now image scaling is implemented using `SDL_BlitScaled` 
-from SDL_Image (which was also a dependency anyway).
+from SDL.
 
 By default the code is compiled with OpenGL 2.1 in mind. Beware that this is the only supported way on Windows/MSYS as of now. 
 - To use OpenGL 3.0+ Core Profile, specify `GL30PLUS=1` when running `make`.
