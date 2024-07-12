@@ -19,6 +19,8 @@
 #ifndef RIGIDITYH
 #define RIGIDITYH
 
+#include <map>
+
 class PRigidity {
 public:
   PRigidity();
