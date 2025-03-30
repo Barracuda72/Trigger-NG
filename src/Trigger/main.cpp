@@ -2505,6 +2505,18 @@ bool MainApp::joyAxisEvent(int which, int axis, float value, bool down)
   return down;
 }
 
+float MainApp::getCtrlActionBackValue() {
+  // TODO: fix after merging config support [r1008..r1012]!
+  // return cfg.getCtrl().map[PConfig::ActionBack].value;
+  return ctrl.map[ActionBack].value;
+}
+
+int MainApp::getVehicleCurrentGear() {
+  if (game->vehicle.size() > 0)
+    return game->vehicle.front()->getCurrentGear();
+  return 0;
+}
+
 int main(int argc, char *argv[])
 {
     PUtil::initLog();

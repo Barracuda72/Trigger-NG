@@ -122,9 +122,8 @@ void PSSRender::drawModel(PModel &model, PSSEffect &ssEffect, PSSTexture &ssText
   sp_model->uniform("n_mv", glm::mat3(glm::transpose(glm::inverse(mv))));
   sp_model->uniform("mv", mv);
   sp_model->uniform("p", p);
-  glActiveTexture(GL_TEXTURE0);
-  sp_model->uniform("tex", 0);
-  sp_model->uniform("alpha", is_ghost ? 0.5f : 1.0f);
+
+  float alpha = is_ghost ? 0.5f : 1.0f;
 
   sp_model->uniform("material.ambient", material.ambient);
   sp_model->uniform("material.diffuse", material.diffuse);
@@ -147,17 +146,38 @@ void PSSRender::drawModel(PModel &model, PSSEffect &ssEffect, PSSTexture &ssText
     sp_model->attrib("normal", 3, GL_FLOAT, GL_FALSE, mesh->vertexSize * sizeof(GL_FLOAT), 2 * sizeof(GL_FLOAT));
     sp_model->attrib("position", 3, GL_FLOAT, GL_FALSE, mesh->vertexSize * sizeof(GL_FLOAT), 5 * sizeof(GL_FLOAT));
 
-    int numPasses = 0;
-    if (mesh->effect->renderBegin(&numPasses, ssTexture)) {
-      for (int i=0; i<numPasses; i++) {
-        mesh->effect->renderPass(i);
-        glDrawArrays(GL_TRIANGLES, 0, mesh->face.size() * 3);
+    // TODO: this is an extremely inefficient (both here and in the original code)!
+    // To render just brake lights we're basically performing a full draw call with complete geometry 
+    // and almost all fragments being textured transparent.
+    // We should just add emission texture sampler to main shader but that would require rewriting fxman
+    // as it only considers one texture per technique.
+    for (int j = 0; j < mesh->effect->getNumTechniques(); j++) {
+      mesh->effect->setCurrentTechnique(j);
+
+      float tech_alpha = alpha;
+
+      if (mesh->effect->getTechniqueName(j) == "EmissionTechMTL")
+        tech_alpha = alpha * app.getCtrlActionBackValue();
+
+      sp_model->uniform("alpha", tech_alpha);
+
+      glActiveTexture(GL_TEXTURE0);
+      sp_model->uniform("tex", 0);
+      // renderBegin performs texture binding
+      
+      int numPasses = 0;
+      if (mesh->effect->renderBegin(&numPasses, ssTexture)) {
+        for (int i=0; i<numPasses; i++) {
+          mesh->effect->renderPass(i);
+          glDrawArrays(GL_TRIANGLES, 0, mesh->face.size() * 3);
+        }
+        mesh->effect->renderEnd();
       }
-      mesh->effect->renderEnd();
     }
 
     mesh->vao->unbind();
   }
+
   sp_model->unuse();
 }
 

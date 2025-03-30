@@ -706,6 +706,9 @@ public:
 	void joyButtonEvent(int which, int button, bool down);
 	bool joyAxisEvent(int which, int axis, float value, bool down);
 
+	virtual float getCtrlActionBackValue();
+	virtual int getVehicleCurrentGear();
+
     std::unordered_map<std::string, PAudioSample *> getCodriverWords() const
     {
         return aud_codriverwords;

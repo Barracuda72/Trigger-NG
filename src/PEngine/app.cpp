@@ -964,4 +964,11 @@ bool PApp::joyAxisEvent(int which, int axis, float value, bool down)
   return false;
 }
 
+float PApp::getCtrlActionBackValue()
+{
+  return 0.0f;
+}
 
+int PApp::getVehicleCurrentGear() {
+  return 0;
+}
