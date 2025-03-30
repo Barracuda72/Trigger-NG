@@ -18,6 +18,16 @@ Proper implementation would apply a fog effect at the postprocessing stage using
 Original game renderer only applies lighting to the car model. I followed along, but it would be a good idea 
 to improve on that and add lighting also on the terrain.
 
+## SVN revisions omitted
+
+Initial rewrite was performed on the 0.6.6.1 release code. Later SVN revisions were applied as patches on top of the rewritten code,
+fixing arising errors and inconsistencies. However, some revisions were omitted due to my lack of time:
+
+[r1008](https://sourceforge.net/p/trigger-rally/code/1008/)..[r1012](https://sourceforge.net/p/trigger-rally/code/1012/): Implementation
+of options menu
+
+Everything else shall be in line with the original.
+
 # Original README
 
 See doc/README.txt
