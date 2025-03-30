@@ -457,8 +457,8 @@ void MainApp::renderVehicleType(PVehicleType* vtype, const glm::mat4& mv, const 
 {
    for (unsigned int i=0; i<vtype->part.size(); ++i)
         {
-            vec3f vpos = vtype->part[i].render_ref_local.pos;
-            mat44f vorim = vtype->part[i].render_ref_local.ori_mat_inv;
+            vec3f vpos = vtype->part[i].render_ref_local.getPosition();
+            mat44f vorim = vtype->part[i].render_ref_local.getInverseOrientationMatrix();
 
             glm::mat4 t = glm::translate(mv, glm::vec3(vpos.x, vpos.y, vpos.y));
             glm::mat4 q = {
@@ -498,8 +498,8 @@ void MainApp::renderVehicle(PVehicle* vehic, PGhost::GhostData* ghostdata, const
     {
         if (vehic->type->part[i].model)
         {
-            vec3f vpos = is_ghost ? ghostdata->pos : vehic->part[i].ref_world.pos;
-            mat44f vorim = is_ghost ? ghostdata->ori.getMatrix().transpose() : vehic->part[i].ref_world.ori_mat_inv;
+            vec3f vpos = is_ghost ? ghostdata->pos : vehic->part[i].ref_world.getPosition();
+            mat44f vorim = is_ghost ? ghostdata->ori.getMatrix().transpose() : vehic->part[i].ref_world.getInverseOrientationMatrix();
             float scale = vehic->type->part[i].scale;
 
             glm::mat4 t = glm::translate(mv, glm::vec3(vpos.x, vpos.y, vpos.z));
@@ -520,7 +520,7 @@ void MainApp::renderVehicle(PVehicle* vehic, PGhost::GhostData* ghostdata, const
             for (unsigned int j=0; j<vehic->type->part[i].wheel.size(); j++)
             {
                 vec3f wpos = is_ghost ? ghostdata->wheel[j].pos : vehic->part[i].wheel[j].ref_world.getPosition();
-                mat44f worim = is_ghost ? ghostdata->wheel[j].ori.getMatrix().transpose() : vehic->part[i].wheel[j].ref_world.ori_mat_inv;
+                mat44f worim = is_ghost ? ghostdata->wheel[j].ori.getMatrix().transpose() : vehic->part[i].wheel[j].ref_world.getInverseOrientationMatrix();
                 float scale = vehic->type->wheelscale * vehic->type->part[i].wheel[j].radius;
 
                 glm::mat4 t = glm::translate(mv, glm::vec3(wpos.x, wpos.y, wpos.z));
@@ -849,7 +849,7 @@ void MainApp::renderStateGame(float eyetranslation)
     {
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-        vec3f vpos = game->vehicle[0]->body->pos;
+        vec3f vpos = game->vehicle[0]->body->getPosition();
         vec3f forw = makevec3f(game->vehicle[0]->body->getOrientationMatrix().row[0]);
         float forwangle = atan2(forw.y, forw.x);
         game->terrain->drawShadow(vpos.x, vpos.y, 1.4f, forwangle + PI*0.5f, tex_shadow, mv, p);

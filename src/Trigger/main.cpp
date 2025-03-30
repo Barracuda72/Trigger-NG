@@ -1929,7 +1929,7 @@ void MainApp::tickStateGame(float delta)
     quatf temp2;
     temp2.fromZAngle(camera_user_angle);
 
-    quatf target = tempo * temp2 * rf->ori;
+    quatf target = tempo * temp2 * rf->getOrientation();
 
     if (target.dot(camori) < 0.0f) target = target * -1.0f;
 
@@ -1951,7 +1951,7 @@ void MainApp::tickStateGame(float delta)
     quatf temp2;
     temp2.fromZAngle(camera_user_angle);
 
-    quatf target = tempo * temp2 * rf->ori;
+    quatf target = tempo * temp2 * rf->getOrientation();
 
     if (target.dot(camori) < 0.0f) target = target * -1.0f;
 
@@ -1974,7 +1974,7 @@ void MainApp::tickStateGame(float delta)
     quatf temp2;
     temp2.fromZAngle(camera_user_angle);
 
-    quatf target = tempo * temp2 * rf->ori;
+    quatf target = tempo * temp2 * rf->getOrientation();
 
     if (target.dot(camori) < 0.0f) target = target * -1.0f;
 
@@ -1997,7 +1997,7 @@ void MainApp::tickStateGame(float delta)
     quatf temp2;
     temp2.fromZAngle(camera_user_angle);
 
-    quatf target = tempo * temp2 * rf->ori;
+    quatf target = tempo * temp2 * rf->getOrientation();
 
     if (target.dot(camori) < 0.0f) target = target * -1.0f;
 

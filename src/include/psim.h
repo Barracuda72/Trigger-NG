@@ -26,7 +26,7 @@ class PVehicle;
 /// @details It is the base class for more advanced classes such as PRigidBody
 ///
 class PReferenceFrame {
-public:
+private:
   // position
   vec3f pos;
   // orientation
@@ -54,9 +54,9 @@ public:
 
   // Orientation
   void setOrientation(const quatf &_ori) { ori = _ori; }
-  quatf getOrientation() { return ori; }
-  mat44f getOrientationMatrix() { return ori_mat; }
-  mat44f getInverseOrientationMatrix() { return ori_mat_inv; }
+  quatf getOrientation() const { return ori; }
+  mat44f getOrientationMatrix() const { return ori_mat; }
+  mat44f getInverseOrientationMatrix() const { return ori_mat_inv; }
 
   // Change coordinate reference (From local to world system and viceversa)
   vec3f getLocToWorldVector(const vec3f &pt) {
@@ -79,9 +79,8 @@ public:
 ///
 class PRigidBody : public PReferenceFrame {
 private:
-
-  // Class that stores simulation informations (such as gravity force intensity)
-  PSim &sim;
+  // the gravity vector
+  const vec3f &gravity;
 
   // mass and 1/mass
   float mass, mass_inv;
@@ -97,7 +96,7 @@ private:
   vec3f accum_torque;
 
 public:
-  PRigidBody(PSim &sim_parent);
+  PRigidBody(const vec3f &gravity_parent);
   ~PRigidBody();
 
 public:
@@ -124,8 +123,6 @@ public:
 
   // Step the simulation delta seconds
   void tick(float delta);
-
-  friend class PSim;
 };
 
 
@@ -138,7 +135,6 @@ public:
 ///
 class PSim {
 private:
-
   // the terrain class
   PTerrain *terrain;
 
@@ -176,9 +172,6 @@ public:
 
   // Step the simulation delta seconds
   void tick(float delta);
-
-  friend class PRigidBody;
-  friend class PVehicle;
 };
 
 #endif
