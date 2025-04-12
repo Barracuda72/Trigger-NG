@@ -868,7 +868,7 @@ void MainApp::renderStateGame(float eyetranslation)
         renderVehicle(vehic, nullptr, mv, p);
     }
 
-    if (cfg_enable_ghost) {
+    if (cfg.getEnableGhost()) {
         glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
         PGhost::GhostData ghostdata;
         std::string vehiclename = "";
@@ -1108,7 +1108,7 @@ void MainApp::renderStateGame(float eyetranslation)
             getSSRender().drawText("LAP", cl_laps, PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, k, o);
         }
 
-        if (cfg_enable_fps)
+        if (cfg.getEnableFps())
         {
             std::stringstream stream;
 
@@ -1152,7 +1152,7 @@ void MainApp::renderStateGame(float eyetranslation)
           getSSRender().drawText(buff, PTEXT_HZA_CENTER | PTEXT_VTA_CENTER, k, o);
 
           // speed number
-          const int speed = std::fabs(vehic->getWheelSpeed()) * hud_speedo_mps_speed_mult;
+          const int speed = std::fabs(vehic->getWheelSpeed()) * cfg.getHudSpeedoMpsSpeedMult();
           std::string speedstr = std::to_string(speed);
 
           k = glm::translate(k, glm::vec3(1.1f, -0.625f, 0.0f));
@@ -1163,7 +1163,7 @@ void MainApp::renderStateGame(float eyetranslation)
           k = glm::translate(k, glm::vec3(0.0f, -0.82f, 0.0f));
           k = glm::scale(k, glm::vec3(0.5f, 0.5f, 1.0f));
 
-          if (cfg_speed_unit == MainApp::Speedunit::mph)
+          if (cfg.getSpeedUnit() == PConfig::Speedunit::mph)
               getSSRender().drawText("MPH", PTEXT_HZA_RIGHT | PTEXT_VTA_CENTER, k, o);
           else
               getSSRender().drawText("km/h", PTEXT_HZA_RIGHT | PTEXT_VTA_CENTER, k, o);
@@ -1467,7 +1467,7 @@ void MainApp::renderSnow(const glm::mat4& mv, const glm::mat4& p)
 
     //GLfloat ops; // Original Point Size, for to be restored
 
-    /*if (cfg_snowflaketype == SnowFlakeType::point)
+    /*if (cfg.getSnowflaketype() == PConfig::SnowFlakeType::point)
     {
         glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
         glGetFloatv(GL_POINT_SIZE, &ops);
@@ -1475,7 +1475,7 @@ void MainApp::renderSnow(const glm::mat4& mv, const glm::mat4& p)
     }
     else*/
     snow_vao->bind();
-    if (cfg_snowflaketype == SnowFlakeType::textured)
+    if (cfg.getSnowflaketype() == PConfig::SnowFlakeType::textured)
     {
         //glEnable(GL_TEXTURE_2D);
         glBlendFunc(GL_SRC_COLOR, GL_ONE);
@@ -1508,7 +1508,7 @@ void MainApp::renderSnow(const glm::mat4& mv, const glm::mat4& p)
         else
             alpha = 1.0f;
 
-        /*if (cfg_snowflaketype == SnowFlakeType::point)
+        /*if (cfg.getSnowflaketype() == PConfig::SnowFlakeType::point)
         {
             glBegin(GL_POINTS);
             glColor4f(1.0f, 1.0f, 1.0f, alpha);
@@ -1534,11 +1534,11 @@ void MainApp::renderSnow(const glm::mat4& mv, const glm::mat4& p)
         }
     }
 
-    /*if (cfg_snowflaketype == SnowFlakeType::point)
+    /*if (cfg.getSnowflaketype() == PConfig::SnowFlakeType::point)
         glPointSize(ops); // restore original point size*/
 
     // disable textures
-    if (cfg_snowflaketype == SnowFlakeType::textured)
+    if (cfg.getSnowflaketype() == PConfig::SnowFlakeType::textured)
     {
         //glDisable(GL_TEXTURE_2D);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

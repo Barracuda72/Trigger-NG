@@ -35,7 +35,8 @@ PTexture *PSSTexture::loadTexture(const std::string &name, bool genMipmaps, bool
   if (!tex) {
     try
     {
-      tex = new PTexture(name,genMipmaps,clamp);
+      GLfloat cfgAnisotropy = static_cast<MainApp &>(app).cfg.getAnisotropy();
+      tex = new PTexture(name, cfgAnisotropy, genMipmaps, clamp);
     }
     catch (PException &e)
     {
@@ -134,14 +135,14 @@ void PTexture::unload()
   }
 }
 
-void PTexture::load (const std::string &filename, bool genMipmaps, bool clamp)
+void PTexture::load (const std::string &filename, GLfloat cfgAnisotropy, bool genMipmaps, bool clamp)
 {
   PImage image (filename);
-  load (image, genMipmaps, clamp);
+  load (image, cfgAnisotropy, genMipmaps, clamp);
   name = filename;
 }
 
-void PTexture::load (PImage &img, bool genMipmaps, bool clamp)
+void PTexture::load (PImage &img, GLfloat cfgAnisotropy, bool genMipmaps, bool clamp)
 {
   unload();
 
@@ -192,10 +193,10 @@ void PTexture::load (PImage &img, bool genMipmaps, bool clamp)
   glGenTextures(1,&texid);
   bind();
 
-    if (SDL_GL_ExtensionSupported("GL_EXT_texture_filter_anisotropic"))
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, MainApp::cfg_anisotropy);
-    else
-        PUtil::outLog() << "Warning: anisotropic filtering is not supported." << std::endl;
+  if (SDL_GL_ExtensionSupported("GL_EXT_texture_filter_anisotropic"))
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, cfgAnisotropy);
+  else
+    PUtil::outLog() << "Warning: anisotropic filtering is not supported." << std::endl;
 
   glTexParameteri(textarget,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
   if (genMipmaps)

@@ -11,6 +11,7 @@
 
 #include <sstream>
 #include "main.h"
+#include "option.h"
 
 const int MAX_RACES_ON_SCREEN   = 12;
 const int MAX_TIMES_ON_SCREEN   = 13;
@@ -36,6 +37,11 @@ void MainApp::levelScreenAction(int action, int index)
     break;
   case AA_RESUME:
     // lss.state should be AM_TOP_EVT_PREP, continuing event
+    break;
+  case AA_RELOAD_ALL:
+    reloadAll();
+    cfg.storeConfig();
+    lss.state = AM_TOP;
     break;
   case AA_GO_TOP:
     lss.state = AM_TOP;
@@ -175,6 +181,14 @@ void MainApp::levelScreenAction(int action, int index)
         break;
     }
 
+    case AA_GO_OPT:
+      lss.state = AM_TOP_OPT;
+      break;
+
+    case AA_PICK_OPT:
+      option.select(index);
+      break;
+
   default:
     PUtil::outLog() << "ERROR: invalid action code " << action << std::endl;
     requestExit();
@@ -189,6 +203,8 @@ void MainApp::levelScreenAction(int action, int index)
 
   switch (lss.state) {
   case AM_TOP:
+    gui.makeClickable(
+      gui.addLabel(400.0f,400.0f, "options", PTEXT_HZA_CENTER | PTEXT_VTA_CENTER, 40.0f), AA_GO_OPT, 0);
     gui.makeClickable(
       gui.addLabel(400.0f,350.0f, "events", PTEXT_HZA_CENTER | PTEXT_VTA_CENTER, 40.0f), AA_GO_EVT, 0);
     gui.makeClickable(
@@ -817,6 +833,10 @@ void MainApp::levelScreenAction(int action, int index)
         break;
     }
 
+  case AM_TOP_OPT:
+    option.render();
+    break;
+
   default:
     gui.addLabel(400.0f,300.0f, "Error in menu system, sorry", PTEXT_HZA_CENTER | PTEXT_VTA_TOP, 30.0f, LabelStyle::Marked);
     gui.makeClickable(
@@ -971,6 +991,9 @@ void MainApp::handleLevelScreenKey(const SDL_KeyboardEvent &ke)
     case AM_TOP_PRAC_BTIMES:
         levelScreenAction(AA_PICK_PRAC_LVL, lss.currentlevel);
         break;
+    case AM_TOP_OPT:
+      levelScreenAction(AA_RELOAD_ALL, 0);
+      break;
     default:
       levelScreenAction(AA_GO_TOP, 0);
       break;
@@ -1327,8 +1350,11 @@ void Gui::render(const glm::mat4& p)
 {
   for (unsigned int i = 0; i < widget.size(); i++) {
     vec4f colc = vec4f(1.0f, 1.0f, 1.0f, 1.0f);
+    uint32 flags = PTEXT_HZA_LEFT | PTEXT_VTA_BOTTOM;
 
-    if (widget[i].clickable) {
+    if (widget[i].selectable && !widget[i].selected) {
+      colc = INTERP(widget[i].colnormal, widget[i].colhover, widget[i].glow);
+    } else if (widget[i].clickable) {
       colc = INTERP(widget[i].colclick, widget[i].colhover, widget[i].glow);
     } else {
       colc = widget[i].colnormal;
@@ -1336,6 +1362,9 @@ void Gui::render(const glm::mat4& p)
 
     if ((int)i == defwidget)
       colc += vec4f(0.1f, -0.1f, -0.1f, 0.0f) * sinf(defflash);
+
+    if (widget[i].selectable && widget[i].selected)
+      flags |= PTEXT_HIGHLIGHT;
 
     glm::vec4 col_c = glm::vec4(colc.x, colc.y, colc.z, colc.w);
 
@@ -1349,7 +1378,7 @@ void Gui::render(const glm::mat4& p)
 
     switch(widget[i].type) {
     case GWT_LABEL: {
-      ssRender->drawText(widget[i].text, col_c, PTEXT_HZA_LEFT | PTEXT_VTA_BOTTOM, t, p);
+      ssRender->drawText(widget[i].text, col_c, flags, t, p);
       } break;
 
     case GWT_GRAPHIC: {

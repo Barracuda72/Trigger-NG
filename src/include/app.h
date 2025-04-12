@@ -46,6 +46,8 @@ class PApp
             StereoYellowBlue
         };
 
+        HiScore1 best_times;
+
     private:
 
         std::string appname, apptitle;
@@ -59,7 +61,6 @@ class PApp
     protected:
 
         int cx, cy, bpp;
-        HiScore1 best_times;
 
     private:
 
@@ -92,30 +93,7 @@ class PApp
 
     public:
 
-        PApp(const std::string &title = "PGame", const std::string &name = ".pgame"):
-            appname(name), // for ~/.name
-            apptitle(title), // for window title
-            best_times("/players")
-        {
-            //PUtil::outLog() << "Initialising SDL" << std::endl;
-            const int si = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_JOYSTICK | SDL_INIT_HAPTIC);
-
-            if (si < 0)
-            {
-                PUtil::outLog() << "Failed to initialize SDL: " << SDL_GetError() << std::endl;
-            }
-
-            cx = cy = 0;
-            bpp = 0;
-            fullscr = false;
-            noframe = false;
-            exit_requested = false;
-            screenshot_requested = false;
-            reqRGB = reqAlpha = reqDepth = reqStencil = false;
-            stereo = StereoNone;
-            stereoEyeTranslation = 0.0f;
-            grabinput = false;
-        }
+        PApp(const std::string &title = "PGame", const std::string &name = ".pgame");
 
         virtual ~PApp()
         {
@@ -200,81 +178,6 @@ class PApp
             return *ssaud;
         }
 
-    protected:
-
-        bool keyDown(int key)
-        {
-            return (sdl_keymap[key] != 0);
-        }
-
-        bool mouseButtonDown(int bt)
-        {
-            return ((sdl_mousemap & SDL_BUTTON(bt)) != 0);
-        }
-
-        void requestExit()
-        {
-            exit_requested = true;
-        }
-
-        void saveScreenshot()
-        {
-            screenshot_requested = true;
-        }
-
-        void grabMouse(bool grab = true);
-
-        void drawModel(PModel &model, const Light& light, const Material& material, bool is_ghost, const glm::mat4& mv, const glm::mat4& p);
-
-        //void stereoGLProject(float xmin, float xmax, float ymin, float ymax, float znear, float zfar, float zzps, float dist, float eye);
-        glm::mat4 stereoFrustum(float xmin, float xmax, float ymin, float ymax, float znear, float zfar, float zzps, float eye);
-
-        // config stuff
-
-        void setScreenMode(int w, int h, bool fullScreen = false, bool hideFrame = false)
-        {
-            // use automatic video mode
-            if (autoVideo)
-            {
-                SDL_DisplayMode dm;
-
-                if (SDL_GetCurrentDisplayMode(0, &dm) == 0)
-                {
-                    cx = dm.w;
-                    cy = dm.h;
-                    fullscr = fullScreen;
-                    noframe = hideFrame;
-                    PUtil::outLog() << "Automatic video mode resolution: " << cx << 'x' << cy << std::endl;
-                }
-                else
-                {
-                    PUtil::outLog() << "SDL error, SDL_GetCurrentDisplayMode(): " << SDL_GetError() << std::endl;
-                    autoVideo = false;
-                }
-            }
-
-            // not written as an `else` branch because `autoVideo` may have
-            // been updated in the case that automatic video mode failed
-            if (!autoVideo)
-            {
-                cx = w;
-                cy = h;
-                fullscr = fullScreen;
-                noframe = hideFrame;
-            }
-        }
-
-        void setScreenBPP(int _bpp)
-        {
-            if (autoVideo)
-                return;
-
-            bpp = _bpp;
-        }
-
-        void setScreenModeAutoWindow();
-        void setScreenModeFastFullScreen();
-
         void automaticVideoMode(bool av = false)
         {
             autoVideo = av;
@@ -309,6 +212,50 @@ class PApp
         {
             stereoEyeTranslation = distance * 0.5f;
         }
+
+    protected:
+
+        bool keyDown(int key)
+        {
+            return (sdl_keymap[key] != 0);
+        }
+
+        bool mouseButtonDown(int bt)
+        {
+            return ((sdl_mousemap & SDL_BUTTON(bt)) != 0);
+        }
+
+        void requestExit()
+        {
+            exit_requested = true;
+        }
+
+        void saveScreenshot()
+        {
+            screenshot_requested = true;
+        }
+
+        void grabMouse(bool grab = true);
+
+        void drawModel(PModel &model, const Light& light, const Material& material, bool is_ghost, const glm::mat4& mv, const glm::mat4& p);
+
+        //void stereoGLProject(float xmin, float xmax, float ymin, float ymax, float znear, float zfar, float zzps, float dist, float eye);
+        glm::mat4 stereoFrustum(float xmin, float xmax, float ymin, float ymax, float znear, float zfar, float zzps, float eye);
+
+        // config stuff
+
+        void setScreenMode(int w, int h, bool fullScreen = false, bool hideFrame = false);
+
+        void setScreenBPP(int _bpp)
+        {
+            if (autoVideo)
+                return;
+
+            bpp = _bpp;
+        }
+
+        void setScreenModeAutoWindow();
+        void setScreenModeFastFullScreen();
 
         // callbacks for derived classes
 

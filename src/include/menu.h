@@ -30,6 +30,7 @@ the game. Ick.
 #define AM_TOP_PRAC_TIMES     32  // Show best times for Practice level
 #define AM_TOP_LVL_BTIMES     33  // Show best times for Single level (button)
 #define AM_TOP_PRAC_BTIMES    34  // Show best times for Practice level (button)
+#define AM_TOP_OPT            40  // Options menu
 
 // actions
 #define AA_INIT               1
@@ -53,6 +54,9 @@ the game. Ick.
 #define AA_SHOWTIMES_PRAC     62
 #define AA_BSHOWTIMES_LVL     63  // "Best Times" button pressed: show times with no highlight
 #define AA_BSHOWTIMES_PRAC    64
+#define AA_GO_OPT             70
+#define AA_PICK_OPT           71
+#define AA_RELOAD_ALL         72
 
 // best times table actions for columns
 #define AA_SORT_BY_PLAYERNAME       1001
@@ -141,6 +145,8 @@ struct GuiWidget {
   int type;
 
   bool clickable;
+  bool selectable;
+  bool selected;
   int d1, d2;
 
   std::string text;
@@ -160,7 +166,7 @@ struct GuiWidget {
 
   PTexture *tex;
 
-  GuiWidget(int t) : type(t), clickable(false), d1(0), d2(0), glow(0.0f) { }
+  GuiWidget(int t) : type(t), clickable(false), selectable(false), selected(false), d1(0), d2(0), glow(0.0f) { }
 };
 
 
@@ -252,6 +258,12 @@ public:
   int makeUnclickable(int w) {
     widget[w].clickable = false;
     return w;
+  }
+
+  int makeSelectable(int w, int data1, int data2, bool select) {
+    widget[w].selectable = true;
+    widget[w].selected = select;
+    return makeClickable(w, data1, data2);
   }
 
   void makeDefault(int w) { defwidget = w; }

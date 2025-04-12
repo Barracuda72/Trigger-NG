@@ -63,7 +63,30 @@ MessageCallback( GLenum source,
 
 int PUtil::deblev = DEBUGLEVEL_ENDUSER;
 
+PApp::PApp(const std::string &title, const std::string &name):
+        best_times("/players"),
+        appname(name), // for ~/.name
+        apptitle(title) // for window title
+{
+    //PUtil::outLog() << "Initialising SDL" << std::endl;
+    const int si = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_JOYSTICK | SDL_INIT_HAPTIC);
 
+    if (si < 0)
+    {
+        PUtil::outLog() << "Failed to initialize SDL: " << SDL_GetError() << std::endl;
+    }
+
+    cx = cy = 0;
+    bpp = 0;
+    fullscr = false;
+    noframe = false;
+    exit_requested = false;
+    screenshot_requested = false;
+    reqRGB = reqAlpha = reqDepth = reqStencil = false;
+    stereo = StereoNone;
+    stereoEyeTranslation = 0.0f;
+    grabinput = false;
+}
 
 void PApp::setScreenModeAutoWindow()
 {
@@ -151,6 +174,39 @@ glm::mat4 PApp::stereoFrustum(float xmin, float xmax, float ymin, float ymax, fl
   glm::mat4 frust = glm::frustum(xmin + xmove, xmax + xmove, ymin, ymax, znear, zfar);
 
   return frust;
+}
+
+void PApp::setScreenMode(int w, int h, bool fullScreen, bool hideFrame)
+{
+    // use automatic video mode
+    if (autoVideo)
+    {
+        SDL_DisplayMode dm;
+
+        if (SDL_GetCurrentDisplayMode(0, &dm) == 0)
+        {
+            cx = dm.w;
+            cy = dm.h;
+            fullscr = fullScreen;
+            noframe = hideFrame;
+            PUtil::outLog() << "Automatic video mode resolution: " << cx << 'x' << cy << std::endl;
+        }
+        else
+        {
+            PUtil::outLog() << "SDL error, SDL_GetCurrentDisplayMode(): " << SDL_GetError() << std::endl;
+            autoVideo = false;
+        }
+    }
+
+    // not written as an `else` branch because `autoVideo` may have
+    // been updated in the case that automatic video mode failed
+    if (!autoVideo)
+    {
+        cx = w;
+        cy = h;
+        fullscr = fullScreen;
+        noframe = hideFrame;
+    }
 }
 
 int PApp::run(int argc, char *argv[])

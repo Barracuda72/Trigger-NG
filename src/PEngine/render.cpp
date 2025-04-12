@@ -388,6 +388,8 @@ void PSSRender::drawText(const std::string &text, const glm::vec4& color, uint32
         i++;
     }
 
+    glm::vec4 highlight_color = (flags & PTEXT_HIGHLIGHT) ? glm::vec4(1.0f, 1.0f, 1.0f, 0.25f) : glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
+
     VAO vao(
         vbo, (text.length()) * 4 * 5 * sizeof(float),
         ibo, text.length() * 6 * sizeof(unsigned short)
@@ -401,7 +403,7 @@ void PSSRender::drawText(const std::string &text, const glm::vec4& color, uint32
 
     //glActiveTexture(GL_TEXTURE0);
     sp_text->uniform("font", 0);
-    sp_text->uniform("text_color", color);
+    sp_text->uniform("text_color", color + highlight_color);
     sp_text->uniform("mv", t);
     sp_text->uniform("p", p);
 

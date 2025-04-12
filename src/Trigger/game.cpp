@@ -169,7 +169,8 @@ bool TriggerGame::loadLevel(const std::string &filename)
 		{
 			try
 			{
-				terrain = new PTerrain (walk, filename, app->getSSTexture (), rigidity);
+				terrain = new PTerrain (walk, filename, app->getSSTexture (), rigidity,
+          app->cfg.getFoliage(), app->cfg.getRoadsigns());
 			}
 			catch (PException &e)
 			{
@@ -357,10 +358,10 @@ bool TriggerGame::loadLevel(const std::string &filename)
 			if (val) weather.fog.density_sky = atof(val);
       
 			val = walk->Attribute("rain");
-			if (val && MainApp::cfg_weather) weather.precip.rain = atof(val);
+			if (val && app->cfg.getWeather()) weather.precip.rain = atof(val);
 	
 			val = walk->Attribute("snowfall");
-			if (val != nullptr && MainApp::cfg_weather)
+			if (val != nullptr && app->cfg.getWeather())
 				weather.precip.snowfall = atof(val);
 		}
 		// water specifications
@@ -687,5 +688,37 @@ void TriggerGame::tick(float delta)
   */
 }
 
+float TriggerGame::getOffroadTime() const
+{
+    return uservehicle->offroadtime_total + (coursetime - uservehicle->offroadtime_begin);
+}
 
+void TriggerGame::resetAtCheckpoint(PVehicle *veh)
+{
+    veh->doReset(lastCkptPos, lastCkptOri);
+}
 
+void TriggerGame::renderCodriverSigns(const glm::mat4& mv, const glm::mat4& p)
+{
+    cdsigns.render(coursetime, mv, p);
+}
+
+bool TriggerGame::isFinished() const
+{
+    return (gamestate == Gamestate::finished) && (othertime <= 0.0f);
+}
+
+bool TriggerGame::isRacing() const
+{
+    return gamestate == Gamestate::racing;
+}
+
+Gamefinish TriggerGame::getFinishState()
+{
+    if (gamestate != Gamestate::finished)
+        return Gamefinish::not_finished;
+    if (coursetime + uservehicle->offroadtime_total * offroadtime_penalty_multiplier <= targettime)
+        return Gamefinish::pass;
+    else
+        return Gamefinish::fail;
+}
