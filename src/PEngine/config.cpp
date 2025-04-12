@@ -478,7 +478,8 @@ void PConfig::loadConfig()
 
               ctrl.map[a].type = UserControl::TypeKey;
               //ctrl.map[a].key.sym = (SDLKey) atoi(val);
-              ctrl.map[a].key.sym = SDL_GetKeyFromName(val);
+              //ctrl.map[a].key.sym = SDL_GetKeyFromName(val); // TODO: fix after full merge!
+              ctrl.map[a].key.sym = mainapp->getSdlKeySym(val);
             }
           }
 
