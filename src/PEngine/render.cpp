@@ -156,8 +156,14 @@ void PSSRender::drawModel(PModel &model, PSSEffect &ssEffect, PSSTexture &ssText
 
       float tech_alpha = alpha;
 
-      if (mesh->effect->getTechniqueName(j) == "EmissionTechMTL")
+      if (mesh->effect->getTechniqueName(j) == "EmissionTechMTL") {
+        // TODO: brake lights should only be on when, well, the BRAKE is in effect
+        // As of now, they are lit when the "back" button is pressed, but in this case "reverse" lights should be used
+        // instead
+        if (app.getVehicleCurrentGear() < 0)  // Reverse
+          continue;
         tech_alpha = alpha * app.getCtrlActionBackValue();
+      }
 
       sp_model->uniform("alpha", tech_alpha);
 
