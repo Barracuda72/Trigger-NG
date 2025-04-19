@@ -28,6 +28,7 @@
 #include <light.h>
 
 #include "config.h"
+#include "control.h"
 #include "ghost.h"
 #include "rigidity.h"
 #include "option.h"
@@ -306,9 +307,6 @@ struct SnowFlake
 /// @brief this class is the whole Trigger Rally game. Create a MainApp object is the only thing main() does
 ///
 class MainApp : public PApp {
-public:
-  SDL_Keycode getSdlKeySym(const std::string& s);
-
 private:
 	int appstate;
 
@@ -369,6 +367,8 @@ private:
   
   // for option screen
   POption option;
+  // for control screen
+  PControl control;
 
 public:
 
@@ -510,6 +510,7 @@ public:
 	MainApp(const std::string &title, const std::string &name):
     PApp(title, name),
     option(gui, cfg),
+    control(gui, cfg),
     cfg(this),
     ghost(0.1f)
 	{
