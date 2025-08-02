@@ -562,6 +562,8 @@ public:
 	void buildChkptVao();
 
 	void keyEvent(const SDL_KeyboardEvent &ke);
+  void touchEvent(const SDL_TouchFingerEvent& te);
+  void touchMoveEvent(const SDL_TouchFingerEvent& te);
 	void mouseMoveEvent(int dx, int dy);
 	void cursorMoveEvent(int posx, int posy);
 	void mouseButtonEvent(const SDL_MouseButtonEvent &mbe);

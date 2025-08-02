@@ -1586,6 +1586,17 @@ void MainApp::keyEvent(const SDL_KeyboardEvent &ke)
   }
 }
 
+void MainApp::touchEvent(const SDL_TouchFingerEvent& te) {
+    // Main fields of interest:
+    // te.type = SDL_FINGERDOWN | SDL_FINGERUP | SDL_FINGERMOTION
+    // te.fingerId = ID of the finger (64-bit value of type SDL_FingerID)
+    // te.x, te.y = coordinates of touch (0..1)
+    // te.dx, te.dy = delta of x and y (requires testing), (-1..1)
+}
+
+void MainApp::touchMoveEvent(const SDL_TouchFingerEvent& te) {
+}
+
 void MainApp::enterGame()
 {
     if (!game->vehiclechoices[choose_type]->getLocked()) {

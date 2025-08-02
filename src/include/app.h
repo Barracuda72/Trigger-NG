@@ -267,6 +267,8 @@ class PApp
         virtual void resize();
         virtual void render(float eyetranslation);
         virtual void keyEvent(const SDL_KeyboardEvent &ke);
+        virtual void touchEvent(const SDL_TouchFingerEvent& te);
+        virtual void touchMoveEvent(const SDL_TouchFingerEvent& te);
         virtual void mouseButtonEvent(const SDL_MouseButtonEvent &mbe);
         virtual void mouseMoveEvent(int dx, int dy);
         virtual void cursorMoveEvent(int posx, int posy);

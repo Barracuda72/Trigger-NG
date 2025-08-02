@@ -708,6 +708,15 @@ int PApp::run(int argc, char *argv[])
       case SDL_MOUSEBUTTONUP:
         mouseButtonEvent(event.button);
         break;
+      
+      case SDL_FINGERDOWN:
+      case SDL_FINGERUP:
+        touchEvent(event.tfinger);
+        break;
+
+      case SDL_FINGERMOTION:
+        touchMoveEvent(event.tfinger);
+        break;
 
       case SDL_JOYAXISMOTION:
         sdl_joy[event.jaxis.which].axis[event.jaxis.axis] =
@@ -992,6 +1001,12 @@ void PApp::keyEvent(const SDL_KeyboardEvent &ke)
   default:
     break;
   }
+}
+
+void PApp::touchEvent(const SDL_TouchFingerEvent& te) {
+}
+
+void PApp::touchMoveEvent(const SDL_TouchFingerEvent& te) {
 }
 
 void PApp::mouseButtonEvent(const SDL_MouseButtonEvent &mbe)
