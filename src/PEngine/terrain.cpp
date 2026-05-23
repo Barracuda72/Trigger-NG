@@ -950,6 +950,8 @@ void PTerrain::render(const glm::vec3 &campos, const glm::mat4 &camorim, PTextur
   sp_terrain->use();
   sp_terrain->uniform("p", p);
   sp_terrain->uniform("mv", mv);
+  sp_terrain->uniform("fog_density", fog_density);
+  sp_terrain->uniform("fog_color", f_color);
   for (unsigned int b = 0; b < foliageband.size(); b++) {
     glActiveTexture(GL_TEXTURE0);
     foliageband[b].sprite_tex->bind();

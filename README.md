@@ -10,8 +10,8 @@ I've encountered in process of rewrite.
 Rendering code supports both desktop OpenGL 2.1/3.0+ and OpenGL ES 2.0.
 
 ## Fog
-Fog calculation is only implemented for a terrain and a sky because I don't want to duplicate those calculations in every shader.
-This might lead to some unexpected results (e.g. distant trees being crisp).
+Fog calculation is only implemented for a terrain, sky and foliage because I don't want to duplicate those calculations in every shader.
+This might lead to some unexpected results (e.g. distant objects being crisp or bright).
 Proper implementation would apply a fog effect at the postprocessing stage using depth buffer.
 
 ## Lighting
