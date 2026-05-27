@@ -11,18 +11,23 @@ LOCAL_CPP_FEATURES := exceptions
 LOCAL_CFLAGS += -DGLES2=1 -DPACKAGE_VERSION=\"0.6.7\" -DNDEBUG -DUNIX
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/$(SDL_PATH)/include \
+	$(LOCAL_PATH)/../SDL/include \
 	$(LOCAL_PATH)/../SDL_image \
 	$(LOCAL_PATH)/../openal/OpenAL/include \
-	$(LOCAL_PATH)/../freealut/include \
-	$(LOCAL_PATH)/../physfs/src \
-	$(LOCAL_PATH)/../tinyxml2 \
+	$(LOCAL_PATH)/../freealut/freealut/include \
+	$(LOCAL_PATH)/../physfs/physfs/src \
+	$(LOCAL_PATH)/../tinyxml2/tinyxml2 \
 	$(LOCAL_PATH)/include \
 	$(LOCAL_PATH)/../glm
 
 LOCAL_SRC_FILES := Trigger/render.cpp \
         Trigger/game.cpp \
+        Trigger/ghost.cpp \
+        Trigger/option.cpp \
+        Trigger/control.cpp \
         Trigger/main.cpp \
         Trigger/menu.cpp \
+        PEngine/config.cpp \
         PEngine/render.cpp \
         PEngine/model.cpp \
         PEngine/physfs_rw.cpp \
@@ -34,6 +39,9 @@ LOCAL_SRC_FILES := Trigger/render.cpp \
         PEngine/shaders.cpp \
         PEngine/util.cpp \
         PEngine/vmath.cpp \
+        PEngine/rigidity.cpp \
+        PSim/collision.cpp \
+        PSim/damage.cpp \
         PSim/vehicle.cpp \
         PSim/rigidbody.cpp \
         PSim/sim.cpp \
