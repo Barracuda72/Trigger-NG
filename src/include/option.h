@@ -21,9 +21,10 @@
 #include <string>
 #include <vector>
 
+#include "config.h"
+
 class Gui;
 class GuiWidget;
-class PConfig;
 
 ///
 /// @brief Options menu

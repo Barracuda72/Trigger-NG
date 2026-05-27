@@ -5,6 +5,12 @@
 // License: GPL version 2 (see included gpl.txt)
 
 
+#include <vector>
+#include <string>
+
+#include "vmath.h"
+#include "pengine.h"
+
 /*
 
 The organisation of this is horrible, I'm afraid... the menu.* files
