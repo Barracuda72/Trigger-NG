@@ -223,15 +223,17 @@ int PApp::run(int argc, char *argv[])
   PUtil::outLog() << "Initialising PhysFS" << std::endl;
 
   #ifdef __ANDROID__
-  // Use "/storage/emulated/0/Android/data/etcetcetc" as a base directory for all files
-  const char* app_dir = SDL_AndroidGetExternalStoragePath();
-  // This is required for PhysFS *nix module to pick up this directory correctly as a user home directory
-  setenv("XDG_DATA_HOME", app_dir, 1);
+  // PhysFS 3.x supports android natively but requires a clunky setup
+  PHYSFS_AndroidInit android_init = {
+    .jnienv = SDL_AndroidGetJNIEnv(),
+    .context = SDL_AndroidGetActivity(),
+  };
+  const char* app_dir = (const char*)&android_init;
   #else
   const char* app_dir = (argc >= 1) ? argv[0] : nullptr;
-  #endif
 
   PUtil::outLog() << "App dir is " << app_dir << std::endl;
+  #endif
 
   if (PHYSFS_init(app_dir) == 0) {
     PUtil::outLog() << "PhysFS failed to initialise" << std::endl;
@@ -270,6 +272,16 @@ int PApp::run(int argc, char *argv[])
       PUtil::outLog() << "Failed to add PhysFS search directory \"" << lsdbuff << "\"" << std::endl
           << "PhysFS: " << physfs_getErrorString() << std::endl;
     }
+
+    #ifdef __ANDROID__
+    // Add "/storage/emulated/0/Android/data/<packagename>/files" as a base directory for all game files
+    // HACK: it seems this path is missing trailing slash sometimes, work around it
+    std::string ext_path = std::string(SDL_AndroidGetExternalStoragePath()) + "/";
+    if (PHYSFS_mount(ext_path.c_str(), NULL, 1) == 0) {
+      PUtil::outLog() << "Failed to add PhysFS search directory \"" << ext_path << "\"" << std::endl
+          << "PhysFS: " << physfs_getErrorString() << std::endl;
+    }
+    #endif
 
     // we run MainApp::config() here in order to add data dirs to PhysFS search path
     try
