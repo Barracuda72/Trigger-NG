@@ -207,8 +207,7 @@ std::string PUtil::assemblePath(const std::string &relativefile, const std::stri
   return totalpath;
 }
 
-
-XMLElement *PUtil::loadRootElement(XMLDocument &doc, const std::string &filename, const char *rootName)
+std::string PUtil::loadTextData(const std::string &filename)
 {
   PHYSFS_file *pfile = PHYSFS_openRead(filename.c_str());
   if (pfile == nullptr) {
@@ -225,9 +224,18 @@ XMLElement *PUtil::loadRootElement(XMLDocument &doc, const std::string &filename
 
   xmlbuffer[filesize] = '\0';
 
-  doc.Parse(xmlbuffer);
+  std::string result(xmlbuffer);
 
   delete [] xmlbuffer;
+
+  return result;
+}
+
+XMLElement *PUtil::loadRootElement(XMLDocument &doc, const std::string &filename, const char *rootName)
+{
+  std::string xmlbuffer = loadTextData(filename);
+
+  doc.Parse(xmlbuffer.c_str());
 
   XMLElement *rootelem = doc.FirstChildElement(rootName);
   if (!rootelem) {

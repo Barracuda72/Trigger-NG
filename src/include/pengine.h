@@ -230,6 +230,9 @@ public:
   // Load XML file and return the root element of given name (failure: null)
   static XMLElement *loadRootElement(XMLDocument &doc, const std::string &filename, const char *rootName);
 
+  // Read file contents as text
+  static std::string loadTextData(const std::string &filename);
+
   static bool copyFile(const std::string &fileFrom, const std::string &fileTo);
   static std::list<std::string> findFiles(const std::string &basedir, const std::string &extension);
 

@@ -183,11 +183,8 @@ GLuint ShaderProgram::createShaderProgram(const std::string& vsh_path, const std
 std::string ShaderProgram::readShader(const std::string& path)
 {
     std::string shader_path = "/shaders/" + path;
-    std::string dir = PHYSFS_getRealDir(shader_path.c_str());
-    std::ifstream t(dir + shader_path);
-    std::stringstream buffer;
-    buffer << t.rdbuf();
-    return buffer.str();
+
+    return PUtil::loadTextData(shader_path);
 }
 
 VAO::VAO(const float* vbo, size_t vbo_size, const unsigned short* ibo, size_t ibo_size)
