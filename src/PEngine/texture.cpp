@@ -149,7 +149,7 @@ void PTexture::load (PImage &img, GLfloat cfgAnisotropy, bool genMipmaps, bool c
   textarget = GL_TEXTURE_2D;
 
 #ifdef USE_GEN_MIPMAPS
-  if (genMipmaps && !extgl_Extensions.SGIS_generate_mipmap) {
+  if (genMipmaps && !SDL_GL_ExtensionSupported("GL_SGIS_generate_mipmap")) {
     PUtil::outLog() << "warning: can't generate mipmaps for texture" << std::endl;
     genMipmaps = false;
   }
@@ -267,7 +267,7 @@ void PTexture::loadPiece(PImage &img, int offx, int offy, int sizex, int sizey, 
   textarget = GL_TEXTURE_2D;
 
 #ifdef USE_GEN_MIPMAPS
-  if (genMipmaps && !extgl_Extensions.SGIS_generate_mipmap) {
+  if (genMipmaps && !SDL_GL_ExtensionSupported("GL_SGIS_generate_mipmap")) {
     PUtil::outLog() << "warning: can't generate mipmaps for texture" << std::endl;
     genMipmaps = false;
   }
@@ -365,7 +365,7 @@ void PTexture::loadAlpha(PImage &img, bool genMipmaps, bool clamp)
   textarget = GL_TEXTURE_2D;
 
 #ifdef USE_GEN_MIPMAPS
-  if (genMipmaps && !extgl_Extensions.SGIS_generate_mipmap) {
+  if (genMipmaps && !SDL_GL_ExtensionSupported("GL_SGIS_generate_mipmap")) {
     PUtil::outLog() << "warning: can't generate mipmaps for texture" << std::endl;
     genMipmaps = false;
   }
@@ -483,7 +483,7 @@ void PTexture::loadCubeMap(const std::string &filenamePrefix, const std::string 
   textarget = GL_TEXTURE_CUBE_MAP;
 
 #ifdef USE_GEN_MIPMAPS
-  if (genMipmaps && !extgl_Extensions.SGIS_generate_mipmap) {
+  if (genMipmaps && !SDL_GL_ExtensionSupported("GL_SGIS_generate_mipmap")) {
     PUtil::outLog() << "warning: can't generate mipmaps for texture" << std::endl;
     genMipmaps = false;
   }

@@ -28,7 +28,7 @@ OBJFILES        := $(patsubst %.cpp, %.o, $(SRCFILES))
 DEPFILES        := $(patsubst %.cpp, %.d, $(SRCFILES))
 WARNINGS        ?= -Wall -Wextra -pedantic
 OPTIMS          ?= -march=native -mtune=native -Ofast
-DMACROS         := -DNDEBUG -DUNIX -DPACKAGE_VERSION=\"$(DISTVER)\"
+DMACROS         := -DNDEBUG -DUNIX -DPACKAGE_VERSION=\"$(DISTVER)\" -DUSE_GEN_MIPMAPS
 INCDIRS         := -I'./include' -I'../glm'
 CXXFLAGS        += -std=c++11 $(WARNINGS) $(OPTIMS) -g
 CPPFLAGS        += $(DMACROS) $(INCDIRS)
