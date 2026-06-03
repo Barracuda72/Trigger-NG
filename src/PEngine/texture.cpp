@@ -663,7 +663,7 @@ void PTexture::scaleImage(GLuint format,
     pitch_in = width_in * bpp;
     pitch_out = width_out * bpp;
 
-    std::cout << "Resize!" << width_in << " " << width_out << " " << height_in << " " << height_out << std::endl;
+    //std::cout << "Resize!" << width_in << " " << width_out << " " << height_in << " " << height_out << std::endl;
 
     SDL_Rect srcrect = {.x = 0, .y = 0, .w = width_in, .h = height_in};
     SDL_Rect dstrect = {.x = 0, .y = 0, .w = width_out, .h = height_out};
