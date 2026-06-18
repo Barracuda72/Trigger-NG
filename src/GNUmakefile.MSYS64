@@ -1,10 +1,10 @@
 #
 # Trigger Rally GNUmakefile.MSYS64 for MSYS2 users
 #
-# This is a modified version of GNUmakefile.MSYS for Windows 64-bit builds.
+# This is a version of GNUmakefile.MSYS for Windows 64-bit builds.
 #
 # TODO:
-#   * beautify printing of copied .DLL files
+# 	Unify both into a single one
 #
 
 # standard GNU and custom variables
@@ -16,11 +16,36 @@ TR_BINDIR       := ../bin
 TR_EXENAME      := trigger-rally-x64.exe
 TR_EXEFILE      := $(TR_BINDIR)/$(TR_EXENAME)
 TR_DLLFILES     :=                      \
-    $(TR_BINDIR)/fmod64.dll             \
     $(TR_BINDIR)/glew32.dll             \
-    $(TR_BINDIR)/libjpeg-9.dll          \
+    $(TR_BINDIR)/libjpeg-8.dll          \
     $(TR_BINDIR)/libphysfs.dll          \
     $(TR_BINDIR)/libpng16-16.dll        \
+    $(TR_BINDIR)/libalut-0.dll          \
+    $(TR_BINDIR)/libopenal-1.dll        \
+    \
+    $(TR_BINDIR)/libavif-16.dll         \
+    $(TR_BINDIR)/libjxl.dll             \
+    $(TR_BINDIR)/libtiff-6.dll          \
+    $(TR_BINDIR)/libwebpdemux-2.dll     \
+    $(TR_BINDIR)/libwebp-7.dll          \
+    $(TR_BINDIR)/libaom.dll             \
+    $(TR_BINDIR)/libdav1d-7.dll         \
+    $(TR_BINDIR)/librav1e.dll           \
+    $(TR_BINDIR)/libsharpyuv-0.dll      \
+    $(TR_BINDIR)/libSvtAv1Enc-4.dll     \
+    $(TR_BINDIR)/libyuv.dll             \
+    $(TR_BINDIR)/libbrotlicommon.dll    \
+    $(TR_BINDIR)/libbrotlidec.dll       \
+    $(TR_BINDIR)/libbrotlienc.dll       \
+    $(TR_BINDIR)/libhwy.dll             \
+    $(TR_BINDIR)/libdeflate.dll         \
+    $(TR_BINDIR)/libjxl_cms.dll         \
+    $(TR_BINDIR)/libjbig-0.dll          \
+    $(TR_BINDIR)/libLerc.dll            \
+    $(TR_BINDIR)/liblzma-5.dll          \
+    $(TR_BINDIR)/libzstd.dll            \
+    $(TR_BINDIR)/liblcms2-2.dll         \
+    \
     $(TR_BINDIR)/libtinyxml2.dll        \
     $(TR_BINDIR)/SDL2.dll               \
     $(TR_BINDIR)/SDL2_image.dll         \
@@ -28,7 +53,6 @@ TR_DLLFILES     :=                      \
     $(TR_BINDIR)/libgcc_s_seh-1.dll     \
     $(TR_BINDIR)/libwinpthread-1.dll    \
     $(TR_BINDIR)/libstdc++-6.dll
-FMODAPIDIR      := /c/Program Files (x86)/FMOD SoundSystem/FMOD Studio API Windows/api/lowlevel
 PROJDIRS        := PEngine PSim Trigger
 SRCFILES        := $(sort $(shell find $(PROJDIRS) -type f -name "*.cpp"))
 OBJFILES        := $(patsubst %.cpp, %.o, $(SRCFILES))
@@ -37,16 +61,15 @@ WARNINGS        ?= -Wall -Wextra -pedantic
 OPTIMS          ?= -march=native -mtune=native -Ofast
 MODENV          ?= -m64
 DMACROS         := -DNDEBUG -DWIN32 -DPACKAGE_VERSION=\"$(DISTVER)\"
+# You can choose between 'ucrt64' and 'mingw64' here.
+FLAVOUR         := 'ucrt64'
 INCDIRS         :=                  \
-    -I'./include'                   \
-    -I'/usr/local/include'          \
-    -I'$(FMODAPIDIR)/inc'
+    -I'./include'
 LIBDIRS         :=                  \
-    -L'/usr/local/lib'              \
-    -L'$(FMODAPIDIR)/lib'
+    -L"/$(FLAVOUR)/bin"
 CXXFLAGS        ?= -std=c++11 $(MODENV) $(WARNINGS) $(OPTIMS)
 CPPFLAGS        ?= $(DMACROS) $(INCDIRS)
-EXTRA_LIBS      := -lmingw32 -lSDL2main -lopengl32 -lglew32 -lSDL2 -lSDL2_image -lphysfs -ltinyxml2.dll -lfmod64
+EXTRA_LIBS      := -lmingw32 -lSDL2main -lopengl32 -lglew32 -lSDL2 -lSDL2_image -lphysfs -ltinyxml2 -lopenal -lalut
 LDFLAGS         ?= $(MODENV) $(LIBDIRS) $(EXTRA_LIBS)
 
 #
@@ -155,46 +178,10 @@ winclean:
 	@$(CXX) $(CXXFLAGS) $(CPPFLAGS) -MMD -MP -c $< -o $@
 
 #
-# the following targets handle the copying of .DLL files to the binary directory
-#
-# this section may be simplified in the future if FMOD support is
-# dropped and all .DLL files can be copied from /local/bin exclusively
+# the following target handles the copying of .DLL files to the binary directory
 #
 
 copydlls: $(TR_DLLFILES)
 
-$(TR_BINDIR)/fmod64.dll:
-	@cp --verbose "$(FMODAPIDIR)/lib/fmod64.dll" $(TR_BINDIR)
-
-$(TR_BINDIR)/glew32.dll:
-	@cp --verbose /usr/local/bin/glew32.dll $(TR_BINDIR)
-
-$(TR_BINDIR)/libjpeg-9.dll:
-	@cp --verbose /usr/local/bin/libjpeg-9.dll $(TR_BINDIR)
-
-$(TR_BINDIR)/libphysfs.dll:
-	@cp --verbose /usr/local/bin/libphysfs.dll $(TR_BINDIR)
-
-$(TR_BINDIR)/libpng16-16.dll:
-	@cp --verbose /usr/local/bin/libpng16-16.dll $(TR_BINDIR)
-
-$(TR_BINDIR)/libtinyxml2.dll:
-	@cp --verbose /usr/local/bin/libtinyxml2.dll $(TR_BINDIR)
-
-$(TR_BINDIR)/SDL2.dll:
-	@cp --verbose /usr/local/bin/SDL2.dll $(TR_BINDIR)
-
-$(TR_BINDIR)/SDL2_image.dll:
-	@cp --verbose /usr/local/bin/SDL2_image.dll $(TR_BINDIR)
-
-$(TR_BINDIR)/zlib1.dll:
-	@cp --verbose /usr/local/bin/zlib1.dll $(TR_BINDIR)
-
-$(TR_BINDIR)/libgcc_s_seh-1.dll:
-	@cp --verbose /mingw64/bin/libgcc_s_seh-1.dll $(TR_BINDIR)
-
-$(TR_BINDIR)/libwinpthread-1.dll:
-	@cp --verbose /mingw64/bin/libwinpthread-1.dll $(TR_BINDIR)
-
-$(TR_BINDIR)/libstdc++-6.dll:
-	@cp --verbose /mingw64/bin/libstdc++-6.dll $(TR_BINDIR)
+$(TR_BINDIR)/%.dll:
+	@cp --verbose /$(FLAVOUR)/bin/$*.dll $(TR_BINDIR)
