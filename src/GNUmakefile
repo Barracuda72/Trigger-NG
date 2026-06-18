@@ -16,8 +16,8 @@ TR_EXEFILE      := $(TR_BINDIR)/$(TR_EXENAME)
 TR_CFGFILE      := $(TR_BINDIR)/$(TR_CFGNAME)
 TR_DESKTOPNAME  := trigger-rally.desktop
 TR_APPDATANAME  := trigger-rally.appdata.xml
-TR_DESKTOPFILE  := $(TR_DATADIR)/icon/$(TR_DESKTOPNAME)
-TR_APPDATAFILE  := $(TR_DATADIR)/icon/$(TR_APPDATANAME)
+TR_DESKTOPFILE  := $(TR_DATADIR)/metainfo/$(TR_DESKTOPNAME)
+TR_APPDATAFILE  := $(TR_DATADIR)/metainfo/$(TR_APPDATANAME)
 TR_DATAFILES    := $(shell cd $(TR_DATADIR); find * -type f)
 TR_DOCFILES     := $(shell cd $(TR_DOCDIR); find * -type f)
 LOC_DESKTOPFILE := /usr/share/applications
@@ -132,7 +132,9 @@ installdirs:
 	@mkdir --mode=0755 --parents \
 		"$(DESTDIR)$(bindir)" \
 		"$(DESTDIR)$(datadir)/$(DISTNAME)" \
-		"$(DESTDIR)$(docdir)"
+		"$(DESTDIR)$(docdir)" \
+		"$(DESTDIR)$(LOC_DESKTOPFILE)" \
+		"$(DESTDIR)$(LOC_APPDATAFILE)"
 
 #
 # creates a zipped tarball for redistribution
