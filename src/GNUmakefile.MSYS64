@@ -23,23 +23,19 @@ TR_DLLFILES     :=                      \
     $(TR_BINDIR)/libalut-0.dll          \
     $(TR_BINDIR)/libopenal-1.dll        \
     \
-    $(TR_BINDIR)/libavif-16.dll         \
+    $(TR_BINDIR)/libavif.dll            \
     $(TR_BINDIR)/libjxl.dll             \
-    $(TR_BINDIR)/libtiff-6.dll          \
+    $(TR_BINDIR)/libtiff-5.dll          \
     $(TR_BINDIR)/libwebpdemux-2.dll     \
     $(TR_BINDIR)/libwebp-7.dll          \
     $(TR_BINDIR)/libaom.dll             \
-    $(TR_BINDIR)/libdav1d-7.dll         \
-    $(TR_BINDIR)/librav1e.dll           \
-    $(TR_BINDIR)/libsharpyuv-0.dll      \
-    $(TR_BINDIR)/libSvtAv1Enc-4.dll     \
+    $(TR_BINDIR)/libdav1d.dll           \
     $(TR_BINDIR)/libyuv.dll             \
     $(TR_BINDIR)/libbrotlicommon.dll    \
     $(TR_BINDIR)/libbrotlidec.dll       \
     $(TR_BINDIR)/libbrotlienc.dll       \
     $(TR_BINDIR)/libhwy.dll             \
     $(TR_BINDIR)/libdeflate.dll         \
-    $(TR_BINDIR)/libjxl_cms.dll         \
     $(TR_BINDIR)/libjbig-0.dll          \
     $(TR_BINDIR)/libLerc.dll            \
     $(TR_BINDIR)/liblzma-5.dll          \
