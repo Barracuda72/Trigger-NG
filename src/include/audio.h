@@ -21,8 +21,8 @@
 
 // TODO: move audio subsystem choosing from audio.cpp to here
 #ifdef WIN32
-#define INCLUDE_FMOD_HEADER
-#include <fmod.h>
+//#define INCLUDE_FMOD_HEADER
+//#include <fmod.h>
 #endif
 
 class PSSAudio : public PSubsystem {

@@ -33,8 +33,8 @@
 
 #ifdef WIN32
 //#define USE_NULL
-//#define USE_OPENAL
-#define USE_FMOD
+#define USE_OPENAL
+//#define USE_FMOD
 #endif
 
 #include "pengine.h"
