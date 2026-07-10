@@ -348,6 +348,7 @@ const char *creditstext[] =
     "Andrei Bondor",
     "Nikolay Orlyuk",
 	"Emanuele Sorce",
+	"Martin Scherer",
     "",
     "New levels",
     "Tim Wintle",
