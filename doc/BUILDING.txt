@@ -23,7 +23,6 @@ To build Trigger Rally, your system must satisfy the following requirements:
   LIBRARY NAME          OFFICIAL DOWNLOAD LINK
   --------------------------------------------------------------------
   GL                    N/A
-  GLU                   N/A
   GLEW                  http://sourceforge.net/projects/glew/files/glew/
   OpenAL                N/A (?) http://openal-soft.org/#download
   ALUT                  N/A (?) https://github.com/vancegroup/freealut/releases
@@ -36,7 +35,6 @@ To build Trigger Rally, your system must satisfy the following requirements:
   LIBRARY NAME      DEB DISTRO              RPM DISTRO
   ----------------------------------------------------
   GL                libgl1-mesa-dev         mesa-libGL-devel
-  GLU               libglu1-mesa-dev        mesa-libGLU-devel
   GLEW              libglew-dev             glew-devel
   OpenAL            libopenal-dev           openal-soft-devel
   ALUT              libalut-dev             freealut-devel
