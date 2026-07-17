@@ -146,6 +146,20 @@ http://sourceforge.net/projects/trigger-rally/support
 // Version history //
 /////////////////////
 
+17/07/2026 - Trigger 0.6.7
+  - "Ghost" cars driving along your best path
+  - Collision with surroundings dealing damage to the car
+  - Game options and controls now can be adjusted via menus
+  - Added 3 new events and 35 new single race maps (total 46 new maps)
+  - Enhanced immersion with gear shifting SFX and break lights
+  - Improved car physics: drag, lift, torque distribution
+  - Fixed camera behaviour
+  - Improved compatibility with modern versions of PhysFS, TinyXML2 and SDL2
+  - Fixed OBJ mesh loader
+  - Fixed math library bugs and warnings
+  - Fine-tuned car models: Fox Kit Car, Fox WRC
+  - Various UI, build and documentation enhancements
+
 04/03/2019 - Trigger 0.6.6.1
   - Released Windows binaries
   - Optimized data for release
