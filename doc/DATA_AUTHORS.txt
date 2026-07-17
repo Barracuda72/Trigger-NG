@@ -4,7 +4,6 @@ GPL = GNU General Public License v2 or later ( http://www.gnu.org/licenses/gpl.t
 CC0 (PD) = Creative Commons Zero 1.0 Universal Public Domain Dedication ( http://creativecommons.org/publicdomain/zero/1.0/ )
 CCBY 3.0 = Creative Commons Attribution 3.0 Unported ( http://creativecommons.org/licenses/by/3.0/ )
 CCBYSA 3.0 = Creative Commons Attribution-ShareAlike 3.0 Unported ( https://creativecommons.org/licenses/by-sa/3.0/ )
-Pixabay = Pixabay License ( https://pixabay.com/service/license/ )
 
 DATA OPTIMIZATION NOTICE:
 	Starting from version 0.6.4, the released game data is optimized for smaller size and faster loading.
@@ -100,10 +99,6 @@ Bleed - http://remusprites.carbonmade.com
 	textures/veg/wide-tree2.png (CCBY 3.0), source: http://opengameart.org/content/tree-collection-v26-bleeds-game-art
 	textures/veg/willow.png (CCBY 3.0), source: http://opengameart.org/content/tree-collection-v26-bleeds-game-art
 
-Åsa K, Onsemeliot
-	maps/castlerock/castle.png (Pixabay), https://pixabay.com/photos/eilean-donan-castle-castle-scotland-1650071
-	maps/castlerock/small.castle.png (Pixabay), https://pixabay.com/photos/castle-grey-stone-kinvara-ireland-2539741
-	
 Bruno "Fuddl" Kleinert, Andrei Bondor, Onsemeliot
 	plugins/map-banana.zip (GPL)
 	plugins/map-desertrush.zip (GPL)
@@ -123,6 +118,9 @@ cognito perceptu
 David Pagnier, Andrei Bondor, Onsemeliot
 	plugins/map-crossmountain.zip (unlicensed)
 	plugins/map-tea.zip (unlicensed)
+
+Guy Percival, Onsemeliot
+	textures/structures/castle.png (PD), https://www.publicdomainpictures.net/en/view-image.php?image=245002&picture=edinburgh-castle-view
 
 Ivan, Onsemeliot
 	plugins/map-mountainclimbing.zip (GPL)
@@ -152,6 +150,9 @@ Iwan 'qubodup' Gabovitch, Onsemeliot
 	
 Jared Buckner, Onsemeliot
 	plugins/map-delta.zip (GPL)
+	
+Karen Arnold, Onsemeliot
+	textures/structures/small.castle.png (PD), https://www.publicdomainpictures.net/en/view-image.php?image=196816&picture=castle-and-moat-bodiam
 
 Keistutis, Onsemeliot
 	textures/veg/bush-low.png (CC0) https://openclipart.org/detail/202745/bush
