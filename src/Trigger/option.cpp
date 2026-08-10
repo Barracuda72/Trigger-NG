@@ -60,6 +60,8 @@ POption::POption(Gui &parent, PConfig &config) :
     { "off", "on" }, 0 });
   options.push_back({ OptionDirtEffect, "Dirt effect",
     { "off", "on" }, 0 });
+  options.push_back({ OptionTransmission, "Transmission",
+    { "manual", "automatic" }, 0 });
 }
 
 ///
@@ -149,6 +151,9 @@ void POption::select(int index)
     break;
   case OptionDirtEffect:
     cfg.setDirteffect(column);
+    break;
+  case OptionTransmission:
+    cfg.setAutomaticTransmission(column);
     break;
   default:
     break;
@@ -253,6 +258,9 @@ void POption::updateSelect(Option &option)
     break;
   case OptionDirtEffect:
     option.select = cfg.getDirteffect();
+    break;
+  case OptionTransmission:
+    option.select = cfg.getAutomaticTransmission();
     break;
   default:
     break;

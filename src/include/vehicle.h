@@ -64,6 +64,7 @@ struct v_control_s {
   // shared
   float throttle;
   float brake1,brake2;
+  int shift;
   vec3f turn;
   vec2f aim;
 
@@ -79,6 +80,7 @@ struct v_control_s {
     turn = vec3f::zero();
     aim = vec2f::zero();
     collective = 0.0f;
+    shift = Automatic;
   }
   
   void setDefaultRates() {
@@ -88,6 +90,7 @@ struct v_control_s {
     turn = vec3f(10.0f,10.0f,10.0f);
     aim = vec2f(10.0f,10.0f);
     collective = 10.0f;
+    shift = Automatic;
   }
   
   ///

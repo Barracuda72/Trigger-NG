@@ -980,7 +980,11 @@ void PVehicle::tick(const float& delta)
   //vec3f rightdir = makevec3f(body->getInverseOrientationMatrix().row[0]);
 
   // handle engine (output torque, change gear if needed...)
-  iengine.tick(delta, state.throttle, wheel_angvel);
+  iengine.tick(delta, state.throttle, wheel_angvel, ctrl.shift);
+
+  // reset transmission control signal to default
+  if (ctrl.shift != ShiftAction::Automatic)
+    ctrl.shift = ShiftAction::KeepGear;
 
   // Output engine power delivered to each wheel
   // the power will be shared equally to each wheel

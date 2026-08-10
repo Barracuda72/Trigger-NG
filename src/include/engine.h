@@ -29,6 +29,13 @@
 #define RPM_TO_RPS(x) ((x) * (PI / 30.0f))
 #define RPS_TO_RPM(x) ((x) * (30.0f / PI))
 
+enum ShiftAction {
+	Automatic = -2,
+	DownShift = -1,
+	KeepGear = 0,
+	UpShift = 1,
+};
+
 ///
 /// @brief Datas about performances of an engine
 ///
@@ -129,7 +136,7 @@ public:
 		shiftdirection(0) { }
 
 	// Simulation tick
-	void tick(float delta, float throttle, float wheel_rps);
+	void tick(float delta, float throttle, float wheel_rps, int shift);
   
 	// return current information
 	float getOutputTorque() 

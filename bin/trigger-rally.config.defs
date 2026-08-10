@@ -128,6 +128,7 @@
 
 	<parameters
 		drivingassist="0.33"
+		transmission="auto"
 		enablesound="yes"
 		enablecodriversigns="yes"
 		speedunit="mph"
@@ -143,6 +144,10 @@
 		<!-- Possible values for speedunit:
 			kph - Kilometres per hour
 			mph - Miles per hour
+
+			transmission:
+				"auto" - automatic transmission
+				"manual" - manual transmission
 
 			The chosen codriver "X" must have a valid directory as:
 			/data/sounds/codriver/X/
@@ -173,6 +178,8 @@
 			<key action="left" id="Left" />
 			<key action="right" id="Right" />
 			<key action="handbrake" id="Space" />
+			<key action="upshift" id="X" />
+			<key action="downshift" id="Z" />
 			<key action="recover" id="R" />
 			<key action="recoveratcheckpoint" id="Q" />
 			<key action="cammode" id="C" />

@@ -19,6 +19,8 @@ Trigger Rally ReadMe for Windows
     Left Arrow      steer left
     Right Arrow     steer right
     Space           handbrake
+    X               upshift
+    Z               downshift
     R               recover car
     Q               recover car at last checkpoint
     P               pause race

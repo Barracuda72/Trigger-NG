@@ -52,6 +52,7 @@ private:
     OptionFoliage,
     OptionRoadsigns,
     OptionDirtEffect,
+    OptionTransmission,
     OptionMaxSize
   };
   /// Data of one option item

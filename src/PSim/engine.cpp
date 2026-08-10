@@ -99,8 +99,9 @@ float PEngine::getPowerAtRPS(float rps)
 /// @param delta = timeslice to compute
 /// @param wheel_rps = current rps of the wheel
 /// @param thottle = input throttle
+/// @param shift = shift change (-2 automatic transmission, -1 downshift, 1 upshift, 0 no shift change)
 ///
-void PEngineInstance::tick(float delta, float throttle, float wheel_rps)
+void PEngineInstance::tick(float delta, float throttle, float wheel_rps, int shift)
 {
 	// convert the rps of the wheel to the actual engine rps
 	// multiplying it for the inverse of the current gear ratio
@@ -108,8 +109,31 @@ void PEngineInstance::tick(float delta, float throttle, float wheel_rps)
 
 	bool wasreverse = reverse;
 
-	// check if the throttle will going reverse or not
-	reverse = (throttle < 0.0f);
+	// check if the throttle is negative (pulls backwards)
+	bool neg_throttle = (throttle < 0.0f);
+
+	if (neg_throttle) {
+		// If we're on auto or there's a user request to downshift from 1st gear on manual
+		if ((shift == ShiftAction::Automatic) ||
+			(currentgear == 0 && shift == ShiftAction::DownShift)
+		) {
+			shift = ShiftAction::KeepGear; // Don't perform downshift, just reverse
+			reverse = true; // Go backwards
+		}
+	} else {
+		// If we're on auto or there's a user request to upshift on manual from reverse
+		if ((shift == ShiftAction::Automatic) ||
+			(currentgear == 0 && shift == ShiftAction::UpShift)
+		) {
+			if (reverse)
+				shift = ShiftAction::KeepGear; // We're don't do upshifting in this case, just undo reverse
+			reverse = false; // Go forwards
+		}
+	}
+
+	// If throttle doesn't match direction, zero it out
+	if (neg_throttle != reverse)
+		throttle = 0.0f;
 
 	// if reverse changes, there is a gear change
 	if (wasreverse != reverse) {
@@ -140,41 +164,55 @@ void PEngineInstance::tick(float delta, float throttle, float wheel_rps)
 		// store if we should change gear (0 no, 1 go up, -1 go down)
 		int newtarget_rel = 0;
 
-		// if it's not last gear (we can go up)
-		if (currentgear < (int)engine->gear.size()-1)
+		if (shift == ShiftAction::Automatic) 
 		{
-			// nextrate = rps if the gear was the next one
-			float nextrate = rps * engine->gear[currentgear] / engine->gear[currentgear+1];
-			// nextrate has to be in the rps range
-			CLAMP(nextrate, engine->minRPS, engine->maxRPS);
-			// final output engine torque if the gear was the next one
-			float nexttorque = engine->getPowerAtRPS(nextrate) / (engine->gear[currentgear+1] * nextrate);
-			// if going up we gain torque
-			if (nexttorque > out_torque)
-				// do it
-				newtarget_rel = 1;
+			// Handle automatic transmission
+
+			// if it's not last gear (we can go up)
+			if (currentgear < (int)engine->gear.size()-1)
+			{
+				// nextrate = rps if the gear was the next one
+				float nextrate = rps * engine->gear[currentgear] / engine->gear[currentgear+1];
+				// nextrate has to be in the rps range
+				CLAMP(nextrate, engine->minRPS, engine->maxRPS);
+				// final output engine torque if the gear was the next one
+				float nexttorque = engine->getPowerAtRPS(nextrate) / (engine->gear[currentgear+1] * nextrate);
+				// if going up we gain torque
+				if (nexttorque > out_torque)
+					// do it
+					newtarget_rel = 1;
+			}
+	
+			// if the gear is not reverse and we haven't yet decided to go up, check if we should go down
+			if (currentgear > 0 && newtarget_rel == 0)
+			{
+				// nextrate = rps if the gear was the previous one
+				float nextrate = rps * engine->gear[currentgear] / engine->gear[currentgear-1];
+				// nextrate has to be in the rps range
+				CLAMP(nextrate, engine->minRPS, engine->maxRPS);
+				// final output engine torque if the gear was the previous one
+				float nexttorque = engine->getPowerAtRPS(nextrate) / (engine->gear[currentgear-1] * nextrate);
+				// if going down we gain gear
+				if (nexttorque > out_torque)
+					// do it
+					newtarget_rel = -1;
+			}
+		} else {
+			// Manual transmission; just enforce user's decision if possible
+			if (
+				(currentgear > 0 && shift == ShiftAction::DownShift) ||
+				(currentgear < (int)engine->gear.size()-1 && shift == ShiftAction::UpShift) ||
+				(shift == ShiftAction::KeepGear)
+			) {
+				targetgear_rel = shift;
+			}
 		}
 
-		// if the gear is not reverse and we haven't yet decided to go up
-		if (currentgear > 0 && newtarget_rel == 0)
+		// if we are going to change gear and targetgear_rel is updated or if on manual transmission
+		if ((newtarget_rel != 0 && newtarget_rel == targetgear_rel) || shift != ShiftAction::Automatic)
 		{
-			// nextrate = rps if the gear was the previous one
-			float nextrate = rps * engine->gear[currentgear] / engine->gear[currentgear-1];
-			// nextrate has to be in the rps range
-			CLAMP(nextrate, engine->minRPS, engine->maxRPS);
-			// final output engine torque if the gear was the previous one
-			float nexttorque = engine->getPowerAtRPS(nextrate) / (engine->gear[currentgear-1] * nextrate);
-			// if going down we gain gear
-			if (nexttorque > out_torque)
-				// do it
-				newtarget_rel = -1;
-		}
-
-		// if we are going to change gear and targetgear_rel is updated
-		if (newtarget_rel != 0 && newtarget_rel == targetgear_rel)
-		{
-			// if has passed enought time
-			if ((gearch -= delta) <= 0.0f)
+			// if has passed enought time or transmission is manual
+			if ((gearch -= delta) <= 0.0f || shift != ShiftAction::Automatic)
 			{
 				// the rps with the new gear
 				float nextrate = rps * engine->gear[currentgear] / engine->gear[currentgear + targetgear_rel];

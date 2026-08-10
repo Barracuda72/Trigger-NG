@@ -933,6 +933,9 @@ void MainApp::tickStateGame(float delta)
 
   auto ctrl = cfg.getCtrl();
 
+  float prev_upshift_value = ctrl.map[PConfig::ActionUpshift].value;
+  float prev_downshift_value = ctrl.map[PConfig::ActionDownshift].value;
+
   for (int a = 0; a < PConfig::ActionCount; a++) {
 
     switch(ctrl.map[a].type) {
@@ -1016,6 +1019,13 @@ void MainApp::tickStateGame(float delta)
 
   vehic->ctrl.brake2 = ctrl.map[PConfig::ActionHandbrake].value;
 
+  int upshift = prev_upshift_value < 1.0f && ctrl.map[PConfig::ActionUpshift].value > 0.0f;
+  int downshift = prev_downshift_value < 1.0f && ctrl.map[PConfig::ActionDownshift].value > 0.0f;
+
+  if (cfg.getAutomaticTransmission())
+    vehic->ctrl.shift = ShiftAction::Automatic;
+  else
+    vehic->ctrl.shift = upshift - downshift;
 
   //PULLTOWARD(vehic->ctrl.aim.x, 0.0, delta * 2.0);
   //PULLTOWARD(vehic->ctrl.aim.y, 0.0, delta * 2.0);

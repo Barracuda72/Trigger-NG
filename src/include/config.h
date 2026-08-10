@@ -72,6 +72,8 @@ public:
     ActionLeft,
     ActionRight,
     ActionHandbrake,
+    ActionUpshift,
+    ActionDownshift,
     ActionRecover,
     ActionRecoverAtCheckpoint,
     ActionCamMode,
@@ -112,6 +114,7 @@ public:
   const std::string &getCodrivername() const;
   bool getDirteffect() const;
   bool getEnableGhost() const;
+  bool getAutomaticTransmission() const;
   float getDrivingassist() const;
   float getVolumeEngine() const;
   float getVolumeSfx() const;
@@ -130,6 +133,7 @@ public:
   void setCodrivername(const std::string &codrivername);
   void setDirteffect(bool dirteffect);
   void setEnableGhost(bool enableGhost);
+  void setAutomaticTransmission(bool automaticTransmission);
   void setVolumeEngine(float volumeEngine);
   void setVolumeSfx(float volumeSfx);
   void setSnowflaketype(SnowFlakeType snowflaketype);
@@ -160,6 +164,7 @@ private:
   bool cfg_enable_codriversigns;
   bool cfg_enable_fps;
   bool cfg_enable_ghost;
+  bool cfg_automatic_transmission;
 
   long int cfg_skip_saves;
 

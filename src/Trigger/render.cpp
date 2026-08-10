@@ -1150,7 +1150,11 @@ void MainApp::renderStateGame(float eyetranslation)
           //glTranslatef( hratio * (1.f - (5.75f/50.f)) - 0.3f, -vratio * (40.f/50.f) + 0.21f, 0.0f);
           glm::mat4 k = glm::translate(glm::mat4(1.0f), glm::vec3(hratio * (1.f - (2.5f/50.f)) - 0.3f, -vratio * (43.5f/50.f) + 0.21f, 0.0f));
           k = glm::scale(k, glm::vec3(0.20f, 0.20f, 1.0f));
-          getSSRender().drawText(buff, PTEXT_HZA_CENTER | PTEXT_VTA_CENTER, k, o);
+          // If we have automatic transmission, draw gear in blue
+		  glm::vec4 cl_gear = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+          if (cfg.getAutomaticTransmission())
+              cl_gear = glm::vec4(0.3f, 0.6f, 1.0f, 1.0f);
+          getSSRender().drawText(buff, cl_gear, PTEXT_HZA_CENTER | PTEXT_VTA_CENTER, k, o);
 
           // speed number
           const int speed = std::fabs(vehic->getWheelSpeed()) * cfg.getHudSpeedoMpsSpeedMult();

@@ -66,6 +66,7 @@ void PConfig::loadConfig()
   cfg_dirteffect = true;
   cfg_enable_fps = false;
   cfg_enable_ghost = false;
+  cfg_automatic_transmission = true;
 
   cfg_datadirs.clear();
 
@@ -88,6 +89,8 @@ void PConfig::loadConfig()
   ctrl.action_name[ActionShowUi] = std::string("showui");
   ctrl.action_name[ActionShowCheckpoint] = std::string("showcheckpoint");
   ctrl.action_name[ActionNext] = std::string("next");
+  ctrl.action_name[ActionUpshift] = std::string("upshift");
+  ctrl.action_name[ActionDownshift] = std::string("downshift");
 
   for (int i = 0; i < ActionCount; i++) {
     ctrl.map[i].type = UserControl::TypeUnassigned;
@@ -405,6 +408,14 @@ void PConfig::loadConfig()
           cfg_enable_ghost = false;
       }
 
+      val = walk->Attribute("transmission");
+      if (val) {
+        if (!strcmp(val, "auto"))
+          cfg_automatic_transmission = true;
+        else // "manual"
+          cfg_automatic_transmission = false;
+      }
+
       val = walk->Attribute("codriver");
 
       if (val != nullptr)
@@ -659,6 +670,11 @@ void PConfig::storeConfig()
       else
         walk->SetAttribute("enableghost", "no");
 
+      if (cfg_automatic_transmission)
+        walk->SetAttribute("transmission", "auto");
+      else
+        walk->SetAttribute("transmission", "manual");
+
       walk->SetAttribute("codriver", cfg_codrivername.c_str());
 
       walk->SetAttribute("codriversigns", cfg_codriversigns.c_str());
@@ -785,6 +801,11 @@ bool PConfig::getEnableGhost() const
   return cfg_enable_ghost;
 }
 
+bool PConfig::getAutomaticTransmission() const
+{
+  return cfg_automatic_transmission;
+}
+
 float PConfig::getDrivingassist() const
 {
   return cfg_drivingassist;
@@ -868,6 +889,11 @@ void PConfig::setDirteffect(bool dirteffect)
 void PConfig::setEnableGhost(bool enableGhost)
 {
   cfg_enable_ghost = enableGhost;
+}
+
+void PConfig::setAutomaticTransmission(bool automaticTransmission)
+{
+  cfg_automatic_transmission = automaticTransmission;
 }
 
 void PConfig::setVolumeEngine(float volumeEngine)

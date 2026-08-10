@@ -38,6 +38,8 @@ PControl::PControl(Gui &parent, PConfig &config) :
   controls.push_back({ PConfig::ActionLeft, "left" });
   controls.push_back({ PConfig::ActionRight, "right" });
   controls.push_back({ PConfig::ActionHandbrake, "handbrake" });
+  controls.push_back({ PConfig::ActionDownshift, "downshift" });
+  controls.push_back({ PConfig::ActionUpshift, "upshift" });
   controls.push_back({ PConfig::ActionRecover, "reset car" });
   controls.push_back({ PConfig::ActionRecoverAtCheckpoint, "reset on road" });
   controls.push_back({ PConfig::ActionCamMode, "toggle camera" });
@@ -116,10 +118,10 @@ void PControl::addControl(Control &control, bool active)
       transform(keyname.begin(), keyname.end(), keyname.begin(), ::tolower);
   }
 
-  parent.addLabel(80.0f, 490.0f - (float)pos * 30.0f,
+  parent.addLabel(80.0f, 490.0f - (float)pos * 26.0f,
       control.text, PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 22.0f, LabelStyle::Regular);
   parent.makeClickable(
-      parent.addLabel(340.0f, 490.0f - (float)pos * 30.0f, keyname,
+      parent.addLabel(340.0f, 490.0f - (float)pos * 26.0f, keyname,
           PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 22.0f, LabelStyle::Regular),
       AA_PICK_CTRL, pos);
   ++pos;

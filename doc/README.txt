@@ -33,6 +33,8 @@ Down    Foot brake / Reverse
 Left    Steer left
 Right   Steer right
 Space   Handbrake
+X       Upshift
+Z       Downshift
 C       Change camera view
 M       Toggle map
 N       Toggle user interface
