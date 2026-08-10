@@ -82,7 +82,7 @@ void MainApp::load()
   // Check that controls are available where requested
   // (can't be done in config because joy info not available)
 
-  auto ctrl = cfg.getCtrl();
+  auto& ctrl = cfg.getCtrl();
 
   for (int i = 0; i < PConfig::ActionCount; i++) {
 
@@ -931,7 +931,7 @@ void MainApp::tickStateGame(float delta)
 
   // Do input/control processing
 
-  auto ctrl = cfg.getCtrl();
+  auto& ctrl = cfg.getCtrl();
 
   float prev_upshift_value = ctrl.map[PConfig::ActionUpshift].value;
   float prev_downshift_value = ctrl.map[PConfig::ActionDownshift].value;
@@ -1478,7 +1478,7 @@ void MainApp::keyEvent(const SDL_KeyboardEvent &ke)
       return;
     }
 
-    auto ctrl = cfg.getCtrl();
+    auto& ctrl = cfg.getCtrl();
 
     switch (appstate) {
     case AS_LOAD_1:
@@ -1651,7 +1651,7 @@ void MainApp::joyButtonEvent(int which, int button, bool down)
 {
   if (which == 0 && down) {
 
-    auto ctrl = cfg.getCtrl();
+    auto& ctrl = cfg.getCtrl();
 
     switch (appstate) {
     case AS_CHOOSE_VEHICLE:
@@ -1715,7 +1715,7 @@ void MainApp::joyButtonEvent(int which, int button, bool down)
 
 bool MainApp::joyAxisEvent(int which, int axis, float value, bool down)
 {
-  auto ctrl = cfg.getCtrl();
+  auto& ctrl = cfg.getCtrl();
 
   if (which == 0) {
 
