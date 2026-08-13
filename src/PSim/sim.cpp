@@ -11,7 +11,6 @@
 
 #include "psim.h"
 
-
 ///
 /// @brief constructor
 ///

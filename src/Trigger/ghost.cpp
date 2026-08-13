@@ -29,7 +29,7 @@
 /// @brief Writes a GhostWheel object to an output stream.
 /// @param [in,out] os  Output stream
 /// @param [in] gw      Ghost wheel to be written
-/// @returns The output stream
+/// @return The output stream
 ///
 inline std::ostream& operator << (std::ostream &os, const PGhost::GhostWheel &gw)
 {
@@ -144,7 +144,7 @@ void PGhost::recordStart(const std::string &map, const std::string &vehicle)
   std::string replaytimestring;
 
   mapname = map + ".ghost";
-  replace(mapname.begin(), mapname.end(), '/', '_');
+  std::replace(mapname.begin(), mapname.end(), '/', '_');
 
   vehiclename = vehicle;
   lastsample = std::numeric_limits<float>::lowest();

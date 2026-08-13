@@ -4,14 +4,10 @@
 // Copyright 2004-2006 Jasmine Langridge, jas@jareiko.net
 // License: GPL version 2 (see included gpl.txt)
 
-
-#ifndef PENGINE_H_INCLUDED
-#define PENGINE_H_INCLUDED
+#pragma once
 
 #include <stdlib.h>
-
 #include <iostream>
-
 #include <vector>
 #include <list>
 #include <string>
@@ -22,7 +18,6 @@
 // doesn't seem to work in some circumstances...
 //#include "SDL.h"
 #include <SDL2/SDL.h>
-
 
 // The PhysicsFS game file system
 #include <physfs.h>
@@ -246,16 +241,9 @@ class PUtil
     static SDL_RWops* allocPhysFSops(PHYSFS_file *pfile);
 };
 
-
-
 #include "hiscore1.h"
 #include "app.h"
 #include "subsys.h"
 #include "audio.h"
 #include "render.h"
 #include "codriver.h"
-
-
-#endif // PENGINE_H_INCLUDED
-
-

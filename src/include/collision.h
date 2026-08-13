@@ -16,8 +16,7 @@
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
 
-#ifndef COLLISIONH
-#define COLLISIONH
+#pragma once
 
 #include "psim.h"
 #include "vehicle.h"
@@ -48,5 +47,3 @@ class PCollision
     // Position to apply crash force
     vec3f crashpoint;
 };
-
-#endif

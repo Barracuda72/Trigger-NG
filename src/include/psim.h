@@ -8,15 +8,12 @@
 // This file contains basic classes the physic engine uses
 //
 
-#ifndef PSIMH
-#define PSIMH
+#pragma once
 
 #include <pengine.h>
 
-
 class PSim;
 class PRigidBody;
-
 class PVehicleType;
 class PVehicleTypePart;
 class PVehicle;
@@ -133,9 +130,6 @@ class PRigidBody : public PReferenceFrame
     void tick(float delta);
 };
 
-
-
-
 #include "vehicle.h"
 
 ///
@@ -183,5 +177,3 @@ class PSim
     // Step the simulation delta seconds
     void tick(float delta);
 };
-
-#endif

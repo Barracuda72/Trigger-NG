@@ -4,7 +4,6 @@
 // Copyright 2004-2006 Jasmine Langridge, jas@jareiko.net
 // License: GPL version 2 (see included gpl.txt)
 
-
 #include <glm/gtc/type_ptr.hpp> // For glm::value_ptr
 #include <glm/mat4x4.hpp> // For glm::mat4
 #include <glm/ext/matrix_transform.hpp> // For glm::translate
@@ -119,7 +118,7 @@ PTerrain::PTerrain (XMLElement *element, const std::string &filepath, PSSTexture
 
       val = walk->Attribute("spritecount");
       if (val != nullptr)
-        temprs.sprite_count = atof(val);
+        temprs.sprite_count = atoi(val);
 
       for (XMLElement *walk2 = walk->FirstChildElement();
            walk2 != nullptr;

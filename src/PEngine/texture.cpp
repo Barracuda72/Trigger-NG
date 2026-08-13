@@ -4,14 +4,11 @@
 // Copyright 2004-2006 Jasmine Langridge, jas@jareiko.net
 // License: GPL version 2 (see included gpl.txt)
 
-
 #include "pengine.h"
 #include "physfs_utils.h"
 #include "main.h"
 
 #include <SDL2/SDL_image.h>
-
-
 
 // SDL_image doesn't need init/shutdown code
 

@@ -8,8 +8,7 @@
 // This file contains definitions and classes related to Vehicles
 //
 
-#ifndef VEHICLE_H_INCLUDED
-#define VEHICLE_H_INCLUDED
+#pragma once
 
 #include "engine.h"
 #include "psim.h"
@@ -411,5 +410,3 @@ class PVehicle
     // it's more low level that the doReset() one
     void reset();
 };
-
-#endif // VEHICLE_H_INCLUDED

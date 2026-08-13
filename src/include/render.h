@@ -4,8 +4,7 @@
 // Copyright 2004-2006 Jasmine Langridge, jas@jareiko.net
 // License: GPL version 2 (see included gpl.txt)
 
-#ifndef RENDER_H_INCLUDED
-#define RENDER_H_INCLUDED
+#pragma once
 
 #include <cmath>
 #include <glm/mat4x4.hpp>
@@ -377,7 +376,6 @@ class PMesh
 
     std::string fxname;
     PEffect* effect;
-
 
     const int vertexSize = 2 + 3 + 3; // Tex, Normal, Vertex
     void buildGeometry();
@@ -866,5 +864,3 @@ class PTerrain // TODO: make this RAII conformant
     // Rigidity map for foliage and road signs
     const PRigidity& rigidity;
 };
-
-#endif // RENDER_H_INCLUDED

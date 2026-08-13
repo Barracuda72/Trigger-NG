@@ -147,7 +147,6 @@ class TriggerGame
     PRigidity rigidity;
 
   public:
-
     const float offroadtime_penalty_multiplier = 2.5f;
 
     ///
@@ -361,14 +360,12 @@ class MainApp : public PApp
 
     // for level screen
     Gui gui;
-
     // for option screen
     POption option;
     // for control screen
     PControl control;
 
   public:
-
     LevelState lss;
 
     // for handling configuration
@@ -409,7 +406,6 @@ class MainApp : public PApp
               * tex_damage_front_right,
               * tex_damage_rear_left,
               * tex_damage_rear_right;
-
 
     std::unordered_map<std::string, PTexture*> tex_codriversigns;
     std::unordered_map<std::string, PAudioSample*> aud_codriverwords;
@@ -460,8 +456,6 @@ class MainApp : public PApp
 
     std::vector<RainDrop> rain;
     std::vector<SnowFlake> snowfall;
-
-    //
 
     int loadscreencount;
 

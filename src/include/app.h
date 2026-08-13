@@ -16,6 +16,8 @@
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
 
+#pragma once
+
 #include <glm/mat4x4.hpp>
 
 #include <light.h>
@@ -32,7 +34,6 @@ struct joystick_s {
 class PApp
 {
   public:
-
     enum StereoMode {
       StereoNone,
 #ifndef GLES2
@@ -47,7 +48,6 @@ class PApp
     HiScore1 best_times;
 
   private:
-
     std::string appname, apptitle;
 
     SDL_Window* screen; // TODO: rename this to "window" maybe
@@ -57,11 +57,9 @@ class PApp
     bool autoVideo = false;
 
   protected:
-
     int cx, cy, bpp;
 
   private:
-
     bool fullscr, noframe;
     bool reqRGB, reqAlpha, reqDepth, reqStencil;
     bool grabinput;
@@ -83,14 +81,12 @@ class PApp
     PSSAudio* ssaud;
 
   protected:
-
     // the derived app should keep these up to date
     vec3f cam_pos;
     mat44f cam_orimat;
     vec3f cam_linvel;
 
   public:
-
     PApp(const std::string &title = "PGame", const std::string &name = ".pgame");
 
     virtual ~PApp()
@@ -100,7 +96,6 @@ class PApp
     int run(int argc, char* argv[]);
 
   public:
-
     int getWidth() const
     {
       return cx;
@@ -212,7 +207,6 @@ class PApp
     }
 
   protected:
-
     bool keyDown(int key)
     {
       return (sdl_keymap[key] != 0);
@@ -242,7 +236,6 @@ class PApp
     glm::mat4 stereoFrustum(float xmin, float xmax, float ymin, float ymax, float znear, float zfar, float zzps, float eye);
 
     // config stuff
-
     void setScreenMode(int w, int h, bool fullScreen = false, bool hideFrame = false);
 
     void setScreenBPP(int _bpp)
@@ -257,7 +250,6 @@ class PApp
     void setScreenModeFastFullScreen();
 
     // callbacks for derived classes
-
     virtual void config() /* throw (PUserException) */ ; // very light setup/config func
     virtual void load() /* throw (PUserException) */ ; // main resource loading
     virtual void unload(); // free resources

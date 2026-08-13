@@ -642,31 +642,54 @@ void TriggerGame::tick(float delta)
   */
 }
 
+///
+/// @brief Return seconds vehicle was off-road during race
+/// @return Time in seconds
+///
 float TriggerGame::getOffroadTime() const
 {
   return uservehicle->offroadtime_total + (coursetime - uservehicle->offroadtime_begin);
 }
 
+///
+/// @brief Place vehicle at reset position
+/// @param [in] Player's vehicle
+///
 void TriggerGame::resetAtCheckpoint(PVehicle *veh)
 {
   veh->doReset(lastCkptPos, lastCkptOri);
 }
 
+///
+/// @brief Draws all current codriver signs
+///
 void TriggerGame::renderCodriverSigns(const glm::mat4& mv, const glm::mat4& p)
 {
   cdsigns.render(coursetime, mv, p);
 }
 
+///
+/// @brief Returns if game is finished
+/// @return Game is finished or not
+///
 bool TriggerGame::isFinished() const
 {
   return (gamestate == Gamestate::finished) && (othertime <= 0.0f);
 }
 
+///
+/// @brief Returns if game is in racing mode
+/// @return Racing mode or not
+///
 bool TriggerGame::isRacing() const
 {
   return gamestate == Gamestate::racing;
 }
 
+///
+/// @brief Returns state in which game was finished
+/// @return Finishing state of game
+///
 Gamefinish TriggerGame::getFinishState()
 {
   if (gamestate != Gamestate::finished)

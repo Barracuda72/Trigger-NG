@@ -4,8 +4,6 @@
 // Copyright 2004-2006 Jasmine Langridge, jas@jareiko.net
 // License: GPL version 2 (see included gpl.txt)
 
-
-
 #include "main.h"
 #include "physfs_utils.h"
 
@@ -139,11 +137,19 @@ void MainApp::copyDefaultPlayers() const
   PHYSFS_freeList(rc);
 }
 
+//
+/// @brief Return volume of co-driver voice
+/// @return Volume from 0.0 to 1.0
+///
 float MainApp::getCodriverVolume() const
 {
   return cfg.getVolumeCodriver();
 }
 
+///
+/// @brief Return co-driver signs visual settings
+/// @return Data structure with settings data
+///
 PCodriverUserConfig MainApp::getCodriverUserConfig() const
 {
   return cfg.getCodriveruserconfig();
@@ -448,6 +454,9 @@ bool MainApp::loadAll()
   return true;
 }
 
+///
+/// @brief Load configured set of co-driver signs
+///
 void MainApp::loadCodriversigns()
 {
   if (cfg.getEnableCodriversigns() && !cfg.getCodriversigns().empty()) {
@@ -480,6 +489,9 @@ void MainApp::loadCodriversigns()
   }
 }
 
+///
+/// @brief Load configured samples of co-driver voice
+///
 void MainApp::loadCodrivername()
 {
   if (!cfg.getCodrivername().empty() && cfg.getCodrivername() != "mime") {
