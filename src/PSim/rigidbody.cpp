@@ -15,16 +15,16 @@
 /// @brief initialize PRigidBody
 ///
 PRigidBody::PRigidBody(const vec3f &gravity_parent):
-	PReferenceFrame(),
-	gravity(gravity_parent),
-	mass(1.0),
-	mass_inv(1.0),
-	angmass(vec3f(1.0,1.0,1.0)),
-	angmass_inv(vec3f(1.0,1.0,1.0)),
-	linvel(vec3f::zero()),
-	angvel(vec3f::zero()),
-	accum_force(vec3f::zero()),
-	accum_torque(vec3f::zero())
+  PReferenceFrame(),
+  gravity(gravity_parent),
+  mass(1.0),
+  mass_inv(1.0),
+  angmass(vec3f(1.0, 1.0, 1.0)),
+  angmass_inv(vec3f(1.0, 1.0, 1.0)),
+  linvel(vec3f::zero()),
+  angvel(vec3f::zero()),
+  accum_force(vec3f::zero()),
+  accum_torque(vec3f::zero())
 {}
 
 PRigidBody::~PRigidBody()
@@ -39,16 +39,16 @@ void PRigidBody::setMassCuboid(float _mass, const vec3f &rad)
 {
   // if there is no mass or a dimension is zero or less return
   if (mass <= 0.0 ||
-    rad.x <= 0.0 ||
-    rad.y <= 0.0 ||
-    rad.z <= 0.0) return;
+      rad.x <= 0.0 ||
+      rad.y <= 0.0 ||
+      rad.z <= 0.0) return;
 
   // set mass
   mass = _mass;
   mass_inv = 1.0 / mass;
 
   // set angular mass
-  angmass = vec3f(rad.y*rad.z, rad.z*rad.x, rad.x*rad.y) * (mass * 0.4);
+  angmass = vec3f(rad.y * rad.z, rad.z * rad.x, rad.x * rad.y) * (mass * 0.4);
 
   angmass_inv.x = 1.0 / angmass.x;
   angmass_inv.y = 1.0 / angmass.y;
@@ -181,9 +181,9 @@ void PRigidBody::tick(float delta)
 #if 0
   mat44f ori_mat2;
   ori_mat2.assemble(
-    vec3f(ori_mat.row[0][0]*0.5+0.5, ori_mat.row[0][1]*0.5+0.5, ori_mat.row[0][2]*0.5+0.5),
-    vec3f(ori_mat.row[1][0]*0.5+0.5, ori_mat.row[1][1]*0.5+0.5, ori_mat.row[1][2]*0.5+0.5),
-    vec3f(ori_mat.row[2][0]*0.5+0.5, ori_mat.row[2][1]*0.5+0.5, ori_mat.row[2][2]*0.5+0.5));
+    vec3f(ori_mat.row[0][0] * 0.5 + 0.5, ori_mat.row[0][1] * 0.5 + 0.5, ori_mat.row[0][2] * 0.5 + 0.5),
+    vec3f(ori_mat.row[1][0] * 0.5 + 0.5, ori_mat.row[1][1] * 0.5 + 0.5, ori_mat.row[1][2] * 0.5 + 0.5),
+    vec3f(ori_mat.row[2][0] * 0.5 + 0.5, ori_mat.row[2][1] * 0.5 + 0.5, ori_mat.row[2][2] * 0.5 + 0.5));
 
   vec3f angmass_inv_world = ori_mat2.transform2(angmass_inv);
 #else
@@ -191,9 +191,9 @@ void PRigidBody::tick(float delta)
 #endif
 
   vec3f ang_accel = vec3f(
-    accum_torque.x * angmass_inv_world.x,
-    accum_torque.y * angmass_inv_world.y,
-    accum_torque.z * angmass_inv_world.z);
+                      accum_torque.x * angmass_inv_world.x,
+                      accum_torque.y * angmass_inv_world.y,
+                      accum_torque.z * angmass_inv_world.z);
 
   // update the angular velocity
   angvel += ang_accel * delta;

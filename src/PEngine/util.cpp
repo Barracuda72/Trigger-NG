@@ -14,11 +14,11 @@
 TerrainType PUtil::decideRoadSurface(const rgbcolor &c)
 {
 #define X(Name, RgbColor, Friction, Resistance, DirtInfo) \
-    if (c == RgbColor) return TerrainType::Name;
-    TERRAINMAP_MATERIALS
+  if (c == RgbColor) return TerrainType::Name;
+  TERRAINMAP_MATERIALS
 #undef X
 
-    return TerrainType::Unknown;
+  return TerrainType::Unknown;
 }
 
 ///
@@ -27,11 +27,11 @@ TerrainType PUtil::decideRoadSurface(const rgbcolor &c)
 float PUtil::decideFrictionCoef(TerrainType tt)
 {
 #define X(Name, RgbColor, Friction, Resistance, DirtInfo) \
-    if (tt == TerrainType::Name) return Friction;
-    TERRAINMAP_MATERIALS
+  if (tt == TerrainType::Name) return Friction;
+  TERRAINMAP_MATERIALS
 #undef X
 
-    return 1.00f; // tt == TerrainType::Unknown
+  return 1.00f; // tt == TerrainType::Unknown
 }
 
 ///
@@ -40,11 +40,11 @@ float PUtil::decideFrictionCoef(TerrainType tt)
 float PUtil::decideResistance(TerrainType tt)
 {
 #define X(Name, RgbColor, Friction, Resistance, DirtInfo) \
-    if (tt == TerrainType::Name) return Resistance;
-    TERRAINMAP_MATERIALS
+  if (tt == TerrainType::Name) return Resistance;
+  TERRAINMAP_MATERIALS
 #undef X
 
-    return 0.00f; // tt == TerrainType::Unknown
+  return 0.00f; // tt == TerrainType::Unknown
 }
 
 ///
@@ -53,24 +53,24 @@ float PUtil::decideResistance(TerrainType tt)
 dirtinfo PUtil::getDirtInfo(TerrainType tt)
 {
 #define X(Name, RgbColor, Friction, Resistance, DirtInfo) \
-    if (tt == TerrainType::Name) return DirtInfo;
-    TERRAINMAP_MATERIALS
+  if (tt == TerrainType::Name) return DirtInfo;
+  TERRAINMAP_MATERIALS
 #undef X
 
-    return {0.10f, 0.50f, 6.00f}; // tt == TerrainType::Unknown
+  return {0.10f, 0.50f, 6.00f}; // tt == TerrainType::Unknown
 }
 
 ///
 /// @brief Get string with information about terrain, for debugging purposes.
 ///
-const char * PUtil::getTerrainInfo(TerrainType tt)
+const char* PUtil::getTerrainInfo(TerrainType tt)
 {
 #define X(Name, RgbColor, Friction, Resistance, DirtInfo) \
-    if (tt == TerrainType::Name) return #Name " " #Friction " " #Resistance;
-    TERRAINMAP_MATERIALS
+  if (tt == TerrainType::Name) return #Name " " #Friction " " #Resistance;
+  TERRAINMAP_MATERIALS
 #undef X
 
-    return "Unknown 1.00 0.00";
+  return "Unknown 1.00 0.00";
 }
 
 ///
@@ -81,11 +81,11 @@ const char * PUtil::getTerrainInfo(TerrainType tt)
 rgbcolor PUtil::getTerrainColor(TerrainType tt)
 {
 #define X(Name, RgbColor, Friction, Resistance, DirtInfo) \
-    if (tt == TerrainType::Name) return RgbColor;
-    TERRAINMAP_MATERIALS
+  if (tt == TerrainType::Name) return RgbColor;
+  TERRAINMAP_MATERIALS
 #undef X
 
-    return rgbcolor(0, 0, 0);
+  return rgbcolor(0, 0, 0);
 }
 
 /*! Get token and value from a string line. The token is the string
@@ -93,46 +93,40 @@ rgbcolor PUtil::getTerrainColor(TerrainType tt)
  * \return true if could extract token and value */
 bool PUtil::getToken(std::string line, std::string& tok, std::string& value)
 {
-   size_t ns;
-   tok = "";
-   value = "";
+  size_t ns;
+  tok = "";
+  value = "";
 
-   /* Remove initial spaces from string */
-   ns = line.find_first_not_of(" \t");
-   if(ns != std::string::npos)
-   {
-      line = line.substr(ns);
-   }
+  /* Remove initial spaces from string */
+  ns = line.find_first_not_of(" \t");
+  if (ns != std::string::npos) {
+    line = line.substr(ns);
+  }
 
-   /* Find first space */
-   ns = line.find_first_of(" \t");
-   if(ns != std::string::npos)
-   {
-      /* Set token (before space) and value (next space) */
-      tok = line.substr(0, ns);
+  /* Find first space */
+  ns = line.find_first_of(" \t");
+  if (ns != std::string::npos) {
+    /* Set token (before space) and value (next space) */
+    tok = line.substr(0, ns);
 
-      if(ns+1 < line.length())
-      {
-         value = line.substr(ns+1);
-         /* Remove trail \n, if any. */
-         if(value[value.length()-1] == '\n')
-         {
-            value = value.substr(0, value.length()-1);
-         }
+    if (ns + 1 < line.length()) {
+      value = line.substr(ns + 1);
+      /* Remove trail \n, if any. */
+      if (value[value.length() - 1] == '\n') {
+        value = value.substr(0, value.length() - 1);
       }
-      else
-      {
-         value = "";
-      }
-      return(true);
-   }
-   return(false);
+    } else {
+      value = "";
+    }
+    return (true);
+  }
+  return (false);
 }
 
-char* PUtil::fgets2(char *s, int size, PHYSFS_file *pfile)
+char* PUtil::fgets2(char* s, int size, PHYSFS_file *pfile)
 {
   int i;
-  for (i = 0; i < size-1; i++) {
+  for (i = 0; i < size - 1; i++) {
 
     // check for EOF
     if (PHYSFS_eof(pfile)) return nullptr;
@@ -145,7 +139,7 @@ char* PUtil::fgets2(char *s, int size, PHYSFS_file *pfile)
     if (ret == 0) { i--; break; } // er, must be end of file anyway
   }
 
-  s[i+1] = '\0';
+  s[i + 1] = '\0';
 
   return s;
 }
@@ -191,7 +185,7 @@ std::string PUtil::assemblePath(const std::string &relativefile, const std::stri
       return std::string();
     }
 
-    std::string::size_type crunch = totalpath.substr(0, found-1).find_last_of('/');
+    std::string::size_type crunch = totalpath.substr(0, found - 1).find_last_of('/');
 
     if (crunch == std::string::npos) {
       // Crunch back to root (special case)
@@ -217,7 +211,7 @@ std::string PUtil::loadTextData(const std::string &filename)
 
   int filesize = PHYSFS_fileLength(pfile);
 
-  char *xmlbuffer = new char[filesize + 1];
+  char* xmlbuffer = new char[filesize + 1];
 
   physfs_read(pfile, xmlbuffer, sizeof (char), filesize);
   PHYSFS_close(pfile);
@@ -231,7 +225,7 @@ std::string PUtil::loadTextData(const std::string &filename)
   return result;
 }
 
-XMLElement *PUtil::loadRootElement(XMLDocument &doc, const std::string &filename, const char *rootName)
+XMLElement* PUtil::loadRootElement(XMLDocument &doc, const std::string &filename, const char* rootName)
 {
   std::string xmlbuffer = loadTextData(filename);
 
@@ -258,7 +252,7 @@ bool PUtil::copyFile(const std::string &fileFrom, const std::string &fileTo)
 
   // PhysFS doesn't implement copy, so do it the hard way
 
-  PHYSFS_file *pfile_from, *pfile_to;
+  PHYSFS_file *pfile_from, * pfile_to;
 
   // Open source file
 
@@ -274,15 +268,15 @@ bool PUtil::copyFile(const std::string &fileFrom, const std::string &fileTo)
   std::string filepath = extractPathFromFilename(fileTo);
 
   if (!PHYSFS_mkdir(filepath.c_str())) {
-	#if PHYSFS_VER_MAJOR >= 3
-	auto err = PHYSFS_getLastErrorCode();
-	std::string errstr = PHYSFS_getErrorByCode(err);
-	std::string debugstr = err + " - " + errstr;
-	// version 2.x and downwards
-	#else
-	std::string errstr = PHYSFS_getLastError();
-	std::string debugstr = errstr;
-	#endif
+#if PHYSFS_VER_MAJOR >= 3
+    auto err = PHYSFS_getLastErrorCode();
+    std::string errstr = PHYSFS_getErrorByCode(err);
+    std::string debugstr = err + " - " + errstr;
+    // version 2.x and downwards
+#else
+    std::string errstr = PHYSFS_getLastError();
+    std::string debugstr = errstr;
+#endif
     if (errstr == "File exists") {
       PUtil::outLog() << "Couldn't mkdir \"" << filepath << "\", attempting copy anyway" << std::endl;
       PUtil::outLog() << "PhysFS: " << debugstr << std::endl;
@@ -325,7 +319,7 @@ std::list<std::string> PUtil::findFiles(const std::string &basedir, const std::s
 {
   std::list<std::string> results;
 
-  char **filelist = PHYSFS_enumerateFiles(basedir.c_str());
+  char** filelist = PHYSFS_enumerateFiles(basedir.c_str());
 
   if (!filelist) {
     auto err = PHYSFS_getLastErrorCode();
@@ -334,7 +328,7 @@ std::list<std::string> PUtil::findFiles(const std::string &basedir, const std::s
     return results;
   }
 
-  for (char **i = filelist; *i; i++) {
+  for (char** i = filelist; *i; i++) {
 
     std::string thisfile = basedir + '/' + *i;
 
@@ -348,7 +342,7 @@ std::list<std::string> PUtil::findFiles(const std::string &basedir, const std::s
 
       // Check to see if file has correct extension
       if (thisfile.length() >= extension.length() &&
-        thisfile.substr(thisfile.length() - extension.length()) == extension)
+          thisfile.substr(thisfile.length() - extension.length()) == extension)
         results.push_back(thisfile);
     }
   }
@@ -408,14 +402,14 @@ std::string PUtil::formatTime(float seconds)
 ///
 std::string PUtil::formatTimeShort(float seconds)
 {
-    const int time_mins = static_cast<int> (seconds / 60.0f);
-    seconds -= time_mins * 60;
-    const int time_secs = static_cast<int> (seconds);
+  const int time_mins = static_cast<int> (seconds / 60.0f);
+  seconds -= time_mins * 60;
+  const int time_secs = static_cast<int> (seconds);
 
-    return formatInt(time_mins) + ':' + formatInt(time_secs, 2);
+  return formatInt(time_mins) + ':' + formatInt(time_secs, 2);
 }
 
-SDL_RWops *PUtil::allocPhysFSops(PHYSFS_file *pfile)
+SDL_RWops* PUtil::allocPhysFSops(PHYSFS_file *pfile)
 {
   SDL_RWops *rwops = SDL_AllocRW();
 
@@ -425,7 +419,7 @@ SDL_RWops *PUtil::allocPhysFSops(PHYSFS_file *pfile)
   rwops->write = physfs_write;
   rwops->close = physfs_close;
   rwops->type = SDL_RWOPS_UNKNOWN;
-  rwops->hidden.unknown.data1 = (void *) pfile;
+  rwops->hidden.unknown.data1 = (void*) pfile;
 
   return rwops;
 }

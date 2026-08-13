@@ -25,31 +25,33 @@
 //#include <fmod.h>
 #endif
 
-class PSSAudio : public PSubsystem {
-private:
+class PSSAudio : public PSubsystem
+{
+  private:
     PResourceList<PAudioSample> samplist;
 
-public:
+  public:
     PSSAudio(PApp &parentApp);
     ~PSSAudio();
     void tick();
-    PAudioSample *loadSample(const std::string &name, bool positional3D = true);
+    PAudioSample* loadSample(const std::string &name, bool positional3D = true);
 };
 
-class PAudioSample : public PResource {
-private:
+class PAudioSample : public PResource
+{
+  private:
 #if defined (INCLUDE_OPENAL_HEADER)
     ALuint buffer;
 #elif defined (INCLUDE_FMOD_HEADER)
-    FMOD_SOUND *buffer;
+    FMOD_SOUND* buffer;
 #endif
 
-public:
+  public:
     PAudioSample(const std::string &filename, bool positional3D = false);
 
     ~PAudioSample()
     {
-        unload();
+      unload();
     }
 
     void unload();
@@ -57,17 +59,18 @@ public:
     friend class PAudioInstance;
 };
 
-class PAudioInstance {
-private:
-    PAudioSample *samp;
+class PAudioInstance
+{
+  private:
+    PAudioSample* samp;
 #if defined (INCLUDE_FMOD_HEADER)
-    FMOD_CHANNEL *source;
+    FMOD_CHANNEL* source;
     float reserved1;
 #else
     unsigned int source;
 #endif
 
-public:
+  public:
     PAudioInstance(PAudioSample *_samp, bool looping = false);
     ~PAudioInstance();
 

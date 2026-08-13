@@ -32,153 +32,149 @@ void MainApp::levelScreenAction(int action, int index)
   appstate = AS_LEVEL_SCREEN;
 
   switch (action) {
-  case AA_INIT:
-    lss.state = AM_TOP;
-    break;
-  case AA_RESUME:
-    // lss.state should be AM_TOP_EVT_PREP, continuing event
-    break;
-  case AA_RELOAD_ALL:
-    reloadAll();
-    cfg.storeConfig();
-    lss.state = AM_TOP;
-    break;
-  case AA_GO_TOP:
-    lss.state = AM_TOP;
-    break;
-  case AA_GO_EVT:
-    if (lss.state == AM_TOP_EVT_PREP &&
-      lss.currentlevel > 0 &&
-      lss.currentlevel < (int)events[lss.currentevent].levels.size()) {
-      lss.state = AM_TOP_EVT_ABANDON;
-    } else {
+    case AA_INIT:
+      lss.state = AM_TOP;
+      break;
+    case AA_RESUME:
+      // lss.state should be AM_TOP_EVT_PREP, continuing event
+      break;
+    case AA_RELOAD_ALL:
+      reloadAll();
+      cfg.storeConfig();
+      lss.state = AM_TOP;
+      break;
+    case AA_GO_TOP:
+      lss.state = AM_TOP;
+      break;
+    case AA_GO_EVT:
+      if (lss.state == AM_TOP_EVT_PREP &&
+          lss.currentlevel > 0 &&
+          lss.currentlevel < (int)events[lss.currentevent].levels.size()) {
+        lss.state = AM_TOP_EVT_ABANDON;
+      } else {
+        lss.currentevent = index;
+        lss.state = AM_TOP_EVT;
+      }
+      break;
+    case AA_PICK_EVT:
       lss.currentevent = index;
-      lss.state = AM_TOP_EVT;
-    }
-    break;
-  case AA_PICK_EVT:
-    lss.currentevent = index;
-    lss.currentlevel = 0;
-    lss.livesleft = 3;
-    lss.leveltimes.clear();
-    lss.totaltime = 0.0f;
-    lss.state = AM_TOP_EVT_PREP;
-    break;
-  case AA_RESUME_EVT:
-    lss.state = AM_TOP_EVT_PREP;
-    break;
-  case AA_RESTART_EVT:
-    lss.currentlevel = 0;
-    lss.livesleft = 3;
-    lss.leveltimes.clear();
-    lss.totaltime = 0.0f;
-    lss.state = AM_TOP_EVT_PREP;
-    break;
-  case AA_GO_PRAC:
-    lss.currentevent = index;
-    lss.state = AM_TOP_PRAC;
-    break;
-  case AA_PICK_PRAC:
-    lss.currentevent = index;
-    lss.state = AM_TOP_PRAC_SEL;
-    break;
-  case AA_PICK_PRAC_LVL:
-    lss.currentlevel = index;
-    lss.state = AM_TOP_PRAC_SEL_PREP;
-    break;
-  case AA_GO_LVL:
-    lss.currentlevel = index;
-    lss.state = AM_TOP_LVL;
-    break;
-  case AA_PICK_LVL:
-    lss.currentlevel = index;
-    lss.state = AM_TOP_LVL_PREP;
-    break;
-  case AA_GO_QUIT:
-    lss.state = AM_TOP_QUIT;
-    break;
-  case AA_QUIT_CONFIRM:
-    quitGame();
-    break;
+      lss.currentlevel = 0;
+      lss.livesleft = 3;
+      lss.leveltimes.clear();
+      lss.totaltime = 0.0f;
+      lss.state = AM_TOP_EVT_PREP;
+      break;
+    case AA_RESUME_EVT:
+      lss.state = AM_TOP_EVT_PREP;
+      break;
+    case AA_RESTART_EVT:
+      lss.currentlevel = 0;
+      lss.livesleft = 3;
+      lss.leveltimes.clear();
+      lss.totaltime = 0.0f;
+      lss.state = AM_TOP_EVT_PREP;
+      break;
+    case AA_GO_PRAC:
+      lss.currentevent = index;
+      lss.state = AM_TOP_PRAC;
+      break;
+    case AA_PICK_PRAC:
+      lss.currentevent = index;
+      lss.state = AM_TOP_PRAC_SEL;
+      break;
+    case AA_PICK_PRAC_LVL:
+      lss.currentlevel = index;
+      lss.state = AM_TOP_PRAC_SEL_PREP;
+      break;
+    case AA_GO_LVL:
+      lss.currentlevel = index;
+      lss.state = AM_TOP_LVL;
+      break;
+    case AA_PICK_LVL:
+      lss.currentlevel = index;
+      lss.state = AM_TOP_LVL_PREP;
+      break;
+    case AA_GO_QUIT:
+      lss.state = AM_TOP_QUIT;
+      break;
+    case AA_QUIT_CONFIRM:
+      quitGame();
+      break;
 
-  case AA_START_EVT:
-  case AA_START_PRAC:
-    startGame(events[lss.currentevent].levels[lss.currentlevel].filename);
-    return;
-  case AA_START_LVL:
-    startGame(levels[lss.currentlevel].filename);
-    return;
+    case AA_START_EVT:
+    case AA_START_PRAC:
+      startGame(events[lss.currentevent].levels[lss.currentlevel].filename);
+      return;
+    case AA_START_LVL:
+      startGame(levels[lss.currentlevel].filename);
+      return;
 
     case AA_SHOWTIMES_LVL:
-        lss.currentplayer = index;
-        break;
+      lss.currentplayer = index;
+      break;
 
     case AA_SHOWTIMES_PRAC:
-        lss.currentplayer = index;
-        break;
+      lss.currentplayer = index;
+      break;
 
     case AA_BSHOWTIMES_LVL:
-        lss.currentplayer = index;
-        lss.state = AM_TOP_LVL_BTIMES;
-        current_times = best_times.getCurrentTimes(
-            levels[lss.currentlevel].filename,
-            HISCORE1_SORT::BY_TOTALTIME_ASC);
-        break;
+      lss.currentplayer = index;
+      lss.state = AM_TOP_LVL_BTIMES;
+      current_times = best_times.getCurrentTimes(
+                        levels[lss.currentlevel].filename,
+                        HISCORE1_SORT::BY_TOTALTIME_ASC);
+      break;
 
     case AA_BSHOWTIMES_PRAC:
-        lss.currentplayer = index;
-        lss.state = AM_TOP_PRAC_BTIMES;
-        current_times = best_times.getCurrentTimes(
-            events[lss.currentevent].levels[lss.currentlevel].filename,
-            HISCORE1_SORT::BY_TOTALTIME_ASC);
-        break;
+      lss.currentplayer = index;
+      lss.state = AM_TOP_PRAC_BTIMES;
+      current_times = best_times.getCurrentTimes(
+                        events[lss.currentevent].levels[lss.currentlevel].filename,
+                        HISCORE1_SORT::BY_TOTALTIME_ASC);
+      break;
 
-    case AA_SORT_BY_PLAYERNAME:
-    {
-        lss.currentplayer = 0;
+    case AA_SORT_BY_PLAYERNAME: {
+      lss.currentplayer = 0;
 
-        if (hs_sort_method == HISCORE1_SORT::BY_PLAYERNAME_ASC)
-            hs_sort_method = HISCORE1_SORT::BY_PLAYERNAME_DESC;
-        else
-            hs_sort_method = HISCORE1_SORT::BY_PLAYERNAME_ASC;
+      if (hs_sort_method == HISCORE1_SORT::BY_PLAYERNAME_ASC)
+        hs_sort_method = HISCORE1_SORT::BY_PLAYERNAME_DESC;
+      else
+        hs_sort_method = HISCORE1_SORT::BY_PLAYERNAME_ASC;
 
-        break;
+      break;
     }
 
-    case AA_SORT_BY_CARNAME:
-    {
-        lss.currentplayer = 0;
+    case AA_SORT_BY_CARNAME: {
+      lss.currentplayer = 0;
 
-        if (hs_sort_method == HISCORE1_SORT::BY_CARNAME_ASC)
-            hs_sort_method = HISCORE1_SORT::BY_CARNAME_DESC;
-        else
-            hs_sort_method = HISCORE1_SORT::BY_CARNAME_ASC;
+      if (hs_sort_method == HISCORE1_SORT::BY_CARNAME_ASC)
+        hs_sort_method = HISCORE1_SORT::BY_CARNAME_DESC;
+      else
+        hs_sort_method = HISCORE1_SORT::BY_CARNAME_ASC;
 
-        break;
+      break;
     }
 
-    case AA_SORT_BY_CARCLASS:
-    {
-        lss.currentplayer = 0;
+    case AA_SORT_BY_CARCLASS: {
+      lss.currentplayer = 0;
 
-        if (hs_sort_method == HISCORE1_SORT::BY_CARCLASS_ASC)
-            hs_sort_method = HISCORE1_SORT::BY_CARCLASS_DESC;
-        else
-            hs_sort_method = HISCORE1_SORT::BY_CARCLASS_ASC;
+      if (hs_sort_method == HISCORE1_SORT::BY_CARCLASS_ASC)
+        hs_sort_method = HISCORE1_SORT::BY_CARCLASS_DESC;
+      else
+        hs_sort_method = HISCORE1_SORT::BY_CARCLASS_ASC;
 
-        break;
+      break;
     }
 
-    case AA_SORT_BY_TOTALTIME:
-    {
-        lss.currentplayer = 0;
+    case AA_SORT_BY_TOTALTIME: {
+      lss.currentplayer = 0;
 
-        if (hs_sort_method == HISCORE1_SORT::BY_TOTALTIME_ASC)
-            hs_sort_method = HISCORE1_SORT::BY_TOTALTIME_DESC;
-        else
-            hs_sort_method = HISCORE1_SORT::BY_TOTALTIME_ASC;
+      if (hs_sort_method == HISCORE1_SORT::BY_TOTALTIME_ASC)
+        hs_sort_method = HISCORE1_SORT::BY_TOTALTIME_DESC;
+      else
+        hs_sort_method = HISCORE1_SORT::BY_TOTALTIME_ASC;
 
-        break;
+      break;
     }
 
     case AA_GO_OPT:
@@ -197,41 +193,41 @@ void MainApp::levelScreenAction(int action, int index)
       control.select(index);
       break;
 
-  default:
-    PUtil::outLog() << "ERROR: invalid action code " << action << std::endl;
-    requestExit();
-    return;
+    default:
+      PUtil::outLog() << "ERROR: invalid action code " << action << std::endl;
+      requestExit();
+      return;
   }
 
   gui.setSSRender(getSSRender());
   gui.setFont(tex_fontSourceCodeShadowed);
   grabMouse(false);
   gui.clear();
-  gui.addLabel(10.0f,570.0f, "Trigger Rally", PTEXT_HZA_LEFT | PTEXT_VTA_CENTER, 30.0f, LabelStyle::Weak);
+  gui.addLabel(10.0f, 570.0f, "Trigger Rally", PTEXT_HZA_LEFT | PTEXT_VTA_CENTER, 30.0f, LabelStyle::Weak);
 
   switch (lss.state) {
-  case AM_TOP:
-    gui.makeClickable(
-      gui.addLabel(400.0f,400.0f, "events", PTEXT_HZA_CENTER | PTEXT_VTA_CENTER, 40.0f), AA_GO_EVT, 0);
-    gui.makeClickable(
-      gui.addLabel(400.0f,350.0f, "practice", PTEXT_HZA_CENTER | PTEXT_VTA_CENTER, 40.0f), AA_GO_PRAC, 0);
-    gui.makeClickable(
-      gui.addLabel(400.0f,300.0f, "single race", PTEXT_HZA_CENTER | PTEXT_VTA_CENTER, 40.0f), AA_GO_LVL, 0);
-    gui.makeClickable(
-      gui.addLabel(400.0f,250.0f, "options", PTEXT_HZA_CENTER | PTEXT_VTA_CENTER, 40.0f), AA_GO_OPT, 0);
-    gui.makeClickable(
-      gui.addLabel(400.0f,200.0f, "controls", PTEXT_HZA_CENTER | PTEXT_VTA_CENTER, 40.0f), AA_GO_CTRL, 0);
-    gui.makeClickable(
-      gui.addLabel(10.0f,30.0f, "quit", PTEXT_HZA_LEFT | PTEXT_VTA_CENTER, 40.0f), AA_GO_QUIT, 0);
+    case AM_TOP:
+      gui.makeClickable(
+        gui.addLabel(400.0f, 400.0f, "events", PTEXT_HZA_CENTER | PTEXT_VTA_CENTER, 40.0f), AA_GO_EVT, 0);
+      gui.makeClickable(
+        gui.addLabel(400.0f, 350.0f, "practice", PTEXT_HZA_CENTER | PTEXT_VTA_CENTER, 40.0f), AA_GO_PRAC, 0);
+      gui.makeClickable(
+        gui.addLabel(400.0f, 300.0f, "single race", PTEXT_HZA_CENTER | PTEXT_VTA_CENTER, 40.0f), AA_GO_LVL, 0);
+      gui.makeClickable(
+        gui.addLabel(400.0f, 250.0f, "options", PTEXT_HZA_CENTER | PTEXT_VTA_CENTER, 40.0f), AA_GO_OPT, 0);
+      gui.makeClickable(
+        gui.addLabel(400.0f, 200.0f, "controls", PTEXT_HZA_CENTER | PTEXT_VTA_CENTER, 40.0f), AA_GO_CTRL, 0);
+      gui.makeClickable(
+        gui.addLabel(10.0f, 30.0f, "quit", PTEXT_HZA_LEFT | PTEXT_VTA_CENTER, 40.0f), AA_GO_QUIT, 0);
 
-    gui.addLabel(790.0f, 570.0f, "version " PACKAGE_VERSION, PTEXT_HZA_RIGHT | PTEXT_VTA_CENTER, 30.0f, LabelStyle::Weak);
-    gui.addLabel(790.0f, 30.0f, "Build: " __DATE__ " at " __TIME__, PTEXT_HZA_RIGHT | PTEXT_VTA_CENTER, 20.0f, LabelStyle::Weak);
-    break;
-  case AM_TOP_EVT:
-  {
-    gui.makeClickable(
-      gui.addLabel(10.0f,30.0f, "back", PTEXT_HZA_LEFT | PTEXT_VTA_CENTER, 40.0f), AA_GO_TOP, 0);
-    gui.addLabel(100.0f,470.0f, "Choose Event:", PTEXT_HZA_LEFT | PTEXT_VTA_CENTER, 30.0f, LabelStyle::Header);
+      gui.addLabel(790.0f, 570.0f, "version " PACKAGE_VERSION, PTEXT_HZA_RIGHT | PTEXT_VTA_CENTER, 30.0f, LabelStyle::Weak);
+      gui.addLabel(790.0f, 30.0f, "Build: " __DATE__ " at " __TIME__, PTEXT_HZA_RIGHT | PTEXT_VTA_CENTER, 20.0f,
+                   LabelStyle::Weak);
+      break;
+    case AM_TOP_EVT: {
+      gui.makeClickable(
+        gui.addLabel(10.0f, 30.0f, "back", PTEXT_HZA_LEFT | PTEXT_VTA_CENTER, 40.0f), AA_GO_TOP, 0);
+      gui.addLabel(100.0f, 470.0f, "Choose Event:", PTEXT_HZA_LEFT | PTEXT_VTA_CENTER, 30.0f, LabelStyle::Header);
 
       int firstraceindex = index;
       const int prevbutton = gui.addGraphic(20.0f, 275.0f, 50.0f, 50.0f, tex_button_prev, GraphicStyle::Button);
@@ -251,95 +247,91 @@ void MainApp::levelScreenAction(int action, int index)
       std::stringstream racecountmsg;
       racecountmsg << "events " << firstraceindex + 1 << '-' << firstraceindex + racesonscreencount << '/' << events.size();
       gui.addLabel(790.0f, 570.0f, racecountmsg.str(), PTEXT_HZA_RIGHT | PTEXT_VTA_CENTER, 20.0f, LabelStyle::Weak);
-        gui.addLabel(700, 470, "races (timelimit)", PTEXT_HZA_RIGHT | PTEXT_VTA_CENTER, 20);
+      gui.addLabel(700, 470, "races (timelimit)", PTEXT_HZA_RIGHT | PTEXT_VTA_CENTER, 20);
 
-    for (int i = firstraceindex; i < firstraceindex + racesonscreencount; i++) {
+      for (int i = firstraceindex; i < firstraceindex + racesonscreencount; i++) {
 
-        const int eventlabel = gui.addLabel(100.0f,440.0f - (float)(i - firstraceindex) * 30.0f,
-            events[i].name, PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 25.0f, LabelStyle::List);
+        const int eventlabel = gui.addLabel(100.0f, 440.0f - (float)(i - firstraceindex) * 30.0f,
+                                            events[i].name, PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 25.0f, LabelStyle::List);
 
         if (!events[i].locked || player_unlocks.count(events[i].filename) != 0)
-            gui.makeClickable(eventlabel, AA_PICK_EVT, i);
+          gui.makeClickable(eventlabel, AA_PICK_EVT, i);
 
-      gui.addLabel(700.0f, 440.0f - (float)(i - firstraceindex) * 30.0f,
-            PUtil::formatInt(events[i].levels.size()) + " (" + events[i].totaltime + ')',
-            PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, 25.0f, LabelStyle::List);
-    }
-    break;
-  }
-  case AM_TOP_EVT_PREP:
-    gui.makeClickable(
-      gui.addLabel(10.0f, 10.0f, "back", PTEXT_HZA_LEFT | PTEXT_VTA_BOTTOM, 40.0f),
-      AA_GO_EVT, 0);
-    gui.addLabel(790.0f, 570.0f, events[lss.currentevent].name, PTEXT_HZA_RIGHT | PTEXT_VTA_CENTER, 20.0f, LabelStyle::Weak);
-    gui.addLabel(100.0f,470.0f, "Races:", PTEXT_HZA_LEFT | PTEXT_VTA_CENTER, 30.0f, LabelStyle::Header);
-    gui.addLabel(700, 470, "status/time", PTEXT_HZA_RIGHT | PTEXT_VTA_CENTER, 20);
-
-    for (unsigned int i = 0; i < events[lss.currentevent].levels.size(); i++) {
-
-      LabelStyle namestyle = LabelStyle::List;
-
-      if (lss.currentlevel > (int)i)
-        namestyle = LabelStyle::Strong;
-      else
-      if (lss.currentlevel == (int)i)
-        namestyle = LabelStyle::Marked;
-
-      gui.addLabel(100.0f,440.0f - (float)i * 30.0f,
-        events[lss.currentevent].levels[i].name, PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 25.0f, namestyle);
-
-      std::string infotext = "not yet raced";
-      LabelStyle infostyle = LabelStyle::List;
-
-      if (lss.currentlevel > (int)i)
-      {
-        infotext = PUtil::formatTime(lss.leveltimes[i]);
-        infostyle = LabelStyle::Strong;
+        gui.addLabel(700.0f, 440.0f - (float)(i - firstraceindex) * 30.0f,
+                     PUtil::formatInt(events[i].levels.size()) + " (" + events[i].totaltime + ')',
+                     PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, 25.0f, LabelStyle::List);
       }
-      else if (lss.currentlevel == (int)i)
-      {
-        infotext = "next";
-        infostyle = LabelStyle::Marked;
-      }
-      gui.addLabel(700.0f,440.0f - (float)i * 30.0f,
-        infotext, PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, 25.0f, infostyle);
+      break;
     }
-    gui.addLabel(700.0f,430.0f - (float)events[lss.currentevent].levels.size() * 30.0f,
-      "Total: " + PUtil::formatTime(lss.totaltime), PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, 25.0f, LabelStyle::Strong);
-    if (lss.livesleft <= 0) {
-      gui.addLabel(400.0f, 10.0f, "no tries remaining", PTEXT_HZA_CENTER | PTEXT_VTA_BOTTOM, 20.0f, LabelStyle::Strong);
+    case AM_TOP_EVT_PREP:
       gui.makeClickable(
-        gui.addLabel(790.0f,10.0f, "restart", PTEXT_HZA_RIGHT | PTEXT_VTA_BOTTOM, 40.0f),
-        AA_RESTART_EVT, 0);
-    } else if (lss.currentlevel >= (int)events[lss.currentevent].levels.size()) {
-      gui.addLabel(400.0f,10.0f, "EVENT COMPLETED!", PTEXT_HZA_CENTER | PTEXT_VTA_BOTTOM, 30.0f, LabelStyle::Marked);
-    } else {
-      gui.addLabel(400.0f,10.0f, PUtil::formatInt(lss.livesleft) + " tries remaining",
-        PTEXT_HZA_CENTER | PTEXT_VTA_BOTTOM, 20.0f, LabelStyle::Strong);
+        gui.addLabel(10.0f, 10.0f, "back", PTEXT_HZA_LEFT | PTEXT_VTA_BOTTOM, 40.0f),
+        AA_GO_EVT, 0);
+      gui.addLabel(790.0f, 570.0f, events[lss.currentevent].name, PTEXT_HZA_RIGHT | PTEXT_VTA_CENTER, 20.0f,
+                   LabelStyle::Weak);
+      gui.addLabel(100.0f, 470.0f, "Races:", PTEXT_HZA_LEFT | PTEXT_VTA_CENTER, 30.0f, LabelStyle::Header);
+      gui.addLabel(700, 470, "status/time", PTEXT_HZA_RIGHT | PTEXT_VTA_CENTER, 20);
 
-      for (int i = 0; i < lss.livesleft; i++) {
-        gui.addGraphic(325.0f + i * 50.0f,30.0f, 50.0f,50.0f, tex_hud_life);
+      for (unsigned int i = 0; i < events[lss.currentevent].levels.size(); i++) {
+
+        LabelStyle namestyle = LabelStyle::List;
+
+        if (lss.currentlevel > (int)i)
+          namestyle = LabelStyle::Strong;
+        else if (lss.currentlevel == (int)i)
+          namestyle = LabelStyle::Marked;
+
+        gui.addLabel(100.0f, 440.0f - (float)i * 30.0f,
+                     events[lss.currentevent].levels[i].name, PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 25.0f, namestyle);
+
+        std::string infotext = "not yet raced";
+        LabelStyle infostyle = LabelStyle::List;
+
+        if (lss.currentlevel > (int)i) {
+          infotext = PUtil::formatTime(lss.leveltimes[i]);
+          infostyle = LabelStyle::Strong;
+        } else if (lss.currentlevel == (int)i) {
+          infotext = "next";
+          infostyle = LabelStyle::Marked;
+        }
+        gui.addLabel(700.0f, 440.0f - (float)i * 30.0f,
+                     infotext, PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, 25.0f, infostyle);
       }
-      gui.makeDefault(
+      gui.addLabel(700.0f, 430.0f - (float)events[lss.currentevent].levels.size() * 30.0f,
+                   "Total: " + PUtil::formatTime(lss.totaltime), PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, 25.0f, LabelStyle::Strong);
+      if (lss.livesleft <= 0) {
+        gui.addLabel(400.0f, 10.0f, "no tries remaining", PTEXT_HZA_CENTER | PTEXT_VTA_BOTTOM, 20.0f, LabelStyle::Strong);
         gui.makeClickable(
-          gui.addLabel(790.0f,10.0f, "race", PTEXT_HZA_RIGHT | PTEXT_VTA_BOTTOM, 40.0f),
-          AA_START_EVT, 0));
-    }
-    break;
-  case AM_TOP_EVT_ABANDON:
-    gui.addLabel(400.0f,350.0f, "Really leave Event?", PTEXT_HZA_CENTER | PTEXT_VTA_TOP, 40.0f, LabelStyle::Marked);
-    gui.makeClickable(
-      gui.addLabel(300.0f,250.0f, "Yes", PTEXT_HZA_CENTER | PTEXT_VTA_TOP, 40.0f),
-      AA_GO_EVT, 0);
-    gui.makeClickable(
-      gui.addLabel(500.0f,250.0f, "No", PTEXT_HZA_CENTER | PTEXT_VTA_TOP, 40.0f),
-      AA_RESUME_EVT, 0);
-    break;
-  case AM_TOP_PRAC:
-  {
-    gui.makeClickable(
-      gui.addLabel(10.0f, 10.0f, "back", PTEXT_HZA_LEFT | PTEXT_VTA_BOTTOM, 40.0f), AA_GO_TOP, 0);
-    gui.addLabel(100.0f,470.0f, "Practice Event:", PTEXT_HZA_LEFT | PTEXT_VTA_CENTER, 30.0f, LabelStyle::Header);
+          gui.addLabel(790.0f, 10.0f, "restart", PTEXT_HZA_RIGHT | PTEXT_VTA_BOTTOM, 40.0f),
+          AA_RESTART_EVT, 0);
+      } else if (lss.currentlevel >= (int)events[lss.currentevent].levels.size()) {
+        gui.addLabel(400.0f, 10.0f, "EVENT COMPLETED!", PTEXT_HZA_CENTER | PTEXT_VTA_BOTTOM, 30.0f, LabelStyle::Marked);
+      } else {
+        gui.addLabel(400.0f, 10.0f, PUtil::formatInt(lss.livesleft) + " tries remaining",
+                     PTEXT_HZA_CENTER | PTEXT_VTA_BOTTOM, 20.0f, LabelStyle::Strong);
+
+        for (int i = 0; i < lss.livesleft; i++) {
+          gui.addGraphic(325.0f + i * 50.0f, 30.0f, 50.0f, 50.0f, tex_hud_life);
+        }
+        gui.makeDefault(
+          gui.makeClickable(
+            gui.addLabel(790.0f, 10.0f, "race", PTEXT_HZA_RIGHT | PTEXT_VTA_BOTTOM, 40.0f),
+            AA_START_EVT, 0));
+      }
+      break;
+    case AM_TOP_EVT_ABANDON:
+      gui.addLabel(400.0f, 350.0f, "Really leave Event?", PTEXT_HZA_CENTER | PTEXT_VTA_TOP, 40.0f, LabelStyle::Marked);
+      gui.makeClickable(
+        gui.addLabel(300.0f, 250.0f, "Yes", PTEXT_HZA_CENTER | PTEXT_VTA_TOP, 40.0f),
+        AA_GO_EVT, 0);
+      gui.makeClickable(
+        gui.addLabel(500.0f, 250.0f, "No", PTEXT_HZA_CENTER | PTEXT_VTA_TOP, 40.0f),
+        AA_RESUME_EVT, 0);
+      break;
+    case AM_TOP_PRAC: {
+      gui.makeClickable(
+        gui.addLabel(10.0f, 10.0f, "back", PTEXT_HZA_LEFT | PTEXT_VTA_BOTTOM, 40.0f), AA_GO_TOP, 0);
+      gui.addLabel(100.0f, 470.0f, "Practice Event:", PTEXT_HZA_LEFT | PTEXT_VTA_CENTER, 30.0f, LabelStyle::Header);
 
       int firstraceindex = index;
       const int prevbutton = gui.addGraphic(20.0f, 275.0f, 50.0f, 50.0f, tex_button_prev, GraphicStyle::Button);
@@ -361,42 +353,41 @@ void MainApp::levelScreenAction(int action, int index)
       gui.addLabel(790.0f, 570.0f, racecountmsg.str(), PTEXT_HZA_RIGHT | PTEXT_VTA_CENTER, 20.0f, LabelStyle::Weak);
       gui.addLabel(700, 470, "races (timelimit)", PTEXT_HZA_RIGHT | PTEXT_VTA_CENTER, 20);
 
-    for (int i = firstraceindex; i < firstraceindex + racesonscreencount; i++) {
+      for (int i = firstraceindex; i < firstraceindex + racesonscreencount; i++) {
 
-        const int eventlabel = gui.addLabel(100.0f,440.0f - (float)(i - firstraceindex) * 30.0f,
-            events[i].name, PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 25.0f, LabelStyle::List);
+        const int eventlabel = gui.addLabel(100.0f, 440.0f - (float)(i - firstraceindex) * 30.0f,
+                                            events[i].name, PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 25.0f, LabelStyle::List);
 
         if (!events[i].locked || player_unlocks.count(events[i].filename) != 0)
-            gui.makeClickable(eventlabel, AA_PICK_PRAC, i);
+          gui.makeClickable(eventlabel, AA_PICK_PRAC, i);
 
-      gui.addLabel(700.0f, 440.0f - (float)(i - firstraceindex) * 30.0f,
-            PUtil::formatInt(events[i].levels.size()) + " (" + events[i].totaltime + ')',
-            PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, 25.0f, LabelStyle::List);
+        gui.addLabel(700.0f, 440.0f - (float)(i - firstraceindex) * 30.0f,
+                     PUtil::formatInt(events[i].levels.size()) + " (" + events[i].totaltime + ')',
+                     PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, 25.0f, LabelStyle::List);
+      }
+      break;
     }
-    break;
-  }
-  case AM_TOP_PRAC_SEL:
-  {
-    gui.makeClickable(
-      gui.addLabel(10.0f, 10.0f, "back", PTEXT_HZA_LEFT | PTEXT_VTA_BOTTOM, 40.0f),
-      AA_GO_PRAC, 0);
-    gui.addLabel(790.0f, 570.0f, events[lss.currentevent].name, PTEXT_HZA_RIGHT | PTEXT_VTA_CENTER, 20.0f, LabelStyle::Weak);
-    gui.addLabel(100.0f,470.0f, "Choose Race:", PTEXT_HZA_LEFT | PTEXT_VTA_CENTER, 30.0f, LabelStyle::Header);
-    gui.addLabel(700, 470, "timelimit", PTEXT_HZA_RIGHT | PTEXT_VTA_CENTER, 20);
+    case AM_TOP_PRAC_SEL: {
+      gui.makeClickable(
+        gui.addLabel(10.0f, 10.0f, "back", PTEXT_HZA_LEFT | PTEXT_VTA_BOTTOM, 40.0f),
+        AA_GO_PRAC, 0);
+      gui.addLabel(790.0f, 570.0f, events[lss.currentevent].name, PTEXT_HZA_RIGHT | PTEXT_VTA_CENTER, 20.0f,
+                   LabelStyle::Weak);
+      gui.addLabel(100.0f, 470.0f, "Choose Race:", PTEXT_HZA_LEFT | PTEXT_VTA_CENTER, 30.0f, LabelStyle::Header);
+      gui.addLabel(700, 470, "timelimit", PTEXT_HZA_RIGHT | PTEXT_VTA_CENTER, 20);
 
-    for (unsigned int i = 0; i < events[lss.currentevent].levels.size(); i++) {
+      for (unsigned int i = 0; i < events[lss.currentevent].levels.size(); i++) {
         gui.makeClickable(
           gui.addLabel(100.0f, 440.0f - (float)i * 30.0f,
-          events[lss.currentevent].levels[i].name, PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 25.0f, LabelStyle::List),
+                       events[lss.currentevent].levels[i].name, PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 25.0f, LabelStyle::List),
           AA_PICK_PRAC_LVL, i);
 
         gui.addLabel(700.0f, 440.0f - (float)i * 30.0f,
-            events[lss.currentevent].levels[i].targettimeshort, PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, 25.0f, LabelStyle::List);
+                     events[lss.currentevent].levels[i].targettimeshort, PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, 25.0f, LabelStyle::List);
+      }
+      break;
     }
-    break;
-  }
-  case AM_TOP_PRAC_SEL_PREP:
-  {
+    case AM_TOP_PRAC_SEL_PREP: {
       const int prevbutton = gui.addGraphic(20.0f, 275.0f, 50.0f, 50.0f, tex_button_prev, GraphicStyle::Button);
       const int nextbutton = gui.addGraphic(730.0f, 275.0f, 50.0f, 50.0f, tex_button_next, GraphicStyle::Button);
 
@@ -406,55 +397,54 @@ void MainApp::levelScreenAction(int action, int index)
       CLAMP(idxnext, 0, static_cast<int> (events[lss.currentevent].levels.size() - 1));
       CLAMP(idxprev, 0, static_cast<int> (events[lss.currentevent].levels.size() - 1));
 
-    if (lss.currentlevel < static_cast<int> (events[lss.currentevent].levels.size() - 1))
-      gui.makeClickable(nextbutton, AA_PICK_PRAC_LVL, idxnext);
+      if (lss.currentlevel < static_cast<int> (events[lss.currentevent].levels.size() - 1))
+        gui.makeClickable(nextbutton, AA_PICK_PRAC_LVL, idxnext);
 
-    if (lss.currentlevel > 0)
-      gui.makeClickable(prevbutton, AA_PICK_PRAC_LVL, idxprev);
+      if (lss.currentlevel > 0)
+        gui.makeClickable(prevbutton, AA_PICK_PRAC_LVL, idxprev);
 
-    gui.makeClickable(
-      gui.addLabel(10.0f, 10.0f, "back", PTEXT_HZA_LEFT | PTEXT_VTA_BOTTOM, 40.0f),
-      AA_PICK_PRAC, lss.currentevent);
+      gui.makeClickable(
+        gui.addLabel(10.0f, 10.0f, "back", PTEXT_HZA_LEFT | PTEXT_VTA_BOTTOM, 40.0f),
+        AA_PICK_PRAC, lss.currentevent);
 
-    gui.makeClickable(
+      gui.makeClickable(
         gui.addLabel(400.0f, 10.0f, "best times", PTEXT_HZA_CENTER | PTEXT_VTA_BOTTOM, 40.0f),
         AA_BSHOWTIMES_PRAC, 0);
 
-    gui.addLabel(790.0f, 570.0f, events[lss.currentevent].name + " (" +
-        PUtil::formatInt(lss.currentlevel + 1) + '/' + PUtil::formatInt(events[lss.currentevent].levels.size()) + ')',
-        PTEXT_HZA_RIGHT | PTEXT_VTA_CENTER, 20.0f, LabelStyle::Weak);
-    gui.addLabel(100.0f,500.0f, events[lss.currentevent].levels[lss.currentlevel].name,
-        PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 35.0f, LabelStyle::Header);
-    gui.addLabel(100.0f,462.5f,
-        std::string("by ") + events[lss.currentevent].levels[lss.currentlevel].author,
-        PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f, LabelStyle::Weak);
-    gui.addLabel(700.0f, 462.5f, events[lss.currentevent].levels[lss.currentlevel].targettimeshort,
-        PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, 20.0f);
+      gui.addLabel(790.0f, 570.0f, events[lss.currentevent].name + " (" +
+                   PUtil::formatInt(lss.currentlevel + 1) + '/' + PUtil::formatInt(events[lss.currentevent].levels.size()) + ')',
+                   PTEXT_HZA_RIGHT | PTEXT_VTA_CENTER, 20.0f, LabelStyle::Weak);
+      gui.addLabel(100.0f, 500.0f, events[lss.currentevent].levels[lss.currentlevel].name,
+                   PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 35.0f, LabelStyle::Header);
+      gui.addLabel(100.0f, 462.5f,
+                   std::string("by ") + events[lss.currentevent].levels[lss.currentlevel].author,
+                   PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f, LabelStyle::Weak);
+      gui.addLabel(700.0f, 462.5f, events[lss.currentevent].levels[lss.currentlevel].targettimeshort,
+                   PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, 20.0f);
 
-    if (events[lss.currentevent].levels[lss.currentlevel].tex_screenshot != nullptr)
-        gui.addGraphic(100, 175, 250.0f * 4/3, 250, events[lss.currentevent].levels[lss.currentlevel].tex_screenshot);
-    else
-        gui.addGraphic(100, 175, 250.0f * 4/3, 250, tex_race_no_screenshot);
+      if (events[lss.currentevent].levels[lss.currentlevel].tex_screenshot != nullptr)
+        gui.addGraphic(100, 175, 250.0f * 4 / 3, 250, events[lss.currentevent].levels[lss.currentlevel].tex_screenshot);
+      else
+        gui.addGraphic(100, 175, 250.0f * 4 / 3, 250, tex_race_no_screenshot);
 
-    if (events[lss.currentevent].levels[lss.currentlevel].tex_minimap != nullptr)
+      if (events[lss.currentevent].levels[lss.currentlevel].tex_minimap != nullptr)
         gui.addGraphic(450, 175, 250, 250, events[lss.currentevent].levels[lss.currentlevel].tex_minimap);
-    else
+      else
         gui.addGraphic(450, 175, 250, 250, tex_race_no_minimap);
 
-    gui.addLabel(100.0f,150.0f, events[lss.currentevent].levels[lss.currentlevel].description,
-        PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f);
-    gui.makeDefault(
-      gui.makeClickable(
-        gui.addLabel(790.0f,10.0f, "race", PTEXT_HZA_RIGHT | PTEXT_VTA_BOTTOM, 40.0f),
-        AA_START_PRAC, 0));
-    break;
-  }
-  case AM_TOP_LVL:
-    {
+      gui.addLabel(100.0f, 150.0f, events[lss.currentevent].levels[lss.currentlevel].description,
+                   PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f);
+      gui.makeDefault(
+        gui.makeClickable(
+          gui.addLabel(790.0f, 10.0f, "race", PTEXT_HZA_RIGHT | PTEXT_VTA_BOTTOM, 40.0f),
+          AA_START_PRAC, 0));
+      break;
+    }
+    case AM_TOP_LVL: {
       gui.makeClickable(
         gui.addLabel(10.0f, 10.0f, "back", PTEXT_HZA_LEFT | PTEXT_VTA_BOTTOM, 40.0f),
         AA_GO_TOP, 0);
-      gui.addLabel(100.0f,470.0f, "Choose Race:", PTEXT_HZA_LEFT | PTEXT_VTA_CENTER, 30.0f, LabelStyle::Header);
+      gui.addLabel(100.0f, 470.0f, "Choose Race:", PTEXT_HZA_LEFT | PTEXT_VTA_CENTER, 30.0f, LabelStyle::Header);
 
       int firstraceindex = index;
       const int prevbutton = gui.addGraphic(20.0f, 275.0f, 50.0f, 50.0f, tex_button_prev, GraphicStyle::Button);
@@ -471,24 +461,24 @@ void MainApp::levelScreenAction(int action, int index)
         gui.makeClickable(nextbutton, AA_GO_LVL, firstraceindex + MAX_RACES_ON_SCREEN);
       }
       std::stringstream racecountmsg;
-      racecountmsg << "single races " << firstraceindex + 1 << '-' << firstraceindex + racesonscreencount << '/' << levels.size();
+      racecountmsg << "single races " << firstraceindex + 1 << '-' << firstraceindex + racesonscreencount << '/' <<
+                   levels.size();
       gui.addLabel(790.0f, 570.0f, racecountmsg.str(), PTEXT_HZA_RIGHT | PTEXT_VTA_CENTER, 20.0f, LabelStyle::Weak);
 
-        gui.addLabel(700, 470, "timelimit", PTEXT_HZA_RIGHT | PTEXT_VTA_CENTER, 20);
+      gui.addLabel(700, 470, "timelimit", PTEXT_HZA_RIGHT | PTEXT_VTA_CENTER, 20);
 
       for (int i = firstraceindex; i < firstraceindex + racesonscreencount; i++) {
         gui.makeClickable(
           gui.addLabel(100.0f, 440.0f - (float)(i - firstraceindex) * 30.0f,
-          levels[i].name, PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 25.0f, LabelStyle::List),
+                       levels[i].name, PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 25.0f, LabelStyle::List),
           AA_PICK_LVL, i);
 
         gui.addLabel(700.0f, 440.0f - (float)(i - firstraceindex) * 30.0f,
-            levels[i].targettimeshort, PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, 25.0f, LabelStyle::List);
+                     levels[i].targettimeshort, PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, 25.0f, LabelStyle::List);
       }
     }
     break;
-  case AM_TOP_LVL_PREP:
-  {
+    case AM_TOP_LVL_PREP: {
       const int prevbutton = gui.addGraphic(20.0f, 275.0f, 50.0f, 50.0f, tex_button_prev, GraphicStyle::Button);
       const int nextbutton = gui.addGraphic(730.0f, 275.0f, 50.0f, 50.0f, tex_button_next, GraphicStyle::Button);
 
@@ -504,359 +494,348 @@ void MainApp::levelScreenAction(int action, int index)
       if (lss.currentlevel > 0)
         gui.makeClickable(prevbutton, AA_PICK_LVL, idxprev);
 
-    gui.makeClickable(
-      gui.addLabel(10.0f, 10.0f, "back", PTEXT_HZA_LEFT | PTEXT_VTA_BOTTOM, 40.0f),
-      AA_GO_LVL, (lss.currentlevel / MAX_RACES_ON_SCREEN) * MAX_RACES_ON_SCREEN);
+      gui.makeClickable(
+        gui.addLabel(10.0f, 10.0f, "back", PTEXT_HZA_LEFT | PTEXT_VTA_BOTTOM, 40.0f),
+        AA_GO_LVL, (lss.currentlevel / MAX_RACES_ON_SCREEN) * MAX_RACES_ON_SCREEN);
 
-    gui.makeClickable(
+      gui.makeClickable(
         gui.addLabel(400.0f, 10.0f, "best times", PTEXT_HZA_CENTER | PTEXT_VTA_BOTTOM, 40.0f),
         AA_BSHOWTIMES_LVL, 0);
 
-    std::stringstream racenummsg;
+      std::stringstream racenummsg;
 
-    racenummsg << "single race " << lss.currentlevel+1 << '/' << levels.size();
-    gui.addLabel(790.0f,570.0f, racenummsg.str(), PTEXT_HZA_RIGHT | PTEXT_VTA_CENTER, 20.0f, LabelStyle::Weak);
-    gui.addLabel(100.0f,500.0f, levels[lss.currentlevel].name, PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 35.0f, LabelStyle::Header);
-    gui.addLabel(100.0f,462.5f,
-        std::string("by ") + levels[lss.currentlevel].author,
-        PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f, LabelStyle::Weak);
-    gui.addLabel(700.0f, 462.5f, levels[lss.currentlevel].targettimeshort, PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, 20.0f);
+      racenummsg << "single race " << lss.currentlevel + 1 << '/' << levels.size();
+      gui.addLabel(790.0f, 570.0f, racenummsg.str(), PTEXT_HZA_RIGHT | PTEXT_VTA_CENTER, 20.0f, LabelStyle::Weak);
+      gui.addLabel(100.0f, 500.0f, levels[lss.currentlevel].name, PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 35.0f, LabelStyle::Header);
+      gui.addLabel(100.0f, 462.5f,
+                   std::string("by ") + levels[lss.currentlevel].author,
+                   PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f, LabelStyle::Weak);
+      gui.addLabel(700.0f, 462.5f, levels[lss.currentlevel].targettimeshort, PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, 20.0f);
 
-    if (levels[lss.currentlevel].tex_screenshot != nullptr)
-        gui.addGraphic(100, 175, 250.0f * 4/3, 250, levels[lss.currentlevel].tex_screenshot);
-    else
-        gui.addGraphic(100, 175, 250.0f * 4/3, 250, tex_race_no_screenshot);
+      if (levels[lss.currentlevel].tex_screenshot != nullptr)
+        gui.addGraphic(100, 175, 250.0f * 4 / 3, 250, levels[lss.currentlevel].tex_screenshot);
+      else
+        gui.addGraphic(100, 175, 250.0f * 4 / 3, 250, tex_race_no_screenshot);
 
-    if (levels[lss.currentlevel].tex_minimap != nullptr)
+      if (levels[lss.currentlevel].tex_minimap != nullptr)
         gui.addGraphic(450, 175, 250, 250, levels[lss.currentlevel].tex_minimap);
-    else
+      else
         gui.addGraphic(450, 175, 250, 250, tex_race_no_minimap);
 
-    gui.addLabel(100.0f,150.0f, levels[lss.currentlevel].description, PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f);
-    gui.makeDefault(
+      gui.addLabel(100.0f, 150.0f, levels[lss.currentlevel].description, PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f);
+      gui.makeDefault(
+        gui.makeClickable(
+          gui.addLabel(790.0f, 10.0f, "race", PTEXT_HZA_RIGHT | PTEXT_VTA_BOTTOM, 40.0f),
+          AA_START_LVL, 0));
+    }
+    break;
+    case AM_TOP_QUIT:
+      gui.addLabel(400.0f, 350.0f, "Really quit?", PTEXT_HZA_CENTER | PTEXT_VTA_TOP, 40.0f, LabelStyle::Marked);
       gui.makeClickable(
-        gui.addLabel(790.0f,10.0f, "race", PTEXT_HZA_RIGHT | PTEXT_VTA_BOTTOM, 40.0f),
-        AA_START_LVL, 0));
-  }
-    break;
-  case AM_TOP_QUIT:
-    gui.addLabel(400.0f,350.0f, "Really quit?", PTEXT_HZA_CENTER | PTEXT_VTA_TOP, 40.0f, LabelStyle::Marked);
-    gui.makeClickable(
-      gui.addLabel(300.0f,250.0f, "Yes", PTEXT_HZA_CENTER | PTEXT_VTA_TOP, 40.0f),
-      AA_QUIT_CONFIRM, 0);
-    gui.makeClickable(
-      gui.addLabel(500.0f,250.0f, "No", PTEXT_HZA_CENTER | PTEXT_VTA_TOP, 40.0f),
-      AA_GO_TOP, 0);
-    break;
+        gui.addLabel(300.0f, 250.0f, "Yes", PTEXT_HZA_CENTER | PTEXT_VTA_TOP, 40.0f),
+        AA_QUIT_CONFIRM, 0);
+      gui.makeClickable(
+        gui.addLabel(500.0f, 250.0f, "No", PTEXT_HZA_CENTER | PTEXT_VTA_TOP, 40.0f),
+        AA_GO_TOP, 0);
+      break;
 
-    case AM_TOP_LVL_TIMES:
-    {
-        gui.addLabel(100.0f,500.0f, levels[lss.currentlevel].name, PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 35.0f, LabelStyle::Header);
-        gui.addLabel(100.0f,462.5f,
-            std::string("by ") + levels[lss.currentlevel].author,
-            PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f, LabelStyle::Weak);
-        gui.addLabel(700.0f, 462.5f, levels[lss.currentlevel].targettime, PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, 20.0f);
-        gui.makeClickable(
-            gui.addLabel(10.0f, 10.0f, "back", PTEXT_HZA_LEFT | PTEXT_VTA_BOTTOM, 40.0f),
-            AA_PICK_LVL, lss.currentlevel);
+    case AM_TOP_LVL_TIMES: {
+      gui.addLabel(100.0f, 500.0f, levels[lss.currentlevel].name, PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 35.0f, LabelStyle::Header);
+      gui.addLabel(100.0f, 462.5f,
+                   std::string("by ") + levels[lss.currentlevel].author,
+                   PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f, LabelStyle::Weak);
+      gui.addLabel(700.0f, 462.5f, levels[lss.currentlevel].targettime, PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, 20.0f);
+      gui.makeClickable(
+        gui.addLabel(10.0f, 10.0f, "back", PTEXT_HZA_LEFT | PTEXT_VTA_BOTTOM, 40.0f),
+        AA_PICK_LVL, lss.currentlevel);
 
-        current_times = best_times.getCurrentTimesHL(hs_sort_method);
+      current_times = best_times.getCurrentTimesHL(hs_sort_method);
 
-        int first_time_index = index;
+      int first_time_index = index;
 
-        const int prevbutton = gui.addGraphic(20.0f, 275.0f, 50.0f, 50.0f, tex_button_prev, GraphicStyle::Button);
-        const int nextbutton = gui.addGraphic(730.0f, 275.0f, 50.0f, 50.0f, tex_button_next, GraphicStyle::Button);
+      const int prevbutton = gui.addGraphic(20.0f, 275.0f, 50.0f, 50.0f, tex_button_prev, GraphicStyle::Button);
+      const int nextbutton = gui.addGraphic(730.0f, 275.0f, 50.0f, 50.0f, tex_button_next, GraphicStyle::Button);
 
-        if (first_time_index > 0)
-            gui.makeClickable(prevbutton, AA_SHOWTIMES_LVL, first_time_index - MAX_TIMES_ON_SCREEN);
+      if (first_time_index > 0)
+        gui.makeClickable(prevbutton, AA_SHOWTIMES_LVL, first_time_index - MAX_TIMES_ON_SCREEN);
 
-        int times_on_screen_count = current_times.size() - first_time_index;
+      int times_on_screen_count = current_times.size() - first_time_index;
 
-        if (times_on_screen_count > MAX_TIMES_ON_SCREEN)
-        {
-            times_on_screen_count = MAX_TIMES_ON_SCREEN;
-            gui.makeClickable(nextbutton, AA_SHOWTIMES_LVL, first_time_index + MAX_TIMES_ON_SCREEN);
-        }
+      if (times_on_screen_count > MAX_TIMES_ON_SCREEN) {
+        times_on_screen_count = MAX_TIMES_ON_SCREEN;
+        gui.makeClickable(nextbutton, AA_SHOWTIMES_LVL, first_time_index + MAX_TIMES_ON_SCREEN);
+      }
 
-        std::stringstream times_count_msg;
+      std::stringstream times_count_msg;
 
-        times_count_msg << "best times " << first_time_index + 1 << '-'
-            << first_time_index + times_on_screen_count << '/' << current_times.size();
-        gui.addLabel(790.0f, 570.0f, times_count_msg.str(), PTEXT_HZA_RIGHT | PTEXT_VTA_CENTER, 20.0f, LabelStyle::Weak);
+      times_count_msg << "best times " << first_time_index + 1 << '-'
+                      << first_time_index + times_on_screen_count << '/' << current_times.size();
+      gui.addLabel(790.0f, 570.0f, times_count_msg.str(), PTEXT_HZA_RIGHT | PTEXT_VTA_CENTER, 20.0f, LabelStyle::Weak);
 
-        // column buttons
-        gui.makeClickable(
-            gui.addLabel(XTIMES_PLAYERNAME, 420.0f, "player", PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f),
-            AA_SORT_BY_PLAYERNAME, 0);
-        gui.makeClickable(
-            gui.addLabel(XTIMES_CARNAME, 420.0f, "car", PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f),
-            AA_SORT_BY_CARNAME, 0);
-        gui.makeClickable(
-            gui.addLabel(XTIMES_CARCLASS, 420.0f, "class", PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f),
-            AA_SORT_BY_CARCLASS, 0);
-        gui.makeClickable(
-            gui.addLabel(XTIMES_TOTALTIME, 420.0f, "time", PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, 20.0f),
-            AA_SORT_BY_TOTALTIME, 0);
+      // column buttons
+      gui.makeClickable(
+        gui.addLabel(XTIMES_PLAYERNAME, 420.0f, "player", PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f),
+        AA_SORT_BY_PLAYERNAME, 0);
+      gui.makeClickable(
+        gui.addLabel(XTIMES_CARNAME, 420.0f, "car", PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f),
+        AA_SORT_BY_CARNAME, 0);
+      gui.makeClickable(
+        gui.addLabel(XTIMES_CARCLASS, 420.0f, "class", PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f),
+        AA_SORT_BY_CARCLASS, 0);
+      gui.makeClickable(
+        gui.addLabel(XTIMES_TOTALTIME, 420.0f, "time", PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, 20.0f),
+        AA_SORT_BY_TOTALTIME, 0);
 
-        for (int i = first_time_index; i < first_time_index + times_on_screen_count; ++i)
-        {
-            LabelStyle ls;
+      for (int i = first_time_index; i < first_time_index + times_on_screen_count; ++i) {
+        LabelStyle ls;
 
-            if (current_times[i].highlighted)
-                ls = LabelStyle::Marked;
-            else
-                ls = LabelStyle::List;
+        if (current_times[i].highlighted)
+          ls = LabelStyle::Marked;
+        else
+          ls = LabelStyle::List;
 
-            gui.addLabel(XTIMES_PLAYERNAME, 395.0f - (float)(i - first_time_index) * 25.0f,
-                std::to_string(current_times[i].place) + ". ", PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, 20.0f, ls);
-            gui.addLabel(XTIMES_PLAYERNAME, 395.0f - (float)(i - first_time_index) * 25.0f,
-                current_times[i].rd.playername.substr(0, 14), PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f, ls);
-            gui.addLabel(XTIMES_CARNAME, 395.0f - (float)(i - first_time_index) * 25.0f,
-                current_times[i].rd.carname.substr(0, 9), PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f, ls);
-            gui.addLabel(XTIMES_CARCLASS, 395.0f - (float)(i - first_time_index) * 25.0f,
-                current_times[i].rd.carclass.substr(0, 8), PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f, ls);
-            gui.addLabel(XTIMES_TOTALTIME, 395.0f - (float)(i - first_time_index) * 25.0f,
-                PUtil::formatTime(current_times[i].rd.totaltime), PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, 20.0f, ls);
-        }
+        gui.addLabel(XTIMES_PLAYERNAME, 395.0f - (float)(i - first_time_index) * 25.0f,
+                     std::to_string(current_times[i].place) + ". ", PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, 20.0f, ls);
+        gui.addLabel(XTIMES_PLAYERNAME, 395.0f - (float)(i - first_time_index) * 25.0f,
+                     current_times[i].rd.playername.substr(0, 14), PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f, ls);
+        gui.addLabel(XTIMES_CARNAME, 395.0f - (float)(i - first_time_index) * 25.0f,
+                     current_times[i].rd.carname.substr(0, 9), PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f, ls);
+        gui.addLabel(XTIMES_CARCLASS, 395.0f - (float)(i - first_time_index) * 25.0f,
+                     current_times[i].rd.carclass.substr(0, 8), PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f, ls);
+        gui.addLabel(XTIMES_TOTALTIME, 395.0f - (float)(i - first_time_index) * 25.0f,
+                     PUtil::formatTime(current_times[i].rd.totaltime), PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, 20.0f, ls);
+      }
 
-        break;
+      break;
     }
 
-    case AM_TOP_LVL_BTIMES:
-    {
-        gui.addLabel(100.0f,500.0f, levels[lss.currentlevel].name, PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 35.0f, LabelStyle::Header);
-        gui.addLabel(100.0f,462.5f,
-            std::string("by ") + levels[lss.currentlevel].author,
-            PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f, LabelStyle::Weak);
-        gui.addLabel(700.0f, 462.5f, levels[lss.currentlevel].targettime, PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, 20.0f);
-        gui.makeClickable(
-            gui.addLabel(10.0f, 10.0f, "back", PTEXT_HZA_LEFT | PTEXT_VTA_BOTTOM, 40.0f),
-            AA_PICK_LVL, lss.currentlevel);
+    case AM_TOP_LVL_BTIMES: {
+      gui.addLabel(100.0f, 500.0f, levels[lss.currentlevel].name, PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 35.0f, LabelStyle::Header);
+      gui.addLabel(100.0f, 462.5f,
+                   std::string("by ") + levels[lss.currentlevel].author,
+                   PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f, LabelStyle::Weak);
+      gui.addLabel(700.0f, 462.5f, levels[lss.currentlevel].targettime, PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, 20.0f);
+      gui.makeClickable(
+        gui.addLabel(10.0f, 10.0f, "back", PTEXT_HZA_LEFT | PTEXT_VTA_BOTTOM, 40.0f),
+        AA_PICK_LVL, lss.currentlevel);
 
-        current_times = best_times.getCurrentTimes("", hs_sort_method);
+      current_times = best_times.getCurrentTimes("", hs_sort_method);
 
-        int first_time_index = index;
+      int first_time_index = index;
 
-        const int prevbutton = gui.addGraphic(20.0f, 275.0f, 50.0f, 50.0f, tex_button_prev, GraphicStyle::Button);
-        const int nextbutton = gui.addGraphic(730.0f, 275.0f, 50.0f, 50.0f, tex_button_next, GraphicStyle::Button);
+      const int prevbutton = gui.addGraphic(20.0f, 275.0f, 50.0f, 50.0f, tex_button_prev, GraphicStyle::Button);
+      const int nextbutton = gui.addGraphic(730.0f, 275.0f, 50.0f, 50.0f, tex_button_next, GraphicStyle::Button);
 
-        // NOTE: not using AA_BSHOWTIMES_LVL intentionally!
-        if (first_time_index > 0)
-            gui.makeClickable(prevbutton, AA_SHOWTIMES_LVL, first_time_index - MAX_TIMES_ON_SCREEN);
+      // NOTE: not using AA_BSHOWTIMES_LVL intentionally!
+      if (first_time_index > 0)
+        gui.makeClickable(prevbutton, AA_SHOWTIMES_LVL, first_time_index - MAX_TIMES_ON_SCREEN);
 
-        int times_on_screen_count = current_times.size() - first_time_index;
+      int times_on_screen_count = current_times.size() - first_time_index;
 
-        // NOTE: not using AA_BSHOWTIMES_LVL intentionally!
-        if (times_on_screen_count > MAX_TIMES_ON_SCREEN)
-        {
-            times_on_screen_count = MAX_TIMES_ON_SCREEN;
-            gui.makeClickable(nextbutton, AA_SHOWTIMES_LVL, first_time_index + MAX_TIMES_ON_SCREEN);
-        }
+      // NOTE: not using AA_BSHOWTIMES_LVL intentionally!
+      if (times_on_screen_count > MAX_TIMES_ON_SCREEN) {
+        times_on_screen_count = MAX_TIMES_ON_SCREEN;
+        gui.makeClickable(nextbutton, AA_SHOWTIMES_LVL, first_time_index + MAX_TIMES_ON_SCREEN);
+      }
 
-        std::stringstream times_count_msg;
+      std::stringstream times_count_msg;
 
-        times_count_msg << "best times";
+      times_count_msg << "best times";
 
-        if (!current_times.empty())
-            times_count_msg << ' ' << first_time_index + 1 << '-'
-            << first_time_index + times_on_screen_count << '/' << current_times.size();
+      if (!current_times.empty())
+        times_count_msg << ' ' << first_time_index + 1 << '-'
+                        << first_time_index + times_on_screen_count << '/' << current_times.size();
 
-        gui.addLabel(790.0f, 570.0f, times_count_msg.str(), PTEXT_HZA_RIGHT | PTEXT_VTA_CENTER, 20.0f, LabelStyle::Weak);
+      gui.addLabel(790.0f, 570.0f, times_count_msg.str(), PTEXT_HZA_RIGHT | PTEXT_VTA_CENTER, 20.0f, LabelStyle::Weak);
 
-        // column buttons
-        gui.makeClickable(
-            gui.addLabel(XTIMES_PLAYERNAME, 420.0f, "player", PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f),
-            AA_SORT_BY_PLAYERNAME, 0);
-        gui.makeClickable(
-            gui.addLabel(XTIMES_CARNAME, 420.0f, "car", PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f),
-            AA_SORT_BY_CARNAME, 0);
-        gui.makeClickable(
-            gui.addLabel(XTIMES_CARCLASS, 420.0f, "class", PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f),
-            AA_SORT_BY_CARCLASS, 0);
-        gui.makeClickable(
-            gui.addLabel(XTIMES_TOTALTIME, 420.0f, "time", PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, 20.0f),
-            AA_SORT_BY_TOTALTIME, 0);
+      // column buttons
+      gui.makeClickable(
+        gui.addLabel(XTIMES_PLAYERNAME, 420.0f, "player", PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f),
+        AA_SORT_BY_PLAYERNAME, 0);
+      gui.makeClickable(
+        gui.addLabel(XTIMES_CARNAME, 420.0f, "car", PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f),
+        AA_SORT_BY_CARNAME, 0);
+      gui.makeClickable(
+        gui.addLabel(XTIMES_CARCLASS, 420.0f, "class", PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f),
+        AA_SORT_BY_CARCLASS, 0);
+      gui.makeClickable(
+        gui.addLabel(XTIMES_TOTALTIME, 420.0f, "time", PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, 20.0f),
+        AA_SORT_BY_TOTALTIME, 0);
 
-        for (int i = first_time_index; i < first_time_index + times_on_screen_count; ++i)
-        {
-            gui.addLabel(XTIMES_PLAYERNAME, 395.0f - (float)(i - first_time_index) * 25.0f,
-                std::to_string(current_times[i].place) + ". ", PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, 20.0f, LabelStyle::List);
-            gui.addLabel(XTIMES_PLAYERNAME, 395.0f - (float)(i - first_time_index) * 25.0f,
-                current_times[i].rd.playername.substr(0, 14), PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f, LabelStyle::List);
-            gui.addLabel(XTIMES_CARNAME, 395.0f - (float)(i - first_time_index) * 25.0f,
-                current_times[i].rd.carname.substr(0, 9), PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f, LabelStyle::List);
-            gui.addLabel(XTIMES_CARCLASS, 395.0f - (float)(i - first_time_index) * 25.0f,
-                current_times[i].rd.carclass.substr(0, 8), PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f, LabelStyle::List);
-            gui.addLabel(XTIMES_TOTALTIME, 395.0f - (float)(i - first_time_index) * 25.0f,
-                PUtil::formatTime(current_times[i].rd.totaltime), PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, 20.0f, LabelStyle::List);
-        }
+      for (int i = first_time_index; i < first_time_index + times_on_screen_count; ++i) {
+        gui.addLabel(XTIMES_PLAYERNAME, 395.0f - (float)(i - first_time_index) * 25.0f,
+                     std::to_string(current_times[i].place) + ". ", PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, 20.0f, LabelStyle::List);
+        gui.addLabel(XTIMES_PLAYERNAME, 395.0f - (float)(i - first_time_index) * 25.0f,
+                     current_times[i].rd.playername.substr(0, 14), PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f, LabelStyle::List);
+        gui.addLabel(XTIMES_CARNAME, 395.0f - (float)(i - first_time_index) * 25.0f,
+                     current_times[i].rd.carname.substr(0, 9), PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f, LabelStyle::List);
+        gui.addLabel(XTIMES_CARCLASS, 395.0f - (float)(i - first_time_index) * 25.0f,
+                     current_times[i].rd.carclass.substr(0, 8), PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f, LabelStyle::List);
+        gui.addLabel(XTIMES_TOTALTIME, 395.0f - (float)(i - first_time_index) * 25.0f,
+                     PUtil::formatTime(current_times[i].rd.totaltime), PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, 20.0f, LabelStyle::List);
+      }
 
-        break;
+      break;
     }
 
-    case AM_TOP_PRAC_TIMES:
-    {
-        gui.addLabel(100.0f,500.0f, events[lss.currentevent].levels[lss.currentlevel].name,
-            PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 35.0f, LabelStyle::Header);
-        gui.addLabel(100.0f,462.5f,
-            std::string("by ") + events[lss.currentevent].levels[lss.currentlevel].author,
-            PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f, LabelStyle::Weak);
-        gui.addLabel(700.0f, 462.5f, events[lss.currentevent].levels[lss.currentlevel].targettime,
-            PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, 20.0f);
-        gui.makeClickable(
-            gui.addLabel(10.0f, 10.0f, "back", PTEXT_HZA_LEFT | PTEXT_VTA_BOTTOM, 40.0f),
-            AA_PICK_PRAC_LVL, lss.currentlevel);
+    case AM_TOP_PRAC_TIMES: {
+      gui.addLabel(100.0f, 500.0f, events[lss.currentevent].levels[lss.currentlevel].name,
+                   PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 35.0f, LabelStyle::Header);
+      gui.addLabel(100.0f, 462.5f,
+                   std::string("by ") + events[lss.currentevent].levels[lss.currentlevel].author,
+                   PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f, LabelStyle::Weak);
+      gui.addLabel(700.0f, 462.5f, events[lss.currentevent].levels[lss.currentlevel].targettime,
+                   PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, 20.0f);
+      gui.makeClickable(
+        gui.addLabel(10.0f, 10.0f, "back", PTEXT_HZA_LEFT | PTEXT_VTA_BOTTOM, 40.0f),
+        AA_PICK_PRAC_LVL, lss.currentlevel);
 
-        current_times = best_times.getCurrentTimesHL(hs_sort_method);
+      current_times = best_times.getCurrentTimesHL(hs_sort_method);
 
-        int first_time_index = index;
+      int first_time_index = index;
 
-        const int prevbutton = gui.addGraphic(20.0f, 275.0f, 50.0f, 50.0f, tex_button_prev, GraphicStyle::Button);
-        const int nextbutton = gui.addGraphic(730.0f, 275.0f, 50.0f, 50.0f, tex_button_next, GraphicStyle::Button);
+      const int prevbutton = gui.addGraphic(20.0f, 275.0f, 50.0f, 50.0f, tex_button_prev, GraphicStyle::Button);
+      const int nextbutton = gui.addGraphic(730.0f, 275.0f, 50.0f, 50.0f, tex_button_next, GraphicStyle::Button);
 
-        if (first_time_index > 0)
-            gui.makeClickable(prevbutton, AA_SHOWTIMES_PRAC, first_time_index - MAX_TIMES_ON_SCREEN);
+      if (first_time_index > 0)
+        gui.makeClickable(prevbutton, AA_SHOWTIMES_PRAC, first_time_index - MAX_TIMES_ON_SCREEN);
 
-        int times_on_screen_count = current_times.size() - first_time_index;
+      int times_on_screen_count = current_times.size() - first_time_index;
 
-        if (times_on_screen_count > MAX_TIMES_ON_SCREEN)
-        {
-            times_on_screen_count = MAX_TIMES_ON_SCREEN;
-            gui.makeClickable(nextbutton, AA_SHOWTIMES_PRAC, first_time_index + MAX_TIMES_ON_SCREEN);
-        }
+      if (times_on_screen_count > MAX_TIMES_ON_SCREEN) {
+        times_on_screen_count = MAX_TIMES_ON_SCREEN;
+        gui.makeClickable(nextbutton, AA_SHOWTIMES_PRAC, first_time_index + MAX_TIMES_ON_SCREEN);
+      }
 
-        std::stringstream times_count_msg;
+      std::stringstream times_count_msg;
 
-        times_count_msg << "best times " << first_time_index + 1 << '-'
-            << first_time_index + times_on_screen_count << '/' << current_times.size();
-        gui.addLabel(790.0f, 570.0f, times_count_msg.str(), PTEXT_HZA_RIGHT | PTEXT_VTA_CENTER, 20.0f, LabelStyle::Weak);
+      times_count_msg << "best times " << first_time_index + 1 << '-'
+                      << first_time_index + times_on_screen_count << '/' << current_times.size();
+      gui.addLabel(790.0f, 570.0f, times_count_msg.str(), PTEXT_HZA_RIGHT | PTEXT_VTA_CENTER, 20.0f, LabelStyle::Weak);
 
-        // column buttons
-        gui.makeClickable(
-            gui.addLabel(XTIMES_PLAYERNAME, 420.0f, "player", PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f),
-            AA_SORT_BY_PLAYERNAME, 0);
-        gui.makeClickable(
-            gui.addLabel(XTIMES_CARNAME, 420.0f, "car", PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f),
-            AA_SORT_BY_CARNAME, 0);
-        gui.makeClickable(
-            gui.addLabel(XTIMES_CARCLASS, 420.0f, "class", PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f),
-            AA_SORT_BY_CARCLASS, 0);
-        gui.makeClickable(
-            gui.addLabel(XTIMES_TOTALTIME, 420.0f, "time", PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, 20.0f),
-            AA_SORT_BY_TOTALTIME, 0);
+      // column buttons
+      gui.makeClickable(
+        gui.addLabel(XTIMES_PLAYERNAME, 420.0f, "player", PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f),
+        AA_SORT_BY_PLAYERNAME, 0);
+      gui.makeClickable(
+        gui.addLabel(XTIMES_CARNAME, 420.0f, "car", PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f),
+        AA_SORT_BY_CARNAME, 0);
+      gui.makeClickable(
+        gui.addLabel(XTIMES_CARCLASS, 420.0f, "class", PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f),
+        AA_SORT_BY_CARCLASS, 0);
+      gui.makeClickable(
+        gui.addLabel(XTIMES_TOTALTIME, 420.0f, "time", PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, 20.0f),
+        AA_SORT_BY_TOTALTIME, 0);
 
-        for (int i = first_time_index; i < first_time_index + times_on_screen_count; ++i)
-        {
-            LabelStyle ls;
+      for (int i = first_time_index; i < first_time_index + times_on_screen_count; ++i) {
+        LabelStyle ls;
 
-            if (current_times[i].highlighted)
-                ls = LabelStyle::Marked;
-            else
-                ls = LabelStyle::List;
+        if (current_times[i].highlighted)
+          ls = LabelStyle::Marked;
+        else
+          ls = LabelStyle::List;
 
-            gui.addLabel(XTIMES_PLAYERNAME, 395.0f - (float)(i - first_time_index) * 25.0f,
-                std::to_string(current_times[i].place) + ". ", PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, 20.0f, ls);
-            gui.addLabel(XTIMES_PLAYERNAME, 395.0f - (float)(i - first_time_index) * 25.0f,
-                current_times[i].rd.playername.substr(0, 14), PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f, ls);
-            gui.addLabel(XTIMES_CARNAME, 395.0f - (float)(i - first_time_index) * 25.0f,
-                current_times[i].rd.carname.substr(0, 9), PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f, ls);
-            gui.addLabel(XTIMES_CARCLASS, 395.0f - (float)(i - first_time_index) * 25.0f,
-                current_times[i].rd.carclass.substr(0, 8), PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f, ls);
-            gui.addLabel(XTIMES_TOTALTIME, 395.0f - (float)(i - first_time_index) * 25.0f,
-                PUtil::formatTime(current_times[i].rd.totaltime), PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, 20.0f, ls);
-        }
+        gui.addLabel(XTIMES_PLAYERNAME, 395.0f - (float)(i - first_time_index) * 25.0f,
+                     std::to_string(current_times[i].place) + ". ", PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, 20.0f, ls);
+        gui.addLabel(XTIMES_PLAYERNAME, 395.0f - (float)(i - first_time_index) * 25.0f,
+                     current_times[i].rd.playername.substr(0, 14), PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f, ls);
+        gui.addLabel(XTIMES_CARNAME, 395.0f - (float)(i - first_time_index) * 25.0f,
+                     current_times[i].rd.carname.substr(0, 9), PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f, ls);
+        gui.addLabel(XTIMES_CARCLASS, 395.0f - (float)(i - first_time_index) * 25.0f,
+                     current_times[i].rd.carclass.substr(0, 8), PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f, ls);
+        gui.addLabel(XTIMES_TOTALTIME, 395.0f - (float)(i - first_time_index) * 25.0f,
+                     PUtil::formatTime(current_times[i].rd.totaltime), PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, 20.0f, ls);
+      }
 
-        break;
+      break;
     }
 
-    case AM_TOP_PRAC_BTIMES:
-    {
-        gui.addLabel(100.0f,500.0f, events[lss.currentevent].levels[lss.currentlevel].name,
-            PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 35.0f, LabelStyle::Header);
-        gui.addLabel(100.0f,462.5f,
-            std::string("by ") + events[lss.currentevent].levels[lss.currentlevel].author,
-            PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f, LabelStyle::Weak);
-        gui.addLabel(700.0f, 462.5f, events[lss.currentevent].levels[lss.currentlevel].targettime,
-            PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, 20.0f);
-        gui.makeClickable(
-            gui.addLabel(10.0f, 10.0f, "back", PTEXT_HZA_LEFT | PTEXT_VTA_BOTTOM, 40.0f),
-            AA_PICK_PRAC_LVL, lss.currentlevel);
+    case AM_TOP_PRAC_BTIMES: {
+      gui.addLabel(100.0f, 500.0f, events[lss.currentevent].levels[lss.currentlevel].name,
+                   PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 35.0f, LabelStyle::Header);
+      gui.addLabel(100.0f, 462.5f,
+                   std::string("by ") + events[lss.currentevent].levels[lss.currentlevel].author,
+                   PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f, LabelStyle::Weak);
+      gui.addLabel(700.0f, 462.5f, events[lss.currentevent].levels[lss.currentlevel].targettime,
+                   PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, 20.0f);
+      gui.makeClickable(
+        gui.addLabel(10.0f, 10.0f, "back", PTEXT_HZA_LEFT | PTEXT_VTA_BOTTOM, 40.0f),
+        AA_PICK_PRAC_LVL, lss.currentlevel);
 
-        current_times = best_times.getCurrentTimes("", hs_sort_method);
+      current_times = best_times.getCurrentTimes("", hs_sort_method);
 
-        int first_time_index = index;
+      int first_time_index = index;
 
-        const int prevbutton = gui.addGraphic(20.0f, 275.0f, 50.0f, 50.0f, tex_button_prev, GraphicStyle::Button);
-        const int nextbutton = gui.addGraphic(730.0f, 275.0f, 50.0f, 50.0f, tex_button_next, GraphicStyle::Button);
+      const int prevbutton = gui.addGraphic(20.0f, 275.0f, 50.0f, 50.0f, tex_button_prev, GraphicStyle::Button);
+      const int nextbutton = gui.addGraphic(730.0f, 275.0f, 50.0f, 50.0f, tex_button_next, GraphicStyle::Button);
 
-        // NOTE: not using AA_BSHOWTIMES_PRAC intentionally!
-        if (first_time_index > 0)
-            gui.makeClickable(prevbutton, AA_SHOWTIMES_PRAC, first_time_index - MAX_TIMES_ON_SCREEN);
+      // NOTE: not using AA_BSHOWTIMES_PRAC intentionally!
+      if (first_time_index > 0)
+        gui.makeClickable(prevbutton, AA_SHOWTIMES_PRAC, first_time_index - MAX_TIMES_ON_SCREEN);
 
-        int times_on_screen_count = current_times.size() - first_time_index;
+      int times_on_screen_count = current_times.size() - first_time_index;
 
-        // NOTE: not using AA_BSHOWTIMES_PRAC intentionally!
-        if (times_on_screen_count > MAX_TIMES_ON_SCREEN)
-        {
-            times_on_screen_count = MAX_TIMES_ON_SCREEN;
-            gui.makeClickable(nextbutton, AA_SHOWTIMES_PRAC, first_time_index + MAX_TIMES_ON_SCREEN);
-        }
+      // NOTE: not using AA_BSHOWTIMES_PRAC intentionally!
+      if (times_on_screen_count > MAX_TIMES_ON_SCREEN) {
+        times_on_screen_count = MAX_TIMES_ON_SCREEN;
+        gui.makeClickable(nextbutton, AA_SHOWTIMES_PRAC, first_time_index + MAX_TIMES_ON_SCREEN);
+      }
 
-        std::stringstream times_count_msg;
+      std::stringstream times_count_msg;
 
-        times_count_msg << "best times";
+      times_count_msg << "best times";
 
-        if (!current_times.empty())
-            times_count_msg << ' ' << first_time_index + 1 << '-'
-            << first_time_index + times_on_screen_count << '/' << current_times.size();
+      if (!current_times.empty())
+        times_count_msg << ' ' << first_time_index + 1 << '-'
+                        << first_time_index + times_on_screen_count << '/' << current_times.size();
 
-        gui.addLabel(790.0f, 570.0f, times_count_msg.str(), PTEXT_HZA_RIGHT | PTEXT_VTA_CENTER, 20.0f, LabelStyle::Weak);
+      gui.addLabel(790.0f, 570.0f, times_count_msg.str(), PTEXT_HZA_RIGHT | PTEXT_VTA_CENTER, 20.0f, LabelStyle::Weak);
 
-        // column buttons
-        gui.makeClickable(
-            gui.addLabel(XTIMES_PLAYERNAME, 420.0f, "player", PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f),
-            AA_SORT_BY_PLAYERNAME, 0);
-        gui.makeClickable(
-            gui.addLabel(XTIMES_CARNAME, 420.0f, "car", PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f),
-            AA_SORT_BY_CARNAME, 0);
-        gui.makeClickable(
-            gui.addLabel(XTIMES_CARCLASS, 420.0f, "class", PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f),
-            AA_SORT_BY_CARCLASS, 0);
-        gui.makeClickable(
-            gui.addLabel(XTIMES_TOTALTIME, 420.0f, "time", PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, 20.0f),
-            AA_SORT_BY_TOTALTIME, 0);
+      // column buttons
+      gui.makeClickable(
+        gui.addLabel(XTIMES_PLAYERNAME, 420.0f, "player", PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f),
+        AA_SORT_BY_PLAYERNAME, 0);
+      gui.makeClickable(
+        gui.addLabel(XTIMES_CARNAME, 420.0f, "car", PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f),
+        AA_SORT_BY_CARNAME, 0);
+      gui.makeClickable(
+        gui.addLabel(XTIMES_CARCLASS, 420.0f, "class", PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f),
+        AA_SORT_BY_CARCLASS, 0);
+      gui.makeClickable(
+        gui.addLabel(XTIMES_TOTALTIME, 420.0f, "time", PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, 20.0f),
+        AA_SORT_BY_TOTALTIME, 0);
 
-        for (int i = first_time_index; i < first_time_index + times_on_screen_count; ++i)
-        {
-            gui.addLabel(XTIMES_PLAYERNAME, 395.0f - (float)(i - first_time_index) * 25.0f,
-                std::to_string(current_times[i].place) + ". ", PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, 20.0f, LabelStyle::List);
-            gui.addLabel(XTIMES_PLAYERNAME, 395.0f - (float)(i - first_time_index) * 25.0f,
-                current_times[i].rd.playername.substr(0, 14), PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f, LabelStyle::List);
-            gui.addLabel(XTIMES_CARNAME, 395.0f - (float)(i - first_time_index) * 25.0f,
-                current_times[i].rd.carname.substr(0, 9), PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f, LabelStyle::List);
-            gui.addLabel(XTIMES_CARCLASS, 395.0f - (float)(i - first_time_index) * 25.0f,
-                current_times[i].rd.carclass.substr(0, 8), PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f, LabelStyle::List);
-            gui.addLabel(XTIMES_TOTALTIME, 395.0f - (float)(i - first_time_index) * 25.0f,
-                PUtil::formatTime(current_times[i].rd.totaltime), PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, 20.0f, LabelStyle::List);
-        }
+      for (int i = first_time_index; i < first_time_index + times_on_screen_count; ++i) {
+        gui.addLabel(XTIMES_PLAYERNAME, 395.0f - (float)(i - first_time_index) * 25.0f,
+                     std::to_string(current_times[i].place) + ". ", PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, 20.0f, LabelStyle::List);
+        gui.addLabel(XTIMES_PLAYERNAME, 395.0f - (float)(i - first_time_index) * 25.0f,
+                     current_times[i].rd.playername.substr(0, 14), PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f, LabelStyle::List);
+        gui.addLabel(XTIMES_CARNAME, 395.0f - (float)(i - first_time_index) * 25.0f,
+                     current_times[i].rd.carname.substr(0, 9), PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f, LabelStyle::List);
+        gui.addLabel(XTIMES_CARCLASS, 395.0f - (float)(i - first_time_index) * 25.0f,
+                     current_times[i].rd.carclass.substr(0, 8), PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 20.0f, LabelStyle::List);
+        gui.addLabel(XTIMES_TOTALTIME, 395.0f - (float)(i - first_time_index) * 25.0f,
+                     PUtil::formatTime(current_times[i].rd.totaltime), PTEXT_HZA_RIGHT | PTEXT_VTA_TOP, 20.0f, LabelStyle::List);
+      }
 
-        break;
+      break;
     }
 
-  case AM_TOP_OPT:
-    option.render();
-    break;
+    case AM_TOP_OPT:
+      option.render();
+      break;
 
-  case AM_TOP_CTRL:
-    control.render();
-    break;
+    case AM_TOP_CTRL:
+      control.render();
+      break;
 
-  default:
-    gui.addLabel(400.0f,300.0f, "Error in menu system, sorry", PTEXT_HZA_CENTER | PTEXT_VTA_TOP, 30.0f, LabelStyle::Marked);
-    gui.makeClickable(
-      gui.addLabel(400.0f,150.0f, "Go to top menu", PTEXT_HZA_CENTER | PTEXT_VTA_TOP, 30.0f),
-      AA_GO_TOP, 0);
-    break;
+    default:
+      gui.addLabel(400.0f, 300.0f, "Error in menu system, sorry", PTEXT_HZA_CENTER | PTEXT_VTA_TOP, 30.0f,
+                   LabelStyle::Marked);
+      gui.makeClickable(
+        gui.addLabel(400.0f, 150.0f, "Go to top menu", PTEXT_HZA_CENTER | PTEXT_VTA_TOP, 30.0f),
+        AA_GO_TOP, 0);
+      break;
   }
 
   //gui.doLayout();
@@ -864,61 +843,58 @@ void MainApp::levelScreenAction(int action, int index)
 
 void MainApp::finishRace(Gamefinish state, float coursetime)
 {
-	switch (lss.state)
-	{
-		case AM_TOP_EVT_PREP:
-			switch (state)
-			{
-				case Gamefinish::pass:
-					lss.leveltimes.resize(events[lss.currentevent].levels.size(), 0.0f);
-					lss.leveltimes[lss.currentlevel] += coursetime;
-					lss.totaltime += coursetime;
-					lss.currentlevel++;
+  switch (lss.state) {
+    case AM_TOP_EVT_PREP:
+      switch (state) {
+        case Gamefinish::pass:
+          lss.leveltimes.resize(events[lss.currentevent].levels.size(), 0.0f);
+          lss.leveltimes[lss.currentlevel] += coursetime;
+          lss.totaltime += coursetime;
+          lss.currentlevel++;
 
-					// event was completed so save unlock data
-					if (lss.currentlevel >= (int)events[lss.currentevent].levels.size())
-					{
-						for (const std::string &s: events[lss.currentevent].unlocks)
-							best_times.addNewUnlock(s);
+          // event was completed so save unlock data
+          if (lss.currentlevel >= (int)events[lss.currentevent].levels.size()) {
+            for (const std::string &s : events[lss.currentevent].unlocks)
+              best_times.addNewUnlock(s);
 
-						player_unlocks = best_times.getUnlockData();
-						best_times.skipSavePlayer();
-					}
-					break;
+            player_unlocks = best_times.getUnlockData();
+            best_times.skipSavePlayer();
+          }
+          break;
 
-				case Gamefinish::fail:
-					lss.totaltime += coursetime;
-					lss.livesleft--;
-					break;
+        case Gamefinish::fail:
+          lss.totaltime += coursetime;
+          lss.livesleft--;
+          break;
 
-				default:
-					break;
-			}
-			levelScreenAction(AA_RESUME, 0);
-			break;
+        default:
+          break;
+      }
+      levelScreenAction(AA_RESUME, 0);
+      break;
 
-		case AM_TOP_PRAC_SEL_PREP:
-			levelScreenAction(AA_PICK_PRAC_LVL, lss.currentlevel);
-			break;
+    case AM_TOP_PRAC_SEL_PREP:
+      levelScreenAction(AA_PICK_PRAC_LVL, lss.currentlevel);
+      break;
 
-		case AM_TOP_LVL_PREP:
-			// Calculate the index of first level in the page by truncating the current level index to the nearest 10
-			//levelScreenAction(AA_GO_LVL, (lss.currentlevel / MAX_RACES_ON_SCREEN) * MAX_RACES_ON_SCREEN );
-			levelScreenAction(AA_PICK_LVL, lss.currentlevel);
-			break;
+    case AM_TOP_LVL_PREP:
+      // Calculate the index of first level in the page by truncating the current level index to the nearest 10
+      //levelScreenAction(AA_GO_LVL, (lss.currentlevel / MAX_RACES_ON_SCREEN) * MAX_RACES_ON_SCREEN );
+      levelScreenAction(AA_PICK_LVL, lss.currentlevel);
+      break;
 
-		case AM_TOP_LVL_TIMES:
-			levelScreenAction(AA_SHOWTIMES_LVL, 0);
-			break;
+    case AM_TOP_LVL_TIMES:
+      levelScreenAction(AA_SHOWTIMES_LVL, 0);
+      break;
 
-		case AM_TOP_PRAC_TIMES:
-			levelScreenAction(AA_SHOWTIMES_PRAC, 0);
-			break;
+    case AM_TOP_PRAC_TIMES:
+      levelScreenAction(AA_SHOWTIMES_PRAC, 0);
+      break;
 
-		default:
-			PUtil::outLog() << "Race finished in invalid state " << lss.state << std::endl;
-			break;
-	}
+    default:
+      PUtil::outLog() << "Race finished in invalid state " << lss.state << std::endl;
+      break;
+  }
 }
 
 void MainApp::tickStateLevel(float delta)
@@ -943,16 +919,16 @@ void MainApp::mouseButtonEvent(const SDL_MouseButtonEvent &mbe)
   if (mbe.type != SDL_MOUSEBUTTONDOWN) return;
 
   switch (appstate) {
-  case AS_LEVEL_SCREEN:
-    break;
-  case AS_LOAD_3:
-    levelScreenAction(AA_INIT, 0);
-    break;
-  case AS_CHOOSE_VEHICLE:
-    enterGame();
-    return;
-  default:
-    return;
+    case AS_LEVEL_SCREEN:
+      break;
+    case AS_LOAD_3:
+      levelScreenAction(AA_INIT, 0);
+      break;
+    case AS_CHOOSE_VEHICLE:
+      enterGame();
+      return;
+    default:
+      return;
   }
 
   // TODO: fix this code
@@ -982,245 +958,223 @@ void MainApp::handleLevelScreenKey(const SDL_KeyboardEvent &ke)
     }
 
   switch (ke.keysym.sym) {
-  case SDLK_ESCAPE:
-    switch(lss.state) {
-    case AM_TOP:
-      levelScreenAction(AA_GO_QUIT, 0);
+    case SDLK_ESCAPE:
+      switch (lss.state) {
+        case AM_TOP:
+          levelScreenAction(AA_GO_QUIT, 0);
+          break;
+        case AM_TOP_EVT_PREP:
+        case AM_TOP_EVT_ABANDON:
+          levelScreenAction(AA_GO_EVT, 0);
+          break;
+        case AM_TOP_PRAC_SEL:
+          levelScreenAction(AA_GO_PRAC, 0);
+          break;
+        case AM_TOP_PRAC_SEL_PREP:
+          levelScreenAction(AA_PICK_PRAC, lss.currentevent);
+          break;
+        case AM_TOP_LVL_PREP:
+          levelScreenAction(AA_GO_LVL, (lss.currentlevel / MAX_RACES_ON_SCREEN) * MAX_RACES_ON_SCREEN);
+          break;
+        case AM_TOP_QUIT:
+          quitGame();
+          break;
+        case AM_TOP_LVL_TIMES:
+        case AM_TOP_LVL_BTIMES:
+          levelScreenAction(AA_PICK_LVL, lss.currentlevel);
+          break;
+        case AM_TOP_PRAC_TIMES:
+        case AM_TOP_PRAC_BTIMES:
+          levelScreenAction(AA_PICK_PRAC_LVL, lss.currentlevel);
+          break;
+        case AM_TOP_OPT:
+          levelScreenAction(AA_RELOAD_ALL, 0);
+          break;
+        case AM_TOP_CTRL:
+          levelScreenAction(AA_RELOAD_ALL, 0);
+          break;
+        default:
+          levelScreenAction(AA_GO_TOP, 0);
+          break;
+      }
       break;
-    case AM_TOP_EVT_PREP:
-    case AM_TOP_EVT_ABANDON:
-      levelScreenAction(AA_GO_EVT, 0);
-      break;
-    case AM_TOP_PRAC_SEL:
-      levelScreenAction(AA_GO_PRAC, 0);
-      break;
-    case AM_TOP_PRAC_SEL_PREP:
-      levelScreenAction(AA_PICK_PRAC, lss.currentevent);
-      break;
-    case AM_TOP_LVL_PREP:
-      levelScreenAction(AA_GO_LVL, (lss.currentlevel / MAX_RACES_ON_SCREEN) * MAX_RACES_ON_SCREEN);
-      break;
-    case AM_TOP_QUIT:
-      quitGame();
-      break;
-    case AM_TOP_LVL_TIMES:
-    case AM_TOP_LVL_BTIMES:
-        levelScreenAction(AA_PICK_LVL, lss.currentlevel);
-        break;
-    case AM_TOP_PRAC_TIMES:
-    case AM_TOP_PRAC_BTIMES:
-        levelScreenAction(AA_PICK_PRAC_LVL, lss.currentlevel);
-        break;
-    case AM_TOP_OPT:
-      levelScreenAction(AA_RELOAD_ALL, 0);
-      break;
-    case AM_TOP_CTRL:
-      levelScreenAction(AA_RELOAD_ALL, 0);
-      break;
-    default:
-      levelScreenAction(AA_GO_TOP, 0);
-      break;
-    }
-    break;
-  case SDLK_RETURN:
-  case SDLK_KP_ENTER: {
+    case SDLK_RETURN:
+    case SDLK_KP_ENTER: {
       int data1, data2;
 
       if (gui.getDefaultAction(data1, data2))
         levelScreenAction(data1, data2);
     } break;
 
-    case SDLK_LEFT:
-    {
-        int pidx; // previous index
+    case SDLK_LEFT: {
+      int pidx; // previous index
 
-        switch (lss.state)
-        {
-            case AM_TOP_LVL_PREP:
-            {
-                pidx = lss.currentlevel - 1;
-                CLAMP_LOWER(pidx, 0);
-                levelScreenAction(AA_PICK_LVL, pidx);
-                break;
-            }
-
-            case AM_TOP_LVL:
-            {
-                pidx = (lss.currentlevel / MAX_RACES_ON_SCREEN - 1) * MAX_RACES_ON_SCREEN;
-                CLAMP_LOWER(pidx, 0);
-                levelScreenAction(AA_GO_LVL, pidx);
-                break;
-            }
-
-            case AM_TOP_EVT:
-            {
-                pidx = (lss.currentevent / MAX_RACES_ON_SCREEN - 1) * MAX_RACES_ON_SCREEN;
-                CLAMP_LOWER(pidx, 0);
-                levelScreenAction(AA_GO_EVT, pidx);
-                break;
-            }
-
-            case AM_TOP_PRAC:
-            {
-                pidx = (lss.currentevent / MAX_RACES_ON_SCREEN - 1) * MAX_RACES_ON_SCREEN;
-                CLAMP_LOWER(pidx, 0);
-                levelScreenAction(AA_GO_PRAC, pidx);
-                break;
-            }
-
-            case AM_TOP_PRAC_SEL_PREP:
-            {
-                pidx = lss.currentlevel - 1;
-                CLAMP_LOWER(pidx, 0);
-                levelScreenAction(AA_PICK_PRAC_LVL, pidx);
-                break;
-            }
-
-            case AM_TOP_LVL_TIMES:
-            {
-                pidx = (lss.currentplayer / MAX_TIMES_ON_SCREEN - 1) * MAX_TIMES_ON_SCREEN;
-                CLAMP_LOWER(pidx, 0);
-                levelScreenAction(AA_SHOWTIMES_LVL, pidx);
-                break;
-            }
-
-            case AM_TOP_PRAC_TIMES:
-            {
-                pidx = (lss.currentplayer / MAX_TIMES_ON_SCREEN - 1) * MAX_TIMES_ON_SCREEN;
-                CLAMP_LOWER(pidx, 0);
-                levelScreenAction(AA_SHOWTIMES_PRAC, pidx);
-                break;
-            }
-
-            case AM_TOP_LVL_BTIMES:
-            {
-                // NOTE: not using AA_BSHOWTIMES_LVL intentionally!
-                pidx = (lss.currentplayer / MAX_TIMES_ON_SCREEN - 1) * MAX_TIMES_ON_SCREEN;
-                CLAMP_LOWER(pidx, 0);
-                levelScreenAction(AA_SHOWTIMES_LVL, pidx);
-                break;
-            }
-
-            case AM_TOP_PRAC_BTIMES:
-            {
-                // NOTE: not using AA_BSHOWTIMES_PRAC intentionally!
-                pidx = (lss.currentplayer / MAX_TIMES_ON_SCREEN - 1) * MAX_TIMES_ON_SCREEN;
-                CLAMP_LOWER(pidx, 0);
-                levelScreenAction(AA_SHOWTIMES_PRAC, pidx);
-                break;
-            }
+      switch (lss.state) {
+        case AM_TOP_LVL_PREP: {
+          pidx = lss.currentlevel - 1;
+          CLAMP_LOWER(pidx, 0);
+          levelScreenAction(AA_PICK_LVL, pidx);
+          break;
         }
 
-        break;
-    }
-
-    case SDLK_RIGHT:
-    {
-        int nidx; // next index
-
-        switch (lss.state)
-        {
-            case AM_TOP_LVL_PREP:
-            {
-                nidx = lss.currentlevel + 1;
-                CLAMP_UPPER(nidx, static_cast<int> (levels.size() - 1));
-                levelScreenAction(AA_PICK_LVL, nidx);
-                break;
-            }
-
-            case AM_TOP_LVL:
-            {
-                if (levels.size() - lss.currentlevel <= MAX_RACES_ON_SCREEN)
-                    break;
-
-                nidx = (lss.currentlevel / MAX_RACES_ON_SCREEN + 1) * MAX_RACES_ON_SCREEN;
-                CLAMP_UPPER(nidx, static_cast<int> (levels.size() - 1));
-                levelScreenAction(AA_GO_LVL, nidx);
-                break;
-            }
-
-            case AM_TOP_EVT:
-            {
-                if (events.size() - lss.currentevent <= MAX_RACES_ON_SCREEN)
-                    break;
-
-                nidx = (lss.currentevent / MAX_RACES_ON_SCREEN + 1) * MAX_RACES_ON_SCREEN;
-                CLAMP_UPPER(nidx, static_cast<int> (events.size() - 1));
-                levelScreenAction(AA_GO_EVT, nidx);
-                break;
-            }
-
-            case AM_TOP_PRAC:
-            {
-                if (events.size() - lss.currentevent <= MAX_RACES_ON_SCREEN)
-                    break;
-
-                nidx = (lss.currentevent / MAX_RACES_ON_SCREEN + 1) * MAX_RACES_ON_SCREEN;
-                CLAMP_UPPER(nidx, static_cast<int> (events.size() - 1));
-                levelScreenAction(AA_GO_PRAC, nidx);
-                break;
-            }
-
-            case AM_TOP_PRAC_SEL_PREP:
-            {
-                nidx = lss.currentlevel + 1;
-                CLAMP_UPPER(nidx, static_cast<int> (events[lss.currentevent].levels.size() - 1));
-                levelScreenAction(AA_PICK_PRAC_LVL, nidx);
-                break;
-            }
-
-            case AM_TOP_LVL_TIMES:
-            {
-                if (current_times.size() - lss.currentplayer <= MAX_TIMES_ON_SCREEN)
-                    break;
-
-                nidx = (lss.currentplayer / MAX_TIMES_ON_SCREEN + 1) * MAX_TIMES_ON_SCREEN;
-                CLAMP_UPPER(nidx, static_cast<int> (current_times.size() - 1));
-                levelScreenAction(AA_SHOWTIMES_LVL, nidx);
-                break;
-            }
-
-            case AM_TOP_PRAC_TIMES:
-            {
-                if (current_times.size() - lss.currentplayer <= MAX_TIMES_ON_SCREEN)
-                    break;
-
-                nidx = (lss.currentplayer / MAX_TIMES_ON_SCREEN + 1) * MAX_TIMES_ON_SCREEN;
-                CLAMP_UPPER(nidx, static_cast<int> (current_times.size() - 1));
-                levelScreenAction(AA_SHOWTIMES_PRAC, nidx);
-                break;
-            }
-
-            case AM_TOP_LVL_BTIMES:
-            {
-                if (current_times.size() - lss.currentplayer <= MAX_TIMES_ON_SCREEN)
-                    break;
-
-                // NOTE: not using AA_BSHOWTIMES_LVL intentionally!
-                nidx = (lss.currentplayer / MAX_TIMES_ON_SCREEN + 1) * MAX_TIMES_ON_SCREEN;
-                CLAMP_UPPER(nidx, static_cast<int> (current_times.size() - 1));
-                levelScreenAction(AA_SHOWTIMES_LVL, nidx);
-                break;
-            }
-
-            case AM_TOP_PRAC_BTIMES:
-            {
-                if (current_times.size() - lss.currentplayer <= MAX_TIMES_ON_SCREEN)
-                    break;
-
-                // NOTE: not using AA_BSHOWTIMES_PRAC intentionally!
-                nidx = (lss.currentplayer / MAX_TIMES_ON_SCREEN + 1) * MAX_TIMES_ON_SCREEN;
-                CLAMP_UPPER(nidx, static_cast<int> (current_times.size() - 1));
-                levelScreenAction(AA_SHOWTIMES_PRAC, nidx);
-                break;
-            }
+        case AM_TOP_LVL: {
+          pidx = (lss.currentlevel / MAX_RACES_ON_SCREEN - 1) * MAX_RACES_ON_SCREEN;
+          CLAMP_LOWER(pidx, 0);
+          levelScreenAction(AA_GO_LVL, pidx);
+          break;
         }
 
-        break;
+        case AM_TOP_EVT: {
+          pidx = (lss.currentevent / MAX_RACES_ON_SCREEN - 1) * MAX_RACES_ON_SCREEN;
+          CLAMP_LOWER(pidx, 0);
+          levelScreenAction(AA_GO_EVT, pidx);
+          break;
+        }
+
+        case AM_TOP_PRAC: {
+          pidx = (lss.currentevent / MAX_RACES_ON_SCREEN - 1) * MAX_RACES_ON_SCREEN;
+          CLAMP_LOWER(pidx, 0);
+          levelScreenAction(AA_GO_PRAC, pidx);
+          break;
+        }
+
+        case AM_TOP_PRAC_SEL_PREP: {
+          pidx = lss.currentlevel - 1;
+          CLAMP_LOWER(pidx, 0);
+          levelScreenAction(AA_PICK_PRAC_LVL, pidx);
+          break;
+        }
+
+        case AM_TOP_LVL_TIMES: {
+          pidx = (lss.currentplayer / MAX_TIMES_ON_SCREEN - 1) * MAX_TIMES_ON_SCREEN;
+          CLAMP_LOWER(pidx, 0);
+          levelScreenAction(AA_SHOWTIMES_LVL, pidx);
+          break;
+        }
+
+        case AM_TOP_PRAC_TIMES: {
+          pidx = (lss.currentplayer / MAX_TIMES_ON_SCREEN - 1) * MAX_TIMES_ON_SCREEN;
+          CLAMP_LOWER(pidx, 0);
+          levelScreenAction(AA_SHOWTIMES_PRAC, pidx);
+          break;
+        }
+
+        case AM_TOP_LVL_BTIMES: {
+          // NOTE: not using AA_BSHOWTIMES_LVL intentionally!
+          pidx = (lss.currentplayer / MAX_TIMES_ON_SCREEN - 1) * MAX_TIMES_ON_SCREEN;
+          CLAMP_LOWER(pidx, 0);
+          levelScreenAction(AA_SHOWTIMES_LVL, pidx);
+          break;
+        }
+
+        case AM_TOP_PRAC_BTIMES: {
+          // NOTE: not using AA_BSHOWTIMES_PRAC intentionally!
+          pidx = (lss.currentplayer / MAX_TIMES_ON_SCREEN - 1) * MAX_TIMES_ON_SCREEN;
+          CLAMP_LOWER(pidx, 0);
+          levelScreenAction(AA_SHOWTIMES_PRAC, pidx);
+          break;
+        }
+      }
+
+      break;
     }
 
-  default:
-    break;
+    case SDLK_RIGHT: {
+      int nidx; // next index
+
+      switch (lss.state) {
+        case AM_TOP_LVL_PREP: {
+          nidx = lss.currentlevel + 1;
+          CLAMP_UPPER(nidx, static_cast<int> (levels.size() - 1));
+          levelScreenAction(AA_PICK_LVL, nidx);
+          break;
+        }
+
+        case AM_TOP_LVL: {
+          if (levels.size() - lss.currentlevel <= MAX_RACES_ON_SCREEN)
+            break;
+
+          nidx = (lss.currentlevel / MAX_RACES_ON_SCREEN + 1) * MAX_RACES_ON_SCREEN;
+          CLAMP_UPPER(nidx, static_cast<int> (levels.size() - 1));
+          levelScreenAction(AA_GO_LVL, nidx);
+          break;
+        }
+
+        case AM_TOP_EVT: {
+          if (events.size() - lss.currentevent <= MAX_RACES_ON_SCREEN)
+            break;
+
+          nidx = (lss.currentevent / MAX_RACES_ON_SCREEN + 1) * MAX_RACES_ON_SCREEN;
+          CLAMP_UPPER(nidx, static_cast<int> (events.size() - 1));
+          levelScreenAction(AA_GO_EVT, nidx);
+          break;
+        }
+
+        case AM_TOP_PRAC: {
+          if (events.size() - lss.currentevent <= MAX_RACES_ON_SCREEN)
+            break;
+
+          nidx = (lss.currentevent / MAX_RACES_ON_SCREEN + 1) * MAX_RACES_ON_SCREEN;
+          CLAMP_UPPER(nidx, static_cast<int> (events.size() - 1));
+          levelScreenAction(AA_GO_PRAC, nidx);
+          break;
+        }
+
+        case AM_TOP_PRAC_SEL_PREP: {
+          nidx = lss.currentlevel + 1;
+          CLAMP_UPPER(nidx, static_cast<int> (events[lss.currentevent].levels.size() - 1));
+          levelScreenAction(AA_PICK_PRAC_LVL, nidx);
+          break;
+        }
+
+        case AM_TOP_LVL_TIMES: {
+          if (current_times.size() - lss.currentplayer <= MAX_TIMES_ON_SCREEN)
+            break;
+
+          nidx = (lss.currentplayer / MAX_TIMES_ON_SCREEN + 1) * MAX_TIMES_ON_SCREEN;
+          CLAMP_UPPER(nidx, static_cast<int> (current_times.size() - 1));
+          levelScreenAction(AA_SHOWTIMES_LVL, nidx);
+          break;
+        }
+
+        case AM_TOP_PRAC_TIMES: {
+          if (current_times.size() - lss.currentplayer <= MAX_TIMES_ON_SCREEN)
+            break;
+
+          nidx = (lss.currentplayer / MAX_TIMES_ON_SCREEN + 1) * MAX_TIMES_ON_SCREEN;
+          CLAMP_UPPER(nidx, static_cast<int> (current_times.size() - 1));
+          levelScreenAction(AA_SHOWTIMES_PRAC, nidx);
+          break;
+        }
+
+        case AM_TOP_LVL_BTIMES: {
+          if (current_times.size() - lss.currentplayer <= MAX_TIMES_ON_SCREEN)
+            break;
+
+          // NOTE: not using AA_BSHOWTIMES_LVL intentionally!
+          nidx = (lss.currentplayer / MAX_TIMES_ON_SCREEN + 1) * MAX_TIMES_ON_SCREEN;
+          CLAMP_UPPER(nidx, static_cast<int> (current_times.size() - 1));
+          levelScreenAction(AA_SHOWTIMES_LVL, nidx);
+          break;
+        }
+
+        case AM_TOP_PRAC_BTIMES: {
+          if (current_times.size() - lss.currentplayer <= MAX_TIMES_ON_SCREEN)
+            break;
+
+          // NOTE: not using AA_BSHOWTIMES_PRAC intentionally!
+          nidx = (lss.currentplayer / MAX_TIMES_ON_SCREEN + 1) * MAX_TIMES_ON_SCREEN;
+          CLAMP_UPPER(nidx, static_cast<int> (current_times.size() - 1));
+          levelScreenAction(AA_SHOWTIMES_PRAC, nidx);
+          break;
+        }
+      }
+
+      break;
+    }
+
+    default:
+      break;
   }
 }
 
@@ -1233,27 +1187,27 @@ void MainApp::renderStateLevel(float eyetranslation)
   glDisable(GL_DEPTH_TEST);
 
   {
-  glm::mat4 o = glm::ortho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
+    glm::mat4 o = glm::ortho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
 
-  // draw background image
+    // draw background image
 
-  tex_splash_screen->bind();
+    tex_splash_screen->bind();
 
-  renderTexturedFullscreenQuad(glm::mat4(1.0f), o);
+    renderTexturedFullscreenQuad(glm::mat4(1.0f), o);
 
-  const GLdouble margin = (800.0 - 600.0 * cx / cy) / 2.0;
+    const GLdouble margin = (800.0 - 600.0 * cx / cy) / 2.0;
 
-  glm::mat4 o2 = glm::ortho(margin, 600.0 * cx / cy + margin, 0.0, 600.0, -1.0, 1.0);
+    glm::mat4 o2 = glm::ortho(margin, 600.0 * cx / cy + margin, 0.0, 600.0, -1.0, 1.0);
 
-  // draw GUI
+    // draw GUI
 
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-  //glColor4f(1.0f, 1.0f, 1.0f, 0.2f);
+    //glColor4f(1.0f, 1.0f, 1.0f, 0.2f);
 
-  tex_fontSourceCodeOutlined->bind();
+    tex_fontSourceCodeOutlined->bind();
 
-  gui.render(o2);
+    gui.render(o2);
   }
 
   glBlendFunc(GL_ONE, GL_ZERO);
@@ -1262,19 +1216,19 @@ void MainApp::renderStateLevel(float eyetranslation)
 
 /// @see GuiWidgetColors
 #define LIST_OF_GUIWIDGETCOLORS_FIELDS  \
-    X(normal)                           \
-    X(click)                            \
-    X(hover)                            \
-    X(listnormal)                       \
-    X(listclick)                        \
-    X(listhover)                        \
-    X(weak)                             \
-    X(strong)                           \
-    X(marked)                           \
-    X(header)                           \
-    X(bnormal)                          \
-    X(bclick)                           \
-    X(bhover)
+  X(normal)                           \
+  X(click)                            \
+  X(hover)                            \
+  X(listnormal)                       \
+  X(listclick)                        \
+  X(listhover)                        \
+  X(weak)                             \
+  X(strong)                           \
+  X(marked)                           \
+  X(header)                           \
+  X(bnormal)                          \
+  X(bclick)                           \
+  X(bhover)
 
 ///
 /// @brief Loads the widget colors from the specified filename.
@@ -1286,29 +1240,29 @@ void MainApp::renderStateLevel(float eyetranslation)
 ///
 bool Gui::loadColors(const std::string &filename)
 {
-    if (PUtil::isDebugLevel(DEBUGLEVEL_TEST))
-        PUtil::outLog() << "Loading GUI colors from \"" << filename << "\"\n";
+  if (PUtil::isDebugLevel(DEBUGLEVEL_TEST))
+    PUtil::outLog() << "Loading GUI colors from \"" << filename << "\"\n";
 
-    XMLDocument xmlfile;
-    XMLElement *rootelem = PUtil::loadRootElement(xmlfile, filename, "menucolors");
+  XMLDocument xmlfile;
+  XMLElement *rootelem = PUtil::loadRootElement(xmlfile, filename, "menucolors");
 
-    if (rootelem == nullptr)
-        return false;
+  if (rootelem == nullptr)
+    return false;
 
-    bool r = true;
-    const char *val;
+  bool r = true;
+  const char* val;
 
 #define X(ColorField) \
-    val = rootelem->Attribute(#ColorField); \
-    if (val != nullptr) \
-        sscanf(val, "%f, %f, %f, %f", &colors.ColorField.x, &colors.ColorField.y, &colors.ColorField.z, &colors.ColorField.w); \
-    else \
-        r = false;
+  val = rootelem->Attribute(#ColorField); \
+  if (val != nullptr) \
+    sscanf(val, "%f, %f, %f, %f", &colors.ColorField.x, &colors.ColorField.y, &colors.ColorField.z, &colors.ColorField.w); \
+  else \
+    r = false;
 
-    LIST_OF_GUIWIDGETCOLORS_FIELDS
+  LIST_OF_GUIWIDGETCOLORS_FIELDS
 
 #undef X
-    return r;
+  return r;
 }
 
 ///
@@ -1319,8 +1273,7 @@ void Gui::tick(float delta)
   float decay = delta * 3.0f;
 
   // gradually unglow all widgets
-  for (unsigned int i = 0; i < widget.size(); i++)
-  {
+  for (unsigned int i = 0; i < widget.size(); i++) {
     widget[i].glow -= decay;
     CLAMP_LOWER(widget[i].glow, 0.0f);
   }
@@ -1330,7 +1283,7 @@ void Gui::tick(float delta)
     widget[highlight].glow = 1.0f;
   }
 
-  defflash = fmodf(defflash + delta * 50.0f, PI*2.0f);
+  defflash = fmodf(defflash + delta * 50.0f, PI * 2.0f);
 }
 
 void Gui::setCursorPos(float x, float y)
@@ -1342,14 +1295,14 @@ void Gui::setCursorPos(float x, float y)
     if (!widget[i].clickable) continue;
 
     if (x >= widget[i].pos.x &&
-      y >= widget[i].pos.y &&
-      x < widget[i].pos.x + widget[i].dims_min.x &&
-      y < widget[i].pos.y + widget[i].dims_min.y)
+        y >= widget[i].pos.y &&
+        x < widget[i].pos.x + widget[i].dims_min.x &&
+        y < widget[i].pos.y + widget[i].dims_min.y)
       highlight = i;
   }
 }
 
-bool Gui::getClickAction(int &data1, int &data2)
+bool Gui::getClickAction(int& data1, int& data2)
 {
   if (highlight == -1) return false;
 
@@ -1359,7 +1312,7 @@ bool Gui::getClickAction(int &data1, int &data2)
   return true;
 }
 
-bool Gui::getDefaultAction(int &data1, int &data2)
+bool Gui::getDefaultAction(int& data1, int& data2)
 {
   if (defwidget == -1) return false;
 
@@ -1399,13 +1352,13 @@ void Gui::render(const glm::mat4& p)
     glm::mat4 t = glm::translate(glm::mat4(1.0f), glm::vec3(pos.x, pos.y, 0.0f));
     t = glm::scale(t, glm::vec3(dims.x, dims.y, 1.0f));
 
-    switch(widget[i].type) {
-    case GWT_LABEL: {
-      ssRender->drawText(widget[i].text, col_c, flags, t, p);
+    switch (widget[i].type) {
+      case GWT_LABEL: {
+        ssRender->drawText(widget[i].text, col_c, flags, t, p);
       } break;
 
-    case GWT_GRAPHIC: {
-      renderGraphicWidget(col_c, t, p);
+      case GWT_GRAPHIC: {
+        renderGraphicWidget(col_c, t, p);
       } break;
     }
   }
@@ -1413,17 +1366,17 @@ void Gui::render(const glm::mat4& p)
 
 void Gui::renderGraphicWidget(const glm::vec4& color, const glm::mat4& mv, const glm::mat4& p)
 {
-    vao_widget->bind();
-    sp_widget->use();
-    sp_widget->attrib("tex_coord", 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GL_FLOAT), 0);
-    sp_widget->attrib("position", 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GL_FLOAT), 2 * sizeof(GL_FLOAT));
-    sp_widget->uniform("color", color);
-    sp_widget->uniform("mv", mv);
-    sp_widget->uniform("p", p);
-    sp_widget->uniform("widget", 0);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
-    sp_widget->unuse();
-    vao_widget->unbind();
+  vao_widget->bind();
+  sp_widget->use();
+  sp_widget->attrib("tex_coord", 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GL_FLOAT), 0);
+  sp_widget->attrib("position", 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GL_FLOAT), 2 * sizeof(GL_FLOAT));
+  sp_widget->uniform("color", color);
+  sp_widget->uniform("mv", mv);
+  sp_widget->uniform("p", p);
+  sp_widget->uniform("widget", 0);
+  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
+  sp_widget->unuse();
+  vao_widget->unbind();
 }
 
 // Widget tree stuff wasn't working properly, so I removed it for
@@ -1448,36 +1401,36 @@ void Gui::measureWidgetTree(int w)
   widget[w].fillercount = 0;
 
   switch (widget[w].type) {
-  default:
+    default:
 
-    widget[w].dims_measure = widget[w].dims_min;
+      widget[w].dims_measure = widget[w].dims_min;
 
-    break;
+      break;
 
-  case GWT_CONTAINER: {
+    case GWT_CONTAINER: {
 
-    vec2f measure = vec2f(0.0f, 0.0f);
+      vec2f measure = vec2f(0.0f, 0.0f);
 
-    for (unsigned int i = 0; i < widget.size(); i++) {
-      if (widget[i].parent == w) {
-        measureWidgetTree(i);
+      for (unsigned int i = 0; i < widget.size(); i++) {
+        if (widget[i].parent == w) {
+          measureWidgetTree(i);
 
-        widget[w].childcount++;
+          widget[w].childcount++;
 
-        if (widget[i].type == GWT_FILLER)
-          widget[w].fillercount++;
+          if (widget[i].type == GWT_FILLER)
+            widget[w].fillercount++;
 
-        if (widget[w].vert) {
-          CLAMP_LOWER(measure.x, widget[i].dims_measure.x);
-          measure.y += widget[i].dims_measure.y;
-        } else {
-          measure.x += widget[i].dims_measure.x;
-          CLAMP_LOWER(measure.y, widget[i].dims_measure.y);
+          if (widget[w].vert) {
+            CLAMP_LOWER(measure.x, widget[i].dims_measure.x);
+            measure.y += widget[i].dims_measure.y;
+          } else {
+            measure.x += widget[i].dims_measure.x;
+            CLAMP_LOWER(measure.y, widget[i].dims_measure.y);
+          }
         }
       }
-    }
 
-    widget[w].dims_measure = measure;
+      widget[w].dims_measure = measure;
 
     } break;
   }
@@ -1488,12 +1441,12 @@ void Gui::placeWidgetTree(int w)
   if (widget[w].childcount <= 0) return;
 
   float extraspace = widget[w].vert ?
-    - widget[w].dims_measure.x :
-    - widget[w].dims_measure.y;
+                     - widget[w].dims_measure.x :
+                     - widget[w].dims_measure.y;
   if (widget[w].parent == GWPARENT_NONE) {
     extraspace += widget[w].vert ?
-      widget[w].dims_min.x :
-      widget[w].dims_min.y;
+                  widget[w].dims_min.x :
+                  widget[w].dims_min.y;
   }
 
   CLAMP_LOWER(extraspace, 0.0f);
@@ -1502,8 +1455,8 @@ void Gui::placeWidgetTree(int w)
   //CLAMP_LOWER(widget[w].dims_measure.y, widget[w].dims_min.y);
 
   float
-    addtofillers = 0.0f,
-    addtochildren = 0.0f;
+  addtofillers = 0.0f,
+  addtochildren = 0.0f;
   /*
   if (widget[w].fillercount > 0)
     addtofillers = extraspace / (float)widget[w].fillercount;
@@ -1522,16 +1475,16 @@ void Gui::placeWidgetTree(int w)
         widget[i].dims_measure.x = widget[w].dims_measure.x;
 
         switch (widget[i].type) {
-        case GWT_FILLER:
-          widget[i].dims_measure.y += addtofillers;
-          break;
-        case GWT_CONTAINER:
-          widget[i].dims_measure.y += addtochildren;
-          placeWidgetTree(i);
-          break;
-        default:
-          widget[i].dims_measure.y += addtochildren;
-          break;
+          case GWT_FILLER:
+            widget[i].dims_measure.y += addtofillers;
+            break;
+          case GWT_CONTAINER:
+            widget[i].dims_measure.y += addtochildren;
+            placeWidgetTree(i);
+            break;
+          default:
+            widget[i].dims_measure.y += addtochildren;
+            break;
         }
 
         distrib += widget[i].dims_measure.y;
@@ -1549,16 +1502,16 @@ void Gui::placeWidgetTree(int w)
         widget[i].dims_measure.y = widget[w].dims_measure.y;
 
         switch (widget[i].type) {
-        case GWT_FILLER:
-          widget[i].dims_measure.x += addtofillers;
-          break;
-        case GWT_CONTAINER:
-          widget[i].dims_measure.x += addtochildren;
-          placeWidgetTree(i);
-          break;
-        default:
-          widget[i].dims_measure.x += addtochildren;
-          break;
+          case GWT_FILLER:
+            widget[i].dims_measure.x += addtofillers;
+            break;
+          case GWT_CONTAINER:
+            widget[i].dims_measure.x += addtochildren;
+            placeWidgetTree(i);
+            break;
+          default:
+            widget[i].dims_measure.x += addtochildren;
+            break;
         }
 
         distrib += widget[i].dims_measure.x;
@@ -1582,15 +1535,15 @@ void Gui::renderWidgetTree(int w)
   vec2f min, max;
 
   switch (widget[w].type) {
-  case GWT_CONTAINER:
-    glColor4f(1.0f,0.0f,0.0f,0.2f);
-    break;
-  case GWT_FILLER:
-    glColor4f(0.0f,1.0f,0.0f,0.2f);
-    break;
-  case GWT_LABEL:
-    glColor4f(0.0f,0.0f,1.0f,0.2f);
-    break;
+    case GWT_CONTAINER:
+      glColor4f(1.0f, 0.0f, 0.0f, 0.2f);
+      break;
+    case GWT_FILLER:
+      glColor4f(0.0f, 1.0f, 0.0f, 0.2f);
+      break;
+    case GWT_LABEL:
+      glColor4f(0.0f, 0.0f, 1.0f, 0.2f);
+      break;
   }
 
   min = widget[w].pos;
@@ -1607,28 +1560,28 @@ void Gui::renderWidgetTree(int w)
 
   // Render this widget
   switch (widget[w].type) {
-  default:
-    break;
+    default:
+      break;
 
-  case GWT_LABEL: {
-    glPushMatrix();
-    vec2f ctr = widget[w].pos + widget[w].dims_measure * 0.5f;
-    glTranslatef(ctr.x, ctr.y, 0.0f);
-    glScalef(widget[w].fontsize, widget[w].fontsize, 1.0f);
-    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-    ssRender->drawText(widget[w].text, PTEXT_HZA_CENTER | PTEXT_VTA_CENTER);
-    glPopMatrix();
+    case GWT_LABEL: {
+      glPushMatrix();
+      vec2f ctr = widget[w].pos + widget[w].dims_measure * 0.5f;
+      glTranslatef(ctr.x, ctr.y, 0.0f);
+      glScalef(widget[w].fontsize, widget[w].fontsize, 1.0f);
+      glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+      ssRender->drawText(widget[w].text, PTEXT_HZA_CENTER | PTEXT_VTA_CENTER);
+      glPopMatrix();
     } break;
   }
 
   // Render children
   switch (widget[w].type) {
-  case GWT_CONTAINER:
-    for (unsigned int i = 0; i < widget.size(); i++) {
-      if (widget[i].parent == w)
-        renderWidgetTree(i);
-    }
-    break;
+    case GWT_CONTAINER:
+      for (unsigned int i = 0; i < widget.size(); i++) {
+        if (widget[i].parent == w)
+          renderWidgetTree(i);
+      }
+      break;
   }
 }
 
@@ -1690,46 +1643,30 @@ int Gui::addLabel(float x, float y, const std::string &text, uint32 flags, float
   widget[w].pos = vec2f(x, y);
   widget[w].tex = fonttex;
 
-  if (ls == LabelStyle::Regular)
-  {
-      widget[w].colnormal   = colors.normal;
-      widget[w].colclick    = colors.click;
-      widget[w].colhover    = colors.hover;
-  }
-  else
-  if (ls == LabelStyle::Weak)
-  {
-      widget[w].colnormal   = colors.weak;
-      widget[w].colclick    = colors.click;
-      widget[w].colhover    = colors.hover;
-  }
-  else
-  if (ls == LabelStyle::Strong)
-  {
-      widget[w].colnormal   = colors.strong;
-      widget[w].colclick    = colors.click;
-      widget[w].colhover    = colors.hover;
-  }
-  else
-  if (ls == LabelStyle::Marked)
-  {
-      widget[w].colnormal   = colors.marked;
-      widget[w].colclick    = colors.click;
-      widget[w].colhover    = colors.hover;
-  }
-  else
-  if (ls == LabelStyle::Header)
-  {
-      widget[w].colnormal   = colors.header;
-      widget[w].colclick    = colors.click;
-      widget[w].colhover    = colors.hover;
-  }
-  else
-  if (ls == LabelStyle::List)
-  {
-      widget[w].colnormal   = colors.listnormal;
-      widget[w].colclick    = colors.listclick;
-      widget[w].colhover    = colors.listhover;
+  if (ls == LabelStyle::Regular) {
+    widget[w].colnormal   = colors.normal;
+    widget[w].colclick    = colors.click;
+    widget[w].colhover    = colors.hover;
+  } else if (ls == LabelStyle::Weak) {
+    widget[w].colnormal   = colors.weak;
+    widget[w].colclick    = colors.click;
+    widget[w].colhover    = colors.hover;
+  } else if (ls == LabelStyle::Strong) {
+    widget[w].colnormal   = colors.strong;
+    widget[w].colclick    = colors.click;
+    widget[w].colhover    = colors.hover;
+  } else if (ls == LabelStyle::Marked) {
+    widget[w].colnormal   = colors.marked;
+    widget[w].colclick    = colors.click;
+    widget[w].colhover    = colors.hover;
+  } else if (ls == LabelStyle::Header) {
+    widget[w].colnormal   = colors.header;
+    widget[w].colclick    = colors.click;
+    widget[w].colhover    = colors.hover;
+  } else if (ls == LabelStyle::List) {
+    widget[w].colnormal   = colors.listnormal;
+    widget[w].colclick    = colors.listclick;
+    widget[w].colhover    = colors.listhover;
   }
 
   if (flags & PTEXT_HZA_CENTER)
@@ -1754,19 +1691,15 @@ int Gui::addGraphic(float x, float y, float width, float height, PTexture *tex, 
   widget[w].pos = vec2f(x, y);
   widget[w].tex = tex;
 
-    if (gs == GraphicStyle::Button)
-    {
-        widget[w].colnormal = colors.bnormal;
-        widget[w].colclick  = colors.bclick;
-        widget[w].colhover  = colors.bhover;
-    }
-    else
-    if (gs == GraphicStyle::Image)
-    {
-        widget[w].colnormal = {1.00f, 1.00f, 1.00f, 1.00f};
-        widget[w].colclick  = {1.00f, 1.00f, 1.00f, 1.00f};
-        widget[w].colhover  = {1.00f, 1.00f, 1.00f, 1.00f};
-    }
+  if (gs == GraphicStyle::Button) {
+    widget[w].colnormal = colors.bnormal;
+    widget[w].colclick  = colors.bclick;
+    widget[w].colhover  = colors.bhover;
+  } else if (gs == GraphicStyle::Image) {
+    widget[w].colnormal = {1.00f, 1.00f, 1.00f, 1.00f};
+    widget[w].colclick  = {1.00f, 1.00f, 1.00f, 1.00f};
+    widget[w].colhover  = {1.00f, 1.00f, 1.00f, 1.00f};
+  }
 
   return w;
 }

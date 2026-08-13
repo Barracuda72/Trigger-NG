@@ -28,9 +28,9 @@
 /// @param[in] config   Configuration data of game from XML file
 ///
 POption::POption(Gui &parent, PConfig &config) :
-    parent(parent),
-    cfg(config),
-    pos(0)
+  parent(parent),
+  cfg(config),
+  pos(0)
 {
   //options.push_back({ OptionPlayerName, "Player name",
   //  { "_A-z 0-9" }, 0 });
@@ -93,70 +93,68 @@ void POption::select(int index)
   options[row].select = column;
 
   switch (options[row].id) {
-  case OptionEngineVolume:
-    cfg.setVolumeEngine(column * 0.1f);
-    break;
-  case OptionSfxVolume:
-    cfg.setVolumeSfx(column * 0.1f);
-    break;
-  case OptionCodriverVolume:
-    cfg.setVolumeCodriver(column * 0.1f);
-    break;
-  case OptionCodriverVoice:
-    if (!column)
-      cfg.setCodrivername("mime");
-    else
-      cfg.setCodrivername(options[row].values[column]);
-    break;
-  case OptionCodriverSigns:
-    if (column) {
-      cfg.setEnableCodriversigns(true);
-      cfg.setCodriversigns(options[row].values[column]);
-    }
-    else {
-      cfg.setEnableCodriversigns(false);
-    }
-    break;
-  case OptionTextureQuality:
-    if (column)
-      cfg.setAnisotropy(pow(2, column - 1));
-    else
-      cfg.setAnisotropy(0.0f);
-    break;
-  case OptionSnowflakes:
-    if (column) {
-      cfg.setWeather(true);
-      cfg.setSnowflaketype((PConfig::SnowFlakeType)(column - 1));
-    }
-    else
-      cfg.setWeather(false);
-    break;
-  case OptionSpeedUnits:
-    if (!column)
-      cfg.setSpeedUnit(PConfig::Speedunit::kph);
-    else
-      cfg.setSpeedUnit(PConfig::Speedunit::mph);
-    break;
-  case OptionGhostCars:
-    cfg.setEnableGhost(column);
-    break;
-  case OptionDisplayFps:
-    cfg.setEnableFps(column);
-    break;
-  case OptionFoliage:
-    cfg.setFoliage(column);
-    break;
-  case OptionRoadsigns:
-    cfg.setRoadsigns(column);
-    break;
-  case OptionDirtEffect:
-    cfg.setDirteffect(column);
-    break;
-  case OptionTransmission:
-    cfg.setAutomaticTransmission(column);
-    break;
-  default:
-    break;
+    case OptionEngineVolume:
+      cfg.setVolumeEngine(column * 0.1f);
+      break;
+    case OptionSfxVolume:
+      cfg.setVolumeSfx(column * 0.1f);
+      break;
+    case OptionCodriverVolume:
+      cfg.setVolumeCodriver(column * 0.1f);
+      break;
+    case OptionCodriverVoice:
+      if (!column)
+        cfg.setCodrivername("mime");
+      else
+        cfg.setCodrivername(options[row].values[column]);
+      break;
+    case OptionCodriverSigns:
+      if (column) {
+        cfg.setEnableCodriversigns(true);
+        cfg.setCodriversigns(options[row].values[column]);
+      } else {
+        cfg.setEnableCodriversigns(false);
+      }
+      break;
+    case OptionTextureQuality:
+      if (column)
+        cfg.setAnisotropy(pow(2, column - 1));
+      else
+        cfg.setAnisotropy(0.0f);
+      break;
+    case OptionSnowflakes:
+      if (column) {
+        cfg.setWeather(true);
+        cfg.setSnowflaketype((PConfig::SnowFlakeType)(column - 1));
+      } else
+        cfg.setWeather(false);
+      break;
+    case OptionSpeedUnits:
+      if (!column)
+        cfg.setSpeedUnit(PConfig::Speedunit::kph);
+      else
+        cfg.setSpeedUnit(PConfig::Speedunit::mph);
+      break;
+    case OptionGhostCars:
+      cfg.setEnableGhost(column);
+      break;
+    case OptionDisplayFps:
+      cfg.setEnableFps(column);
+      break;
+    case OptionFoliage:
+      cfg.setFoliage(column);
+      break;
+    case OptionRoadsigns:
+      cfg.setRoadsigns(column);
+      break;
+    case OptionDirtEffect:
+      cfg.setDirteffect(column);
+      break;
+    case OptionTransmission:
+      cfg.setAutomaticTransmission(column);
+      break;
+    default:
+      break;
   }
 }
 
@@ -171,15 +169,15 @@ void POption::addOption(Option &option)
   updateSelect(option);
 
   parent.addLabel(80.0f, 490.0f - (float)pos * 30.0f,
-      option.text, PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 22.0f, LabelStyle::Regular);
+                  option.text, PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 22.0f, LabelStyle::Regular);
 
   for (unsigned int i = 0; i < option.values.size(); ++i) {
     bool select = (i == option.select);
 
     parent.makeSelectable(
-        parent.addLabel(340.0f + (float)cursor * 44.0f / 3.0f, 490.0f - (float)pos * 30.0f,
-            option.values[i], PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 22.0f, LabelStyle::Weak),
-        AA_PICK_OPT, pos | (i << 16), select);
+      parent.addLabel(340.0f + (float)cursor * 44.0f / 3.0f, 490.0f - (float)pos * 30.0f,
+                      option.values[i], PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 22.0f, LabelStyle::Weak),
+      AA_PICK_OPT, pos | (i << 16), select);
     cursor += option.values[i].length() + 1;
   }
 
@@ -192,78 +190,78 @@ void POption::addOption(Option &option)
 ///
 void POption::updateSelect(Option &option)
 {
-  switch(option.id) {
-  case OptionEngineVolume:
-    option.select = round(cfg.getVolumeEngine() * 10.0f);
-    break;
-  case OptionSfxVolume:
-    option.select = round(cfg.getVolumeSfx() * 10.0f);
-    break;
-  case OptionCodriverVolume:
-    option.select = round(cfg.getVolumeCodriver() * 10.0f);
-    break;
-  case OptionCodriverVoice:
-    if (cfg.getCodrivername() == "mime")
-      option.select = 0;
-    else
-      option.select = findStringPos(cfg.getCodrivername(), option.values);
-    break;
-  case OptionCodriverSigns:
-    if (cfg.getEnableCodriversigns())
-      option.select = findStringPos(cfg.getCodriversigns(), option.values);
-    else
-      option.select = 0;
-    break;
-  case OptionTextureQuality: {
-    GLfloat anisotropy = cfg.getAnisotropy();
-    if (anisotropy == 1.0f)
-      option.select = 1;
-    else if (anisotropy == 2.0f)
-      option.select = 2;
-    else if (anisotropy == 4.0f)
-      option.select = 3;
-    else if (anisotropy == 8.0f)
-      option.select = 4;
-    else if (anisotropy == 16.0f)
-      option.select = 5;
-    else if (anisotropy == 32.0f)
-      option.select = 6;
-    else
-      option.select = 0;
-    break;
-  }
-  case OptionSnowflakes:
-    if (cfg.getWeather())
-      option.select = cfg.getSnowflaketype() + 1;
-    else
-      option.select = 0;
-    break;
-  case OptionSpeedUnits:
-    if (cfg.getSpeedUnit() == PConfig::Speedunit::mph)
-      option.select = 1;
-    else
-      option.select = 0;
-    break;
-  case OptionGhostCars:
-    option.select = cfg.getEnableGhost();
-    break;
-  case OptionDisplayFps:
-    option.select = cfg.getEnableFps();
-    break;
-  case OptionFoliage:
-    option.select = cfg.getFoliage();
-    break;
-  case OptionRoadsigns:
-    option.select = cfg.getRoadsigns();
-    break;
-  case OptionDirtEffect:
-    option.select = cfg.getDirteffect();
-    break;
-  case OptionTransmission:
-    option.select = cfg.getAutomaticTransmission();
-    break;
-  default:
-    break;
+  switch (option.id) {
+    case OptionEngineVolume:
+      option.select = round(cfg.getVolumeEngine() * 10.0f);
+      break;
+    case OptionSfxVolume:
+      option.select = round(cfg.getVolumeSfx() * 10.0f);
+      break;
+    case OptionCodriverVolume:
+      option.select = round(cfg.getVolumeCodriver() * 10.0f);
+      break;
+    case OptionCodriverVoice:
+      if (cfg.getCodrivername() == "mime")
+        option.select = 0;
+      else
+        option.select = findStringPos(cfg.getCodrivername(), option.values);
+      break;
+    case OptionCodriverSigns:
+      if (cfg.getEnableCodriversigns())
+        option.select = findStringPos(cfg.getCodriversigns(), option.values);
+      else
+        option.select = 0;
+      break;
+    case OptionTextureQuality: {
+      GLfloat anisotropy = cfg.getAnisotropy();
+      if (anisotropy == 1.0f)
+        option.select = 1;
+      else if (anisotropy == 2.0f)
+        option.select = 2;
+      else if (anisotropy == 4.0f)
+        option.select = 3;
+      else if (anisotropy == 8.0f)
+        option.select = 4;
+      else if (anisotropy == 16.0f)
+        option.select = 5;
+      else if (anisotropy == 32.0f)
+        option.select = 6;
+      else
+        option.select = 0;
+      break;
+    }
+    case OptionSnowflakes:
+      if (cfg.getWeather())
+        option.select = cfg.getSnowflaketype() + 1;
+      else
+        option.select = 0;
+      break;
+    case OptionSpeedUnits:
+      if (cfg.getSpeedUnit() == PConfig::Speedunit::mph)
+        option.select = 1;
+      else
+        option.select = 0;
+      break;
+    case OptionGhostCars:
+      option.select = cfg.getEnableGhost();
+      break;
+    case OptionDisplayFps:
+      option.select = cfg.getEnableFps();
+      break;
+    case OptionFoliage:
+      option.select = cfg.getFoliage();
+      break;
+    case OptionRoadsigns:
+      option.select = cfg.getRoadsigns();
+      break;
+    case OptionDirtEffect:
+      option.select = cfg.getDirteffect();
+      break;
+    case OptionTransmission:
+      option.select = cfg.getAutomaticTransmission();
+      break;
+    default:
+      break;
   }
 }
 
@@ -273,7 +271,7 @@ void POption::updateSelect(Option &option)
 /// @param [in] vec Vector of strings
 /// @return Index of string or index 0 if not found
 ///
-unsigned int POption::findStringPos(const std::string &str, std::vector<std::string> &vec)
+unsigned int POption::findStringPos(const std::string &str, std::vector<std::string>& vec)
 {
   std::vector<std::string>::iterator it = std::find(vec.begin(), vec.end(), str);
   if (it == vec.end())

@@ -17,40 +17,37 @@
 
 void MainApp::config()
 {
-    PUtil::setDebugLevel(DEBUGLEVEL_DEVELOPER);
+  PUtil::setDebugLevel(DEBUGLEVEL_DEVELOPER);
 
-    cfg.loadConfig();
-    setScreenMode(cfg.getVideoCx(), cfg.getVideoCy(), cfg.getVideoFullscreen());
-    calcScreenRatios();
+  cfg.loadConfig();
+  setScreenMode(cfg.getVideoCx(), cfg.getVideoCy(), cfg.getVideoFullscreen());
+  calcScreenRatios();
 
-    auto datadirs = cfg.getDatadirs();
+  auto datadirs = cfg.getDatadirs();
 
-    if (datadirs.empty())
-        throw MakePException("Data directory paths are empty: check your trigger-rally.config file.");
+  if (datadirs.empty())
+    throw MakePException("Data directory paths are empty: check your trigger-rally.config file.");
 
-    for (const std::string &datadir: datadirs)
-        if (PHYSFS_mount(datadir.c_str(), NULL, 1) == 0)
-        {
-            PUtil::outLog() << "Failed to add PhysFS search directory \"" << datadir << "\"" << std::endl
-                << "PhysFS: " << physfs_getErrorString() << std::endl;
-        }
-        else
-        {
-            PUtil::outLog() << "Main game data directory datadir=\"" << datadir << "\"" << std::endl;
-            break;
-        }
+  for (const std::string &datadir : datadirs)
+    if (PHYSFS_mount(datadir.c_str(), NULL, 1) == 0) {
+      PUtil::outLog() << "Failed to add PhysFS search directory \"" << datadir << "\"" << std::endl
+                      << "PhysFS: " << physfs_getErrorString() << std::endl;
+    } else {
+      PUtil::outLog() << "Main game data directory datadir=\"" << datadir << "\"" << std::endl;
+      break;
+    }
 
-    if (cfg.getCopydefplayers())
-        copyDefaultPlayers();
+  if (cfg.getCopydefplayers())
+    copyDefaultPlayers();
 
-    best_times.loadAllTimes();
-    player_unlocks = best_times.getUnlockData();
+  best_times.loadAllTimes();
+  player_unlocks = best_times.getUnlockData();
 
 #ifndef NDEBUG
-    PUtil::outLog() << "Player \"" << cfg.getPlayername() << "\" unlocks:\n";
+  PUtil::outLog() << "Player \"" << cfg.getPlayername() << "\" unlocks:\n";
 
-    for (const auto &s: player_unlocks)
-        PUtil::outLog() << '\t' << s << '\n';
+  for (const auto &s : player_unlocks)
+    PUtil::outLog() << '\t' << s << '\n';
 #endif
 }
 
@@ -86,24 +83,24 @@ void MainApp::load()
 
   for (int i = 0; i < PConfig::ActionCount; i++) {
 
-    switch(ctrl.map[i].type) {
-    case PConfig::UserControl::TypeUnassigned:
-      break;
+    switch (ctrl.map[i].type) {
+      case PConfig::UserControl::TypeUnassigned:
+        break;
 
-    case PConfig::UserControl::TypeKey:
-      if (ctrl.map[i].key.sym <= 0 /* || ctrl.map[i].key.sym >= SDLK_LAST */) // `SDLK_LAST` unavailable in SDL2
-        ctrl.map[i].type = PConfig::UserControl::TypeUnassigned;
-      break;
+      case PConfig::UserControl::TypeKey:
+        if (ctrl.map[i].key.sym <= 0 /* || ctrl.map[i].key.sym >= SDLK_LAST */) // `SDLK_LAST` unavailable in SDL2
+          ctrl.map[i].type = PConfig::UserControl::TypeUnassigned;
+        break;
 
-    case PConfig::UserControl::TypeJoyButton:
-      if (0 >= getNumJoysticks() || ctrl.map[i].joybutton.button >= getJoyNumButtons(0))
-        ctrl.map[i].type = PConfig::UserControl::TypeUnassigned;
-      break;
+      case PConfig::UserControl::TypeJoyButton:
+        if (0 >= getNumJoysticks() || ctrl.map[i].joybutton.button >= getJoyNumButtons(0))
+          ctrl.map[i].type = PConfig::UserControl::TypeUnassigned;
+        break;
 
-    case PConfig::UserControl::TypeJoyAxis:
-      if (0 >= getNumJoysticks() || ctrl.map[i].joyaxis.axis >= getJoyNumAxes(0))
-        ctrl.map[i].type = PConfig::UserControl::TypeUnassigned;
-      break;
+      case PConfig::UserControl::TypeJoyAxis:
+        if (0 >= getNumJoysticks() || ctrl.map[i].joyaxis.axis >= getJoyNumAxes(0))
+          ctrl.map[i].type = PConfig::UserControl::TypeUnassigned;
+        break;
     }
   }
 
@@ -115,43 +112,41 @@ void MainApp::load()
 ///
 void MainApp::copyDefaultPlayers() const
 {
-    const std::string dppsearchdir = "/defplayers"; // Default Player Profiles Search Directory
-    const std::string dppdestdir = "/players"; // Default Player Profiles Destination Directory
+  const std::string dppsearchdir = "/defplayers"; // Default Player Profiles Search Directory
+  const std::string dppdestdir = "/players"; // Default Player Profiles Destination Directory
 
-    char **rc = PHYSFS_enumerateFiles(dppsearchdir.c_str());
+  char** rc = PHYSFS_enumerateFiles(dppsearchdir.c_str());
 
-    for (char **fname = rc; *fname != nullptr; ++fname)
-    {
-        // reject files that are already in the user directory
-        if (PHYSFS_exists((dppdestdir + '/' + *fname).c_str()))
-        {
-            PUtil::outLog() << "Skipping copy of default player \"" << *fname << "\"" << std::endl;
-            continue;
-        }
-
-        // reject files without .PLAYER extension (lowercase)
-        std::smatch mr; // Match Results
-        std::regex pat(R"(^([\s\w]+)(\.player)$)"); // Pattern
-        std::string fn(*fname); // Filename
-
-        if (!std::regex_search(fn, mr, pat))
-            continue;
-
-        if (!PUtil::copyFile(dppsearchdir + '/' + *fname, dppdestdir + '/' + *fname))
-            PUtil::outLog() << "Couldn't copy default player \"" << *fname << "\"" << std::endl;
+  for (char** fname = rc; *fname != nullptr; ++fname) {
+    // reject files that are already in the user directory
+    if (PHYSFS_exists((dppdestdir + '/' + *fname).c_str())) {
+      PUtil::outLog() << "Skipping copy of default player \"" << *fname << "\"" << std::endl;
+      continue;
     }
 
-    PHYSFS_freeList(rc);
+    // reject files without .PLAYER extension (lowercase)
+    std::smatch mr; // Match Results
+    std::regex pat(R"(^([\s\w]+)(\.player)$)"); // Pattern
+    std::string fn(*fname); // Filename
+
+    if (!std::regex_search(fn, mr, pat))
+      continue;
+
+    if (!PUtil::copyFile(dppsearchdir + '/' + *fname, dppdestdir + '/' + *fname))
+      PUtil::outLog() << "Couldn't copy default player \"" << *fname << "\"" << std::endl;
+  }
+
+  PHYSFS_freeList(rc);
 }
 
 float MainApp::getCodriverVolume() const
 {
-    return cfg.getVolumeCodriver();
+  return cfg.getVolumeCodriver();
 }
 
 PCodriverUserConfig MainApp::getCodriverUserConfig() const
 {
-    return cfg.getCodriveruserconfig();
+  return cfg.getCodriveruserconfig();
 }
 
 ///
@@ -161,14 +156,14 @@ PCodriverUserConfig MainApp::getCodriverUserConfig() const
 ///
 std::string MainApp::getVehicleUnlockEvent(const std::string &vehiclename) const
 {
-    for (unsigned int i = 0; i < events.size(); i++) {
-        for (UnlockData::const_iterator iter = events[i].unlocks.begin(); iter != events[i].unlocks.end(); ++iter) {
-            if (*iter == vehiclename) {
-                return events[i].name;
-            }
-        }
+  for (unsigned int i = 0; i < events.size(); i++) {
+    for (UnlockData::const_iterator iter = events[i].unlocks.begin(); iter != events[i].unlocks.end(); ++iter) {
+      if (*iter == vehiclename) {
+        return events[i].name;
+      }
     }
-    return std::string();
+  }
+  return std::string();
 }
 
 bool MainApp::loadLevel(TriggerLevel &tl)
@@ -190,7 +185,7 @@ bool MainApp::loadLevel(TriggerLevel &tl)
     return false;
   }
 
-  const char *val;
+  const char* val;
 
   val = rootelem->Attribute("name");
   if (val) tl.name = val;
@@ -216,12 +211,11 @@ bool MainApp::loadLevel(TriggerLevel &tl)
     tl.tex_minimap = getSSTexture().loadTexture(PUtil::assemblePath(val, tl.filename));
 
   for (XMLElement *walk = rootelem->FirstChildElement();
-    walk; walk = walk->NextSiblingElement()) {
+       walk; walk = walk->NextSiblingElement()) {
 
     if (!strcmp(walk->Value(), "race")) {
       val = walk->Attribute("targettime");
-      if (val)
-      {
+      if (val) {
         tl.targettime = PUtil::formatTime(atof(val));
         tl.targettimeshort = PUtil::formatTimeShort(atof(val));
         tl.targettimefloat = atof(val);
@@ -241,7 +235,7 @@ bool MainApp::loadLevelsAndEvents()
   std::list<std::string> results = PUtil::findFiles("/maps", ".level");
 
   for (std::list<std::string>::iterator i = results.begin();
-    i != results.end(); ++i) {
+       i != results.end(); ++i) {
 
     TriggerLevel tl;
     tl.filename = *i;
@@ -259,7 +253,7 @@ bool MainApp::loadLevelsAndEvents()
   results = PUtil::findFiles("/events", ".event");
 
   for (std::list<std::string>::iterator i = results.begin();
-    i != results.end(); ++i) {
+       i != results.end(); ++i) {
 
     TriggerEvent te;
 
@@ -272,7 +266,7 @@ bool MainApp::loadLevelsAndEvents()
       continue;
     }
 
-    const char *val;
+    const char* val;
 
     val = rootelem->Attribute("name");
     if (val) te.name = val;
@@ -284,29 +278,25 @@ bool MainApp::loadLevelsAndEvents()
     val = rootelem->Attribute("locked");
 
     if (val != nullptr && strcmp(val, "yes") == 0)
-        te.locked = true;
+      te.locked = true;
     else
-        te.locked = false; // FIXME: redundant but clearer?
+      te.locked = false; // FIXME: redundant but clearer?
 
     float evtotaltime = 0.0f;
 
     for (XMLElement *walk = rootelem->FirstChildElement();
-      walk; walk = walk->NextSiblingElement()) {
+         walk; walk = walk->NextSiblingElement()) {
 
-      if (strcmp(walk->Value(), "unlocks") == 0)
-      {
-          val = walk->Attribute("file");
+      if (strcmp(walk->Value(), "unlocks") == 0) {
+        val = walk->Attribute("file");
 
-          if (val == nullptr)
-          {
-              PUtil::outLog() << "Warning: Event has empty unlock" << std::endl;
-              continue;
-          }
+        if (val == nullptr) {
+          PUtil::outLog() << "Warning: Event has empty unlock" << std::endl;
+          continue;
+        }
 
-          te.unlocks.insert(val);
-      }
-      else
-      if (!strcmp(walk->Value(), "level")) {
+        te.unlocks.insert(val);
+      } else if (!strcmp(walk->Value(), "level")) {
 
         TriggerLevel tl;
 
@@ -317,8 +307,7 @@ bool MainApp::loadLevelsAndEvents()
         }
         tl.filename = PUtil::assemblePath(val, *i);
 
-        if (loadLevel(tl))
-        {
+        if (loadLevel(tl)) {
           te.levels.push_back(tl);
           evtotaltime += tl.targettimefloat;
         }
@@ -416,7 +405,7 @@ bool MainApp::loadAll()
   //tempo.fromThreeAxisAngle(vec3f(-0.38, -0.38, 0.0));
   //vehic->getBody().setOrientation(tempo);
 
-  campos = campos_prev = vec3f(-15.0,0.0,30.0);
+  campos = campos_prev = vec3f(-15.0, 0.0, 30.0);
   //camori.fromThreeAxisAngle(vec3f(-1.0,0.0,1.5));
   camori = quatf::identity();
 
@@ -439,18 +428,16 @@ bool MainApp::loadAll()
 
   crashnoise_timeout = 0.0f;
 
-    if (cfg.getDirteffect())
-    {
-        psys_dirt = new DirtParticleSystem();
-        psys_dirt->setColorStart(0.5f, 0.4f, 0.2f, 1.0f);
-        psys_dirt->setColorEnd(0.5f, 0.4f, 0.2f, 0.0f);
-        psys_dirt->setSize(0.1f, 0.5f);
-        psys_dirt->setDecay(6.0f);
-        psys_dirt->setTexture(tex_dirt);
-        psys_dirt->setBlend(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    }
-    else
-        psys_dirt = nullptr;
+  if (cfg.getDirteffect()) {
+    psys_dirt = new DirtParticleSystem();
+    psys_dirt->setColorStart(0.5f, 0.4f, 0.2f, 1.0f);
+    psys_dirt->setColorEnd(0.5f, 0.4f, 0.2f, 0.0f);
+    psys_dirt->setSize(0.1f, 0.5f);
+    psys_dirt->setDecay(6.0f);
+    psys_dirt->setTexture(tex_dirt);
+    psys_dirt->setBlend(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  } else
+    psys_dirt = nullptr;
 
   //
 
@@ -463,17 +450,14 @@ bool MainApp::loadAll()
 
 void MainApp::loadCodriversigns()
 {
-  if (cfg.getEnableCodriversigns() && !cfg.getCodriversigns().empty())
-  {
+  if (cfg.getEnableCodriversigns() && !cfg.getCodriversigns().empty()) {
     const std::string origdir(std::string("/textures/CodriverSigns/") + cfg.getCodriversigns());
-    char **rc = PHYSFS_enumerateFiles(origdir.c_str());
+    char** rc = PHYSFS_enumerateFiles(origdir.c_str());
 
-    for (char **fname = rc; *fname != nullptr; ++fname)
-    {
+    for (char** fname = rc; *fname != nullptr; ++fname) {
       PTexture *tex_cdsign = getSSTexture().loadTexture(origdir + '/' + *fname);
 
-      if (tex_cdsign != nullptr) // failed loads are ignored
-      {
+      if (tex_cdsign != nullptr) { // failed loads are ignored
         // remove the extension from the filename
         std::smatch mr; // Match Results
         std::regex pat(R"(^(\w+)(\..+)$)"); // Pattern
@@ -485,7 +469,7 @@ void MainApp::loadCodriversigns()
         std::string basefname = mr[1];
 
         // make the base filename lowercase
-        for (char &c: basefname)
+        for (char& c : basefname)
           c = std::tolower(static_cast<unsigned char> (c));
 
         tex_codriversigns[basefname] = tex_cdsign;
@@ -498,17 +482,14 @@ void MainApp::loadCodriversigns()
 
 void MainApp::loadCodrivername()
 {
-  if (!cfg.getCodrivername().empty() && cfg.getCodrivername() != "mime")
-  {
+  if (!cfg.getCodrivername().empty() && cfg.getCodrivername() != "mime") {
     const std::string origdir(std::string("/sounds/codriver/") + cfg.getCodrivername());
-    char **rc = PHYSFS_enumerateFiles(origdir.c_str());
+    char** rc = PHYSFS_enumerateFiles(origdir.c_str());
 
-    for (char **fname = rc; *fname != nullptr; ++fname)
-    {
+    for (char** fname = rc; *fname != nullptr; ++fname) {
       PAudioSample *aud_cdword = getSSAudio().loadSample(origdir + '/' + *fname, false);
 
-      if (aud_cdword != nullptr) // failed loads are ignored
-      {
+      if (aud_cdword != nullptr) { // failed loads are ignored
         // remove the extension from the filename
         std::smatch mr; // Match Results
         std::regex pat(R"(^(\w+)(\..+)$)"); // Pattern
@@ -520,7 +501,7 @@ void MainApp::loadCodrivername()
         std::string basefname = mr[1];
 
         // make the base filename lowercase
-        for (char &c: basefname)
+        for (char& c : basefname)
           c = std::tolower(static_cast<unsigned char> (c));
 
         aud_codriverwords[basefname] = aud_cdword;
@@ -542,56 +523,56 @@ void MainApp::reloadAll()
 
 void MainApp::loadShadersAndVao()
 {
-    rpm_dial_vao = new VAO(
-        rpm_dial_vbo, 5 * 4 * sizeof(float),
-        rpm_dial_ibo, 4 * sizeof(unsigned short)
-    );
+  rpm_dial_vao = new VAO(
+    rpm_dial_vbo, 5 * 4 * sizeof(float),
+    rpm_dial_ibo, 4 * sizeof(unsigned short)
+  );
 
-    map_marker_vao = new VAO(
-        map_marker_vbo, 5 * 3 * sizeof(float),
-        map_marker_ibo, 6 * sizeof(unsigned short)
-    );
+  map_marker_vao = new VAO(
+    map_marker_vbo, 5 * 3 * sizeof(float),
+    map_marker_ibo, 6 * sizeof(unsigned short)
+  );
 
-    bckgnd_vao = new VAO(
-        bckgnd_vbo, 5 * 4 * sizeof(GL_FLOAT),
-        bckgnd_ibo, 4 * sizeof(unsigned short)
-    );
+  bckgnd_vao = new VAO(
+    bckgnd_vbo, 5 * 4 * sizeof(GL_FLOAT),
+    bckgnd_ibo, 4 * sizeof(unsigned short)
+  );
 
-    snow_vao = new VAO(
-        snow_vbo, 5 * 4 * sizeof(GL_FLOAT),
-        snow_ibo, 4 * sizeof(unsigned short)
-    );
+  snow_vao = new VAO(
+    snow_vbo, 5 * 4 * sizeof(GL_FLOAT),
+    snow_ibo, 4 * sizeof(unsigned short)
+  );
 
-    map_vao = new VAO(
-        map_vbo, 8 * sizeof(float),
-        map_ibo, 4 * sizeof(unsigned short)
-    );
+  map_vao = new VAO(
+    map_vbo, 8 * sizeof(float),
+    map_ibo, 4 * sizeof(unsigned short)
+  );
 
-    offroad_vao = new VAO(
-        offroad_vbo, 16 * sizeof(float),
-        offroad_ibo, 4 * sizeof(unsigned short)
-    );
+  offroad_vao = new VAO(
+    offroad_vbo, 16 * sizeof(float),
+    offroad_ibo, 4 * sizeof(unsigned short)
+  );
 
-    damage_vao = new VAO(
-        damage_vbo, 16 * sizeof(float),
-        damage_ibo, 4 * sizeof(unsigned short)
-    );
+  damage_vao = new VAO(
+    damage_vbo, 16 * sizeof(float),
+    damage_ibo, 4 * sizeof(unsigned short)
+  );
 
-    buildSkyVao();
-    buildChkptVao();
+  buildSkyVao();
+  buildChkptVao();
 
-    sp_map_marker = new ShaderProgram("map_marker");
-    sp_rpm_dial = new ShaderProgram("rpm_dial");
-    sp_rpm_needle = new ShaderProgram("rpm_needle");
-    sp_water = new ShaderProgram("water");
-    sp_bckgnd = new ShaderProgram("bckgnd");
-    sp_rain = new ShaderProgram("rain");
-    sp_snow = new ShaderProgram("snow");
-    sp_chkpt = new ShaderProgram("chkpt");
-    sp_map = new ShaderProgram("map");
-    sp_sky = new ShaderProgram("sky");
-    sp_offroad = new ShaderProgram("offroad_sign");
-    sp_damage = new ShaderProgram("damage");
+  sp_map_marker = new ShaderProgram("map_marker");
+  sp_rpm_dial = new ShaderProgram("rpm_dial");
+  sp_rpm_needle = new ShaderProgram("rpm_needle");
+  sp_water = new ShaderProgram("water");
+  sp_bckgnd = new ShaderProgram("bckgnd");
+  sp_rain = new ShaderProgram("rain");
+  sp_snow = new ShaderProgram("snow");
+  sp_chkpt = new ShaderProgram("chkpt");
+  sp_map = new ShaderProgram("map");
+  sp_sky = new ShaderProgram("sky");
+  sp_offroad = new ShaderProgram("offroad_sign");
+  sp_damage = new ShaderProgram("damage");
 }
 
 void MainApp::unload()
@@ -639,10 +620,9 @@ bool MainApp::startGame(const std::string &filename)
   game = new TriggerGame(this);
 
   // load vehicles
-  if (!game->loadVehicles())
-  {
-      PUtil::outLog() << "Error: failed to load vehicles" << std::endl;
-      return false;
+  if (!game->loadVehicles()) {
+    PUtil::outLog() << "Error: failed to load vehicles" << std::endl;
+    return false;
   }
 
   // load the vehicle
@@ -664,14 +644,13 @@ bool MainApp::startGame(const std::string &filename)
     if (cfg.getEnableGhost())
       ghost.recordStart(filename, game->vehiclechoices[choose_type]->getName());
 
-    if (lss.state == AM_TOP_LVL_PREP)
-    {
-        const float bct = best_times.getBestClassTime(
-            filename,
-            game->vehicle.front()->type->proper_class);
+    if (lss.state == AM_TOP_LVL_PREP) {
+      const float bct = best_times.getBestClassTime(
+                          filename,
+                          game->vehicle.front()->type->proper_class);
 
-        if (bct >= 0.0f)
-            game->targettime = bct;
+      if (bct >= 0.0f)
+        game->targettime = bct;
     }
 
     initAudio();
@@ -715,35 +694,28 @@ bool MainApp::startGame(const std::string &filename)
 ///
 void MainApp::toggleSounds(bool to)
 {
-    if (cfg.getEnableSound())
-    {
-        if (audinst_engine != nullptr)
-        {
-            if (!to)
-            {
-                audinst_engine->setGain(0.0f);
-                audinst_engine->play();
-            }
-        }
-
-        if (audinst_wind != nullptr)
-        {
-            if (!to)
-            {
-                audinst_wind->setGain(0.0f);
-                audinst_wind->play();
-            }
-        }
-
-        if (audinst_gravel != nullptr)
-        {
-            if (!to)
-            {
-                audinst_gravel->setGain(0.0f);
-                audinst_gravel->play();
-            }
-        }
+  if (cfg.getEnableSound()) {
+    if (audinst_engine != nullptr) {
+      if (!to) {
+        audinst_engine->setGain(0.0f);
+        audinst_engine->play();
+      }
     }
+
+    if (audinst_wind != nullptr) {
+      if (!to) {
+        audinst_wind->setGain(0.0f);
+        audinst_wind->play();
+      }
+    }
+
+    if (audinst_gravel != nullptr) {
+      if (!to) {
+        audinst_gravel->setGain(0.0f);
+        audinst_gravel->play();
+      }
+    }
+  }
 }
 
 ///
@@ -752,17 +724,17 @@ void MainApp::toggleSounds(bool to)
 void MainApp::initAudio()
 {
   if (cfg.getEnableSound()) {
-	// engine sound
+    // engine sound
     audinst_engine = new PAudioInstance(aud_engine, true);
     audinst_engine->setGain(0.0);
     audinst_engine->play();
 
-	// wind sound
+    // wind sound
     audinst_wind = new PAudioInstance(aud_wind, true);
     audinst_wind->setGain(0.0);
     audinst_wind->play();
 
-	// terrain sound
+    // terrain sound
     audinst_gravel = new PAudioInstance(aud_gravel, true);
     audinst_gravel->setGain(0.0);
     audinst_gravel->play();
@@ -772,25 +744,23 @@ void MainApp::initAudio()
 void MainApp::endGame(Gamefinish state)
 {
   float coursetime = (state == Gamefinish::not_finished) ? 0.0f :
-    game->coursetime + game->uservehicle->offroadtime_total * game->offroadtime_penalty_multiplier;
+                     game->coursetime + game->uservehicle->offroadtime_total * game->offroadtime_penalty_multiplier;
 
-    if (state != Gamefinish::not_finished && lss.state != AM_TOP_EVT_PREP)
-    {
-        race_data.carname   = game->vehicle.front()->type->proper_name;
-        race_data.carclass  = game->vehicle.front()->type->proper_class;
-        race_data.totaltime = game->coursetime + game->uservehicle->offroadtime_total * game->offroadtime_penalty_multiplier;
-        race_data.maxspeed  = 0.0f; // TODO: measure this too
-        //PUtil::outLog() << race_data;
-        current_times = best_times.insertAndGetCurrentTimesHL(race_data);
-        best_times.skipSavePlayer();
+  if (state != Gamefinish::not_finished && lss.state != AM_TOP_EVT_PREP) {
+    race_data.carname   = game->vehicle.front()->type->proper_name;
+    race_data.carclass  = game->vehicle.front()->type->proper_class;
+    race_data.totaltime = game->coursetime + game->uservehicle->offroadtime_total * game->offroadtime_penalty_multiplier;
+    race_data.maxspeed  = 0.0f; // TODO: measure this too
+    //PUtil::outLog() << race_data;
+    current_times = best_times.insertAndGetCurrentTimesHL(race_data);
+    best_times.skipSavePlayer();
 
-        // show the best times
-        if (lss.state == AM_TOP_LVL_PREP)
-            lss.state = AM_TOP_LVL_TIMES;
-        else
-        if (lss.state == AM_TOP_PRAC_SEL_PREP)
-            lss.state = AM_TOP_PRAC_TIMES;
-    }
+    // show the best times
+    if (lss.state == AM_TOP_LVL_PREP)
+      lss.state = AM_TOP_LVL_TIMES;
+    else if (lss.state == AM_TOP_PRAC_SEL_PREP)
+      lss.state = AM_TOP_PRAC_TIMES;
+  }
 
   if (cfg.getEnableGhost() && state != Gamefinish::not_finished) {
     ghost.recordStop(race_data.totaltime);
@@ -811,7 +781,7 @@ void MainApp::endGame(Gamefinish state)
     audinst_gravel = nullptr;
   }
 
-  for (unsigned int i=0; i<audinst.size(); i++) {
+  for (unsigned int i = 0; i < audinst.size(); i++) {
     delete audinst[i];
   }
   audinst.clear();
@@ -832,69 +802,63 @@ void MainApp::endGame(Gamefinish state)
 ///
 void MainApp::calcScreenRatios()
 {
-    const int cx = getWidth();
-    const int cy = getHeight();
+  const int cx = getWidth();
+  const int cy = getHeight();
 
-    if (cx > cy)
-    {
-        hratio = static_cast<double> (cx) / cy;
-        vratio = 1.0;
-    }
-    else
-    if (cx < cy)
-    {
-        hratio = 1.0;
-        vratio = static_cast<double> (cy) / cx;
-    }
-    else
-    {
-        hratio = 1.0;
-        vratio = 1.0;
-    }
+  if (cx > cy) {
+    hratio = static_cast<double> (cx) / cy;
+    vratio = 1.0;
+  } else if (cx < cy) {
+    hratio = 1.0;
+    vratio = static_cast<double> (cy) / cx;
+  } else {
+    hratio = 1.0;
+    vratio = 1.0;
+  }
 }
 
 void MainApp::tick(float delta)
 {
-    getSSAudio().tick();
+  getSSAudio().tick();
 
   switch (appstate) {
-  case AS_LOAD_1:
-    splashtimeout -= delta;
-    if (--loadscreencount <= 0)
-      appstate = AS_LOAD_2;
-    break;
-  case AS_LOAD_2:
-    splashtimeout -= delta;
-    if (!loadAll()) {
-      requestExit();
-      return;
-    }
-    appstate = AS_LOAD_3;
-    break;
-  case AS_LOAD_3:
-    splashtimeout -= delta;
-    if (splashtimeout <= 0.0f)
-      levelScreenAction(AA_INIT, 0);
-    break;
+    case AS_LOAD_1:
+      splashtimeout -= delta;
+      if (--loadscreencount <= 0)
+        appstate = AS_LOAD_2;
+      break;
+    case AS_LOAD_2:
+      splashtimeout -= delta;
+      if (!loadAll()) {
+        requestExit();
+        return;
+      }
+      appstate = AS_LOAD_3;
+      break;
+    case AS_LOAD_3:
+      splashtimeout -= delta;
+      if (splashtimeout <= 0.0f)
+        levelScreenAction(AA_INIT, 0);
+      break;
 
-  case AS_LEVEL_SCREEN:
-    tickStateLevel(delta);
-    break;
+    case AS_LEVEL_SCREEN:
+      tickStateLevel(delta);
+      break;
 
-  case AS_CHOOSE_VEHICLE:
-    tickStateChoose(delta);
-    break;
+    case AS_CHOOSE_VEHICLE:
+      tickStateChoose(delta);
+      break;
 
-  case AS_IN_GAME:
+    case AS_IN_GAME:
       if (!pauserace)
         tickStateGame(delta);
-    break;
+      break;
 
-  case AS_END_SCREEN:
-    splashtimeout += delta * 0.04f;
-    if (splashtimeout >= 1.0f)
-      requestExit();
-    break;
+    case AS_END_SCREEN:
+      splashtimeout += delta * 0.04f;
+      if (splashtimeout >= 1.0f)
+        requestExit();
+      break;
   }
 }
 
@@ -919,8 +883,7 @@ void MainApp::tickStateGame(float delta)
 {
   PVehicle *vehic = game->vehicle[0];
 
-  if (game->isFinished())
-  {
+  if (game->isFinished()) {
     endGame(game->getFinishState());
     return;
   }
@@ -938,26 +901,26 @@ void MainApp::tickStateGame(float delta)
 
   for (int a = 0; a < PConfig::ActionCount; a++) {
 
-    switch(ctrl.map[a].type) {
-    case PConfig::UserControl::TypeUnassigned:
-      break;
+    switch (ctrl.map[a].type) {
+      case PConfig::UserControl::TypeUnassigned:
+        break;
 
-    case PConfig::UserControl::TypeKey:
-      ctrl.map[a].value = keyDown(SDL_GetScancodeFromKey(ctrl.map[a].key.sym)) ? 1.0f : 0.0f;
-      break;
+      case PConfig::UserControl::TypeKey:
+        ctrl.map[a].value = keyDown(SDL_GetScancodeFromKey(ctrl.map[a].key.sym)) ? 1.0f : 0.0f;
+        break;
 
-    case PConfig::UserControl::TypeJoyButton:
-      ctrl.map[a].value = getJoyButton(0, ctrl.map[a].joybutton.button) ? 1.0f : 0.0f;
-      break;
+      case PConfig::UserControl::TypeJoyButton:
+        ctrl.map[a].value = getJoyButton(0, ctrl.map[a].joybutton.button) ? 1.0f : 0.0f;
+        break;
 
-    case PConfig::UserControl::TypeJoyAxis:
-      ctrl.map[a].value = ctrl.map[a].joyaxis.sign *
-        getJoyAxis(0, ctrl.map[a].joyaxis.axis);
+      case PConfig::UserControl::TypeJoyAxis:
+        ctrl.map[a].value = ctrl.map[a].joyaxis.sign *
+                            getJoyAxis(0, ctrl.map[a].joyaxis.axis);
 
-      RANGEADJUST(ctrl.map[a].value, ctrl.map[a].joyaxis.deadzone, ctrl.map[a].joyaxis.maxrange, 0.0f, 1.0f);
+        RANGEADJUST(ctrl.map[a].value, ctrl.map[a].joyaxis.deadzone, ctrl.map[a].joyaxis.maxrange, 0.0f, 1.0f);
 
-      CLAMP_LOWER(ctrl.map[a].value, 0.0f);
-      break;
+        CLAMP_LOWER(ctrl.map[a].value, 0.0f);
+        break;
     }
   }
 
@@ -965,7 +928,7 @@ void MainApp::tickStateGame(float delta)
   // and digital steering the same way, afaics
 
   if (ctrl.map[PConfig::ActionLeft].type == PConfig::UserControl::TypeJoyAxis ||
-    ctrl.map[PConfig::ActionRight].type == PConfig::UserControl::TypeJoyAxis) {
+      ctrl.map[PConfig::ActionRight].type == PConfig::UserControl::TypeJoyAxis) {
 
     // Analogue mode
 
@@ -1037,21 +1000,18 @@ void MainApp::tickStateGame(float delta)
     ghost.recordSample(delta, game->vehicle[0]->part[0]);
   }
 
-    if (cfg.getDirteffect())
-    {
+  if (cfg.getDirteffect()) {
 
 #define BRIGHTEN_ADD        0.20f
 
-  for (unsigned int i=0; i<game->vehicle.size(); i++) {
-    for (unsigned int j=0; j<game->vehicle[i]->part.size(); j++) {
-      //const vec3f bodydirtpos = game->vehicle[i]->part[j].ref_world.getPosition();
-      const vec3f bodydirtpos = game->vehicle[i]->body->getPosition();
-      const dirtinfo bdi = PUtil::getDirtInfo(game->terrain->getRoadSurface(bodydirtpos));
+    for (unsigned int i = 0; i < game->vehicle.size(); i++) {
+      for (unsigned int j = 0; j < game->vehicle[i]->part.size(); j++) {
+        //const vec3f bodydirtpos = game->vehicle[i]->part[j].ref_world.getPosition();
+        const vec3f bodydirtpos = game->vehicle[i]->body->getPosition();
+        const dirtinfo bdi = PUtil::getDirtInfo(game->terrain->getRoadSurface(bodydirtpos));
 
-    if (bdi.startsize >= 0.30f && game->vehicle[i]->forwardspeed > 23.0f)
-    {
-        if (game->vehicle[i]->canHaveDustTrail())
-        {
+        if (bdi.startsize >= 0.30f && game->vehicle[i]->forwardspeed > 23.0f) {
+          if (game->vehicle[i]->canHaveDustTrail()) {
             const float sizemult = game->vehicle[i]->forwardspeed * 0.035f;
             const vec3f bodydirtvec = {0, 0, 1}; // game->vehicle[i]->body->getLinearVelAtPoint(bodydirtpos);
             vec3f bodydirtcolor = game->terrain->getCmapColor(bodydirtpos);
@@ -1068,41 +1028,39 @@ void MainApp::tickStateGame(float delta)
             psys_dirt->setSize(bdi.startsize * sizemult, bdi.endsize * sizemult);
             psys_dirt->setDecay(bdi.decay);
             psys_dirt->addParticle(bodydirtpos, bodydirtvec);
-        }
-    }
-    else
-      for (unsigned int k=0; k<game->vehicle[i]->part[j].wheel.size(); k++) {
-        if (rand01 * 20.0f < game->vehicle[i]->part[j].wheel[k].dirtthrow)
-        {
-            const vec3f dirtpos = game->vehicle[i]->part[j].wheel[k].dirtthrowpos;
-            const vec3f dirtvec = game->vehicle[i]->part[j].wheel[k].dirtthrowvec;
-            const dirtinfo di = PUtil::getDirtInfo(game->terrain->getRoadSurface(dirtpos));
-            vec3f dirtcolor = game->terrain->getCmapColor(dirtpos);
+          }
+        } else
+          for (unsigned int k = 0; k < game->vehicle[i]->part[j].wheel.size(); k++) {
+            if (rand01 * 20.0f < game->vehicle[i]->part[j].wheel[k].dirtthrow) {
+              const vec3f dirtpos = game->vehicle[i]->part[j].wheel[k].dirtthrowpos;
+              const vec3f dirtvec = game->vehicle[i]->part[j].wheel[k].dirtthrowvec;
+              const dirtinfo di = PUtil::getDirtInfo(game->terrain->getRoadSurface(dirtpos));
+              vec3f dirtcolor = game->terrain->getCmapColor(dirtpos);
 
-            dirtcolor.x += BRIGHTEN_ADD;
-            dirtcolor.y += BRIGHTEN_ADD;
-            dirtcolor.z += BRIGHTEN_ADD;
-            CLAMP(dirtcolor.x, 0.0f, 1.0f);
-            CLAMP(dirtcolor.y, 0.0f, 1.0f);
-            CLAMP(dirtcolor.z, 0.0f, 1.0f);
-            psys_dirt->setColorStart(dirtcolor.x, dirtcolor.y, dirtcolor.z, 1.0f);
-            psys_dirt->setColorEnd(dirtcolor.x, dirtcolor.y, dirtcolor.z, 0.0f);
-            psys_dirt->setSize(di.startsize, di.endsize);
-            psys_dirt->setDecay(di.decay);
-            psys_dirt->addParticle(dirtpos, dirtvec /*+ vec3f::rand() * 10.0f*/);
-        }
+              dirtcolor.x += BRIGHTEN_ADD;
+              dirtcolor.y += BRIGHTEN_ADD;
+              dirtcolor.z += BRIGHTEN_ADD;
+              CLAMP(dirtcolor.x, 0.0f, 1.0f);
+              CLAMP(dirtcolor.y, 0.0f, 1.0f);
+              CLAMP(dirtcolor.z, 0.0f, 1.0f);
+              psys_dirt->setColorStart(dirtcolor.x, dirtcolor.y, dirtcolor.z, 1.0f);
+              psys_dirt->setColorEnd(dirtcolor.x, dirtcolor.y, dirtcolor.z, 0.0f);
+              psys_dirt->setSize(di.startsize, di.endsize);
+              psys_dirt->setDecay(di.decay);
+              psys_dirt->addParticle(dirtpos, dirtvec /*+ vec3f::rand() * 10.0f*/);
+            }
+          }
       }
     }
+
+#undef BRIGHTEN_ADD
+
   }
-
-  #undef BRIGHTEN_ADD
-
-    }
 
   float angtarg = 0.0f;
   angtarg -= ctrl.map[PConfig::ActionCamLeft].value;
   angtarg += ctrl.map[PConfig::ActionCamRight].value;
-  angtarg *= PI*0.75f;
+  angtarg *= PI * 0.75f;
 
   PULLTOWARD(camera_user_angle, angtarg, delta * 4.0f);
 
@@ -1116,9 +1074,9 @@ void MainApp::tickStateGame(float delta)
     cameraview_mod = CameraMode::chase;
     static float spinner = 0.0f;
     spinner += 1.4f * delta;
-    tempo.fromThreeAxisAngle(vec3f(-PI*0.5f,0.0f,spinner));
+    tempo.fromThreeAxisAngle(vec3f(-PI * 0.5f, 0.0f, spinner));
   } else {
-    tempo.fromThreeAxisAngle(vec3f(-PI*0.5f,0.0f,0.0f));
+    tempo.fromThreeAxisAngle(vec3f(-PI * 0.5f, 0.0f, 0.0f));
   }
 
   renderowncar = (cameraview_mod != CameraMode::hood && cameraview_mod != CameraMode::bumper);
@@ -1135,168 +1093,168 @@ void MainApp::tickStateGame(float delta)
 
   switch (cameraview_mod) {
 
-	default:
-	case CameraMode::chase: {
-    quatf temp2;
-    temp2.fromZAngle(forwangle + camera_user_angle);
+    default:
+    case CameraMode::chase: {
+      quatf temp2;
+      temp2.fromZAngle(forwangle + camera_user_angle);
 
-    quatf target = tempo * temp2;
+      quatf target = tempo * temp2;
 
-    if (target.dot(camori) < 0.0f) target = target * -1.0f;
+      if (target.dot(camori) < 0.0f) target = target * -1.0f;
 
-    PULLTOWARD(camori, target, delta * 3.0f);
+      PULLTOWARD(camori, target, delta * 3.0f);
 
-    camori.normalize();
+      camori.normalize();
 
-    cammat = camori.getMatrix();
-    cammat = cammat.transpose();
-    //campos = rf->getPosition() + makevec3f(cammat.row[2]) * 100.0;
-    campos = rf->getPosition() +
-      makevec3f(cammat.row[1]) * 1.6f +
-      makevec3f(cammat.row[2]) * 5.0f;
+      cammat = camori.getMatrix();
+      cammat = cammat.transpose();
+      //campos = rf->getPosition() + makevec3f(cammat.row[2]) * 100.0;
+      campos = rf->getPosition() +
+               makevec3f(cammat.row[1]) * 1.6f +
+               makevec3f(cammat.row[2]) * 5.0f;
     } break;
 
-	case CameraMode::bumper: {
-    quatf temp2;
-    temp2.fromZAngle(camera_user_angle);
+    case CameraMode::bumper: {
+      quatf temp2;
+      temp2.fromZAngle(camera_user_angle);
 
-    quatf target = tempo * temp2 * rf->getOrientation();
+      quatf target = tempo * temp2 * rf->getOrientation();
 
-    if (target.dot(camori) < 0.0f) target = target * -1.0f;
+      if (target.dot(camori) < 0.0f) target = target * -1.0f;
 
-    PULLTOWARD(camori, target, delta * 25.0f);
+      PULLTOWARD(camori, target, delta * 25.0f);
 
-    camori.normalize();
+      camori.normalize();
 
-    cammat = camori.getMatrix();
-    cammat = cammat.transpose();
-    const mat44f &rfmat = rf->getInverseOrientationMatrix();
-    //campos = rf->getPosition() + makevec3f(cammat.row[2]) * 100.0;
-    campos = rf->getPosition() +
-      makevec3f(rfmat.row[1]) * 1.7f +
-      makevec3f(rfmat.row[2]) * 0.4f;
+      cammat = camori.getMatrix();
+      cammat = cammat.transpose();
+      const mat44f &rfmat = rf->getInverseOrientationMatrix();
+      //campos = rf->getPosition() + makevec3f(cammat.row[2]) * 100.0;
+      campos = rf->getPosition() +
+               makevec3f(rfmat.row[1]) * 1.7f +
+               makevec3f(rfmat.row[2]) * 0.4f;
     } break;
 
     // Right wheel
-	case CameraMode::side: {
-    quatf temp2;
-    temp2.fromZAngle(camera_user_angle);
+    case CameraMode::side: {
+      quatf temp2;
+      temp2.fromZAngle(camera_user_angle);
 
-    quatf target = tempo * temp2 * rf->getOrientation();
+      quatf target = tempo * temp2 * rf->getOrientation();
 
-    if (target.dot(camori) < 0.0f) target = target * -1.0f;
+      if (target.dot(camori) < 0.0f) target = target * -1.0f;
 
-    //PULLTOWARD(camori, target, delta * 25.0f);
-    camori = target;
+      //PULLTOWARD(camori, target, delta * 25.0f);
+      camori = target;
 
-    camori.normalize();
+      camori.normalize();
 
-    cammat = camori.getMatrix();
-    cammat = cammat.transpose();
-    const mat44f &rfmat = rf->getInverseOrientationMatrix();
-    //campos = rf->getPosition() + makevec3f(cammat.row[2]) * 100.0;
-    campos = rf->getPosition() +
-      makevec3f(rfmat.row[0]) * 1.1f +
-      makevec3f(rfmat.row[1]) * 0.3f +
-      makevec3f(rfmat.row[2]) * 0.1f;
+      cammat = camori.getMatrix();
+      cammat = cammat.transpose();
+      const mat44f &rfmat = rf->getInverseOrientationMatrix();
+      //campos = rf->getPosition() + makevec3f(cammat.row[2]) * 100.0;
+      campos = rf->getPosition() +
+               makevec3f(rfmat.row[0]) * 1.1f +
+               makevec3f(rfmat.row[1]) * 0.3f +
+               makevec3f(rfmat.row[2]) * 0.1f;
     } break;
 
-	case CameraMode::hood: {
-    quatf temp2;
-    temp2.fromZAngle(camera_user_angle);
+    case CameraMode::hood: {
+      quatf temp2;
+      temp2.fromZAngle(camera_user_angle);
 
-    quatf target = tempo * temp2 * rf->getOrientation();
+      quatf target = tempo * temp2 * rf->getOrientation();
 
-    if (target.dot(camori) < 0.0f) target = target * -1.0f;
+      if (target.dot(camori) < 0.0f) target = target * -1.0f;
 
-    //PULLTOWARD(camori, target, delta * 25.0f);
-    camori = target;
+      //PULLTOWARD(camori, target, delta * 25.0f);
+      camori = target;
 
-    camori.normalize();
+      camori.normalize();
 
-    cammat = camori.getMatrix();
-    cammat = cammat.transpose();
-    const mat44f &rfmat = rf->getInverseOrientationMatrix();
-    //campos = rf->getPosition() + makevec3f(cammat.row[2]) * 100.0;
-    campos = rf->getPosition() +
-      makevec3f(rfmat.row[1]) * 0.50f +
-      makevec3f(rfmat.row[2]) * 0.85f;
+      cammat = camori.getMatrix();
+      cammat = cammat.transpose();
+      const mat44f &rfmat = rf->getInverseOrientationMatrix();
+      //campos = rf->getPosition() + makevec3f(cammat.row[2]) * 100.0;
+      campos = rf->getPosition() +
+               makevec3f(rfmat.row[1]) * 0.50f +
+               makevec3f(rfmat.row[2]) * 0.85f;
     } break;
 
     // Periscope view
-	case CameraMode::periscope:{
-    quatf temp2;
-    temp2.fromZAngle(camera_user_angle);
+    case CameraMode::periscope: {
+      quatf temp2;
+      temp2.fromZAngle(camera_user_angle);
 
-    quatf target = tempo * temp2 * rf->getOrientation();
+      quatf target = tempo * temp2 * rf->getOrientation();
 
-    if (target.dot(camori) < 0.0f) target = target * -1.0f;
+      if (target.dot(camori) < 0.0f) target = target * -1.0f;
 
-    PULLTOWARD(camori, target, delta * 25.0f);
+      PULLTOWARD(camori, target, delta * 25.0f);
 
-    camori.normalize();
+      camori.normalize();
 
-    cammat = camori.getMatrix();
-    cammat = cammat.transpose();
-    const mat44f &rfmat = rf->getInverseOrientationMatrix();
-    //campos = rf->getPosition() + makevec3f(cammat.row[2]) * 100.0;
-    campos = rf->getPosition() +
-      makevec3f(rfmat.row[1]) * 1.7f +
-      makevec3f(rfmat.row[2]) * 5.0f;
+      cammat = camori.getMatrix();
+      cammat = cammat.transpose();
+      const mat44f &rfmat = rf->getInverseOrientationMatrix();
+      //campos = rf->getPosition() + makevec3f(cammat.row[2]) * 100.0;
+      campos = rf->getPosition() +
+               makevec3f(rfmat.row[1]) * 1.7f +
+               makevec3f(rfmat.row[2]) * 5.0f;
     } break;
 
-    // Piggyback (fixed chase)
-    //
-    // TODO: broken because of "world turns upside down" bug
-	//		the problem is in noseangle
-    /*
-	case CameraMode::piggyback:
-	{
-		vec3f nose = makevec3f(rf->getOrientationMatrix().row[1]);
-		float noseangle = atan2(nose.z, nose.y);
+      // Piggyback (fixed chase)
+      //
+      // TODO: broken because of "world turns upside down" bug
+      //    the problem is in noseangle
+      /*
+      case CameraMode::piggyback:
+      {
+      vec3f nose = makevec3f(rf->getOrientationMatrix().row[1]);
+      float noseangle = atan2(nose.z, nose.y);
 
-		quatf temp2,temp3,temp4;
-		temp2.fromZAngle(forwangle + camera_user_angle);
-		//temp3.fromXAngle(noseangle);
-		temp3.fromXAngle
-		(
-			atan2
-			(
-				rf->getWorldToLocPoint(rf->getPosition()).z,
-				rf->getWorldToLocPoint(rf->getPosition()).x
-				//(rf->getLocToWorldPoint(vec3f(1,0,0))-rf->getPosition()).x,
-				//(rf->getLocToWorldPoint(vec3f(0,1,0))-rf->getPosition()).y
-			)
-		);
+      quatf temp2,temp3,temp4;
+      temp2.fromZAngle(forwangle + camera_user_angle);
+      //temp3.fromXAngle(noseangle);
+      temp3.fromXAngle
+      (
+        atan2
+        (
+          rf->getWorldToLocPoint(rf->getPosition()).z,
+          rf->getWorldToLocPoint(rf->getPosition()).x
+          //(rf->getLocToWorldPoint(vec3f(1,0,0))-rf->getPosition()).x,
+          //(rf->getLocToWorldPoint(vec3f(0,1,0))-rf->getPosition()).y
+        )
+      );
 
-		temp4 = temp3;// * temp2;
+      temp4 = temp3;// * temp2;
 
-		quatf target = tempo * temp4;
+      quatf target = tempo * temp4;
 
-		if (target.dot(camori) < 0.0f)
-			target = target * -1.0f;
-		//if (camori.dot(target) < 0.0f) camori = camori * -1.0f;
+      if (target.dot(camori) < 0.0f)
+        target = target * -1.0f;
+      //if (camori.dot(target) < 0.0f) camori = camori * -1.0f;
 
-		PULLTOWARD(camori, target, delta * 3.0f);
+      PULLTOWARD(camori, target, delta * 3.0f);
 
-		camori.normalize();
+      camori.normalize();
 
-		cammat = camori.getMatrix();
-		cammat = cammat.transpose();
-		//campos = rf->getPosition() + makevec3f(cammat.row[2]) * 100.0;
-		campos = rf->getPosition() +
-			makevec3f(cammat.row[1]) * 1.6f +
-			makevec3f(cammat.row[2]) * 6.5f;
-	}
-	break;
-	*/
+      cammat = camori.getMatrix();
+      cammat = cammat.transpose();
+      //campos = rf->getPosition() + makevec3f(cammat.row[2]) * 100.0;
+      campos = rf->getPosition() +
+        makevec3f(cammat.row[1]) * 1.6f +
+        makevec3f(cammat.row[2]) * 6.5f;
+      }
+      break;
+      */
   }
 
   forw = makevec3f(cammat.row[0]);
   camera_angle = atan2(forw.y, forw.x);
 
   vec2f diff = makevec2f(game->checkpt[vehic->nextcp].pt) - makevec2f(vehic->body->getPosition());
-  nextcpangle = -atan2(diff.y, diff.x) - forwangle + PI*0.5f;
+  nextcpangle = -atan2(diff.y, diff.x) - forwangle + PI * 0.5f;
 
   if (cfg.getEnableSound()) {
     SDL_Haptic *haptic = nullptr;
@@ -1317,40 +1275,36 @@ void MainApp::tickStateGame(float delta)
     audinst_gravel->setGain(skidlevel * 0.1f * cfg.getVolumeSfx());
     audinst_gravel->setPitch(1.0f);//vehic->getEngineRPM() / 7500.0f);
 
-    if(haptic != nullptr && skidlevel > 500.0f)
+    if (haptic != nullptr && skidlevel > 500.0f)
       SDL_HapticRumblePlay(haptic, skidlevel * 0.0001f, MAX(1000, (unsigned int)(skidlevel * 0.05f)));
 
     if (vehic->getFlagGearChange()) {
-       switch (vehic->iengine.getShiftDirection())
-       {
-         case 1: // Shift up
-         {
-             audinst.push_back(new PAudioInstance(aud_shiftup));
-             audinst.back()->setPitch(0.7f + randm11*0.02f);
-             audinst.back()->setGain(1.0f * cfg.getVolumeSfx());
-             audinst.back()->play();
-             break;
-         }
-         case -1: // Shift down
-         {
-             audinst.push_back(new PAudioInstance(aud_shiftdown));
-             audinst.back()->setPitch(0.8f + randm11*0.12f);
-             audinst.back()->setGain(1.0f * cfg.getVolumeSfx());
-             audinst.back()->play();
-             break;
-         }
-         default: // Shift flag but neither up nor down?
-         {
-           break;
-         }
-       }
+      switch (vehic->iengine.getShiftDirection()) {
+        case 1: { // Shift up
+          audinst.push_back(new PAudioInstance(aud_shiftup));
+          audinst.back()->setPitch(0.7f + randm11 * 0.02f);
+          audinst.back()->setGain(1.0f * cfg.getVolumeSfx());
+          audinst.back()->play();
+          break;
+        }
+        case -1: { // Shift down
+          audinst.push_back(new PAudioInstance(aud_shiftdown));
+          audinst.back()->setPitch(0.8f + randm11 * 0.12f);
+          audinst.back()->setGain(1.0f * cfg.getVolumeSfx());
+          audinst.back()->play();
+          break;
+        }
+        default: { // Shift flag but neither up nor down?
+          break;
+        }
+      }
     }
 
     if (crashnoise_timeout <= 0.0f) {
       float crashlevel = vehic->getCrashNoiseLevel();
       if (crashlevel > 0.0f) {
         audinst.push_back(new PAudioInstance(aud_crash1));
-        audinst.back()->setPitch(1.0f + randm11*0.02f);
+        audinst.back()->setPitch(1.0f + randm11 * 0.02f);
         audinst.back()->setGain(logf(1.0f + crashlevel) * cfg.getVolumeSfx());
         audinst.back()->play();
 
@@ -1362,7 +1316,7 @@ void MainApp::tickStateGame(float delta)
       crashnoise_timeout -= delta;
     }
 
-    for (unsigned int i=0; i<audinst.size(); i++) {
+    for (unsigned int i = 0; i < audinst.size(); i++) {
       if (!audinst[i]->isPlaying()) {
         delete audinst[i];
         audinst.erase(audinst.begin() + i);
@@ -1382,38 +1336,38 @@ void MainApp::tickStateGame(float delta)
   vec3f camvel = (campos - campos_prev) * (1.0f / delta);
 
   {
-  const vec3f def_drop_vect(2.5f,0.0f,17.0f);
+    const vec3f def_drop_vect(2.5f, 0.0f, 17.0f);
 
-  // randomised number of drops calculation
-  float numdrops = game->weather.precip.rain * delta;
-  int inumdrops = (int)numdrops;
-  if (rand01 < numdrops - inumdrops) inumdrops++;
-  for (int i=0; i<inumdrops; i++) {
-    rain.push_back(RainDrop());
-    rain.back().drop_pt = vec3f(campos.x,campos.y,0);
-    rain.back().drop_pt += camvel * RAIN_START_LIFE;
-    rain.back().drop_pt += vec3f::rand() * RAIN_POS_RANDOM;
-    rain.back().drop_pt.z = game->terrain->getHeight(rain.back().drop_pt.x, rain.back().drop_pt.y);
+    // randomised number of drops calculation
+    float numdrops = game->weather.precip.rain * delta;
+    int inumdrops = (int)numdrops;
+    if (rand01 < numdrops - inumdrops) inumdrops++;
+    for (int i = 0; i < inumdrops; i++) {
+      rain.push_back(RainDrop());
+      rain.back().drop_pt = vec3f(campos.x, campos.y, 0);
+      rain.back().drop_pt += camvel * RAIN_START_LIFE;
+      rain.back().drop_pt += vec3f::rand() * RAIN_POS_RANDOM;
+      rain.back().drop_pt.z = game->terrain->getHeight(rain.back().drop_pt.x, rain.back().drop_pt.y);
 
-    if (game->water.enabled && rain.back().drop_pt.z < game->water.height)
+      if (game->water.enabled && rain.back().drop_pt.z < game->water.height)
         rain.back().drop_pt.z = game->water.height;
 
-    rain.back().drop_vect = def_drop_vect + vec3f::rand() * RAIN_VEL_RANDOM;
-    rain.back().life = RAIN_START_LIFE;
-  }
+      rain.back().drop_vect = def_drop_vect + vec3f::rand() * RAIN_VEL_RANDOM;
+      rain.back().life = RAIN_START_LIFE;
+    }
 
-  // update life and delete dead raindrops
-  unsigned int j=0;
-  for (unsigned int i = 0; i < rain.size(); i++) {
-    if (rain[i].life <= 0.0f) continue;
-    rain[j] = rain[i];
-    rain[j].prevlife = rain[j].life;
-    rain[j].life -= delta;
-    if (rain[j].life < 0.0f)
-      rain[j].life = 0.0f; // will be deleted next time round
-    j++;
-  }
-  rain.resize(j);
+    // update life and delete dead raindrops
+    unsigned int j = 0;
+    for (unsigned int i = 0; i < rain.size(); i++) {
+      if (rain[i].life <= 0.0f) continue;
+      rain[j] = rain[i];
+      rain[j].prevlife = rain[j].life;
+      rain[j].life -= delta;
+      if (rain[j].life < 0.0f)
+        rain[j].life = 0.0f; // will be deleted next time round
+      j++;
+    }
+    rain.resize(j);
   }
 
 #define SNOWFALL_START_LIFE     6.5f
@@ -1424,36 +1378,36 @@ void MainApp::tickStateGame(float delta)
   {
     const vec3f def_drop_vect(1.3f, 0.0f, 6.0f);
 
-  // randomised number of flakes calculation
-  float numflakes = game->weather.precip.snowfall * delta;
-  int inumflakes = (int)numflakes;
-  if (rand01 < numflakes - inumflakes) inumflakes++;
-  for (int i=0; i<inumflakes; i++) {
-    snowfall.push_back(SnowFlake());
-    snowfall.back().drop_pt = vec3f(campos.x,campos.y,0);
-    snowfall.back().drop_pt += camvel * SNOWFALL_START_LIFE / 2;
-    snowfall.back().drop_pt += vec3f::rand() * SNOWFALL_POS_RANDOM;
-    snowfall.back().drop_pt.z = game->terrain->getHeight(snowfall.back().drop_pt.x, snowfall.back().drop_pt.y);
+    // randomised number of flakes calculation
+    float numflakes = game->weather.precip.snowfall * delta;
+    int inumflakes = (int)numflakes;
+    if (rand01 < numflakes - inumflakes) inumflakes++;
+    for (int i = 0; i < inumflakes; i++) {
+      snowfall.push_back(SnowFlake());
+      snowfall.back().drop_pt = vec3f(campos.x, campos.y, 0);
+      snowfall.back().drop_pt += camvel * SNOWFALL_START_LIFE / 2;
+      snowfall.back().drop_pt += vec3f::rand() * SNOWFALL_POS_RANDOM;
+      snowfall.back().drop_pt.z = game->terrain->getHeight(snowfall.back().drop_pt.x, snowfall.back().drop_pt.y);
 
-    if (game->water.enabled && snowfall.back().drop_pt.z < game->water.height)
+      if (game->water.enabled && snowfall.back().drop_pt.z < game->water.height)
         snowfall.back().drop_pt.z = game->water.height;
 
-    snowfall.back().drop_vect = def_drop_vect + vec3f::rand() * SNOWFALL_VEL_RANDOM;
-    snowfall.back().life = SNOWFALL_START_LIFE * rand01;
-  }
+      snowfall.back().drop_vect = def_drop_vect + vec3f::rand() * SNOWFALL_VEL_RANDOM;
+      snowfall.back().life = SNOWFALL_START_LIFE * rand01;
+    }
 
-  // update life and delete dead snowflakes
-  unsigned int j=0;
-  for (unsigned int i = 0; i < snowfall.size(); i++) {
-    if (snowfall[i].life <= 0.0f) continue;
-    snowfall[j] = snowfall[i];
-    snowfall[j].prevlife = snowfall[j].life;
-    snowfall[j].life -= delta;
-    if (snowfall[j].life < 0.0f)
-      snowfall[j].life = 0.0f; // will be deleted next time round
-    j++;
-  }
-  snowfall.resize(j);
+    // update life and delete dead snowflakes
+    unsigned int j = 0;
+    for (unsigned int i = 0; i < snowfall.size(); i++) {
+      if (snowfall[i].life <= 0.0f) continue;
+      snowfall[j] = snowfall[i];
+      snowfall[j].prevlife = snowfall[j].life;
+      snowfall[j].life -= delta;
+      if (snowfall[j].life < 0.0f)
+        snowfall[j].life = 0.0f; // will be deleted next time round
+      j++;
+    }
+    snowfall.resize(j);
   }
 
   // update stuff for SSRender
@@ -1481,152 +1435,150 @@ void MainApp::keyEvent(const SDL_KeyboardEvent &ke)
     auto& ctrl = cfg.getCtrl();
 
     switch (appstate) {
-    case AS_LOAD_1:
-    case AS_LOAD_2:
-      // no hitting escape allowed... end screen not loaded!
-      return;
-    case AS_LOAD_3:
-      levelScreenAction(AA_INIT, 0);
-      return;
-    case AS_LEVEL_SCREEN:
-      handleLevelScreenKey(ke);
-      return;
-    case AS_CHOOSE_VEHICLE:
+      case AS_LOAD_1:
+      case AS_LOAD_2:
+        // no hitting escape allowed... end screen not loaded!
+        return;
+      case AS_LOAD_3:
+        levelScreenAction(AA_INIT, 0);
+        return;
+      case AS_LEVEL_SCREEN:
+        handleLevelScreenKey(ke);
+        return;
+      case AS_CHOOSE_VEHICLE:
 
-      if (ctrl.map[PConfig::ActionLeft].type == PConfig::UserControl::TypeKey &&
-        ctrl.map[PConfig::ActionLeft].key.sym == ke.keysym.sym) {
-        if (--choose_type < 0)
-          choose_type = (int)game->vehiclechoices.size()-1;
-        return;
-      }
-      if ((ctrl.map[PConfig::ActionRight].type == PConfig::UserControl::TypeKey &&
-        ctrl.map[PConfig::ActionRight].key.sym == ke.keysym.sym) ||
-        (ctrl.map[PConfig::ActionNext].type == PConfig::UserControl::TypeKey &&
-        ctrl.map[PConfig::ActionNext].key.sym == ke.keysym.sym)) {
-        if (++choose_type >= (int)game->vehiclechoices.size())
-          choose_type = 0;
-        return;
-      }
+        if (ctrl.map[PConfig::ActionLeft].type == PConfig::UserControl::TypeKey &&
+            ctrl.map[PConfig::ActionLeft].key.sym == ke.keysym.sym) {
+          if (--choose_type < 0)
+            choose_type = (int)game->vehiclechoices.size() - 1;
+          return;
+        }
+        if ((ctrl.map[PConfig::ActionRight].type == PConfig::UserControl::TypeKey &&
+             ctrl.map[PConfig::ActionRight].key.sym == ke.keysym.sym) ||
+            (ctrl.map[PConfig::ActionNext].type == PConfig::UserControl::TypeKey &&
+             ctrl.map[PConfig::ActionNext].key.sym == ke.keysym.sym)) {
+          if (++choose_type >= (int)game->vehiclechoices.size())
+            choose_type = 0;
+          return;
+        }
 
-      switch (ke.keysym.sym) {
-      case SDLK_RETURN:
-      case SDLK_KP_ENTER:
-      {
-        enterGame();
-        return;
-      }
-      case SDLK_ESCAPE:
-        endGame(Gamefinish::not_finished);
-        return;
-      default:
+        switch (ke.keysym.sym) {
+          case SDLK_RETURN:
+          case SDLK_KP_ENTER: {
+            enterGame();
+            return;
+          }
+          case SDLK_ESCAPE:
+            endGame(Gamefinish::not_finished);
+            return;
+          default:
+            break;
+        }
         break;
-      }
-      break;
-    case AS_IN_GAME:
+      case AS_IN_GAME:
 
-      if (ctrl.map[PConfig::ActionRecover].type == PConfig::UserControl::TypeKey &&
-        ctrl.map[PConfig::ActionRecover].key.sym == ke.keysym.sym) {
-        game->vehicle[0]->doReset();
-        return;
-      }
-      if (ctrl.map[PConfig::ActionRecoverAtCheckpoint].type == PConfig::UserControl::TypeKey &&
-        ctrl.map[PConfig::ActionRecoverAtCheckpoint].key.sym == ke.keysym.sym)
-      {
+        if (ctrl.map[PConfig::ActionRecover].type == PConfig::UserControl::TypeKey &&
+            ctrl.map[PConfig::ActionRecover].key.sym == ke.keysym.sym) {
+          game->vehicle[0]->doReset();
+          return;
+        }
+        if (ctrl.map[PConfig::ActionRecoverAtCheckpoint].type == PConfig::UserControl::TypeKey &&
+            ctrl.map[PConfig::ActionRecoverAtCheckpoint].key.sym == ke.keysym.sym) {
           game->resetAtCheckpoint(game->vehicle[0]);
           return;
-      }
-      if (ctrl.map[PConfig::ActionCamMode].type == PConfig::UserControl::TypeKey &&
-        ctrl.map[PConfig::ActionCamMode].key.sym == ke.keysym.sym) {
-        cameraview = static_cast<CameraMode>((static_cast<int>(cameraview) + 1) % static_cast<int>(CameraMode::count));
-        camera_user_angle = 0.0f;
-        return;
-      }
-      if (ctrl.map[PConfig::ActionShowMap].type == PConfig::UserControl::TypeKey &&
-        ctrl.map[PConfig::ActionShowMap].key.sym == ke.keysym.sym) {
-        showmap = !showmap;
-        return;
-      }
-      if (ctrl.map[PConfig::ActionPauseRace].type == PConfig::UserControl::TypeKey &&
-        ctrl.map[PConfig::ActionPauseRace].key.sym == ke.keysym.sym)
-      {
+        }
+        if (ctrl.map[PConfig::ActionCamMode].type == PConfig::UserControl::TypeKey &&
+            ctrl.map[PConfig::ActionCamMode].key.sym == ke.keysym.sym) {
+          cameraview = static_cast<CameraMode>((static_cast<int>(cameraview) + 1) % static_cast<int>(CameraMode::count));
+          camera_user_angle = 0.0f;
+          return;
+        }
+        if (ctrl.map[PConfig::ActionShowMap].type == PConfig::UserControl::TypeKey &&
+            ctrl.map[PConfig::ActionShowMap].key.sym == ke.keysym.sym) {
+          showmap = !showmap;
+          return;
+        }
+        if (ctrl.map[PConfig::ActionPauseRace].type == PConfig::UserControl::TypeKey &&
+            ctrl.map[PConfig::ActionPauseRace].key.sym == ke.keysym.sym) {
           toggleSounds(pauserace);
           pauserace = !pauserace;
           return;
-      }
-      if (ctrl.map[PConfig::ActionShowUi].type == PConfig::UserControl::TypeKey &&
-        ctrl.map[PConfig::ActionShowUi].key.sym == ke.keysym.sym) {
-        showui = !showui;
-        return;
-      }
+        }
+        if (ctrl.map[PConfig::ActionShowUi].type == PConfig::UserControl::TypeKey &&
+            ctrl.map[PConfig::ActionShowUi].key.sym == ke.keysym.sym) {
+          showui = !showui;
+          return;
+        }
 
-      if (ctrl.map[PConfig::ActionShowCheckpoint].type == PConfig::UserControl::TypeKey &&
-        ctrl.map[PConfig::ActionShowCheckpoint].key.sym == ke.keysym.sym) {
-            showcheckpoint = !showcheckpoint;
+        if (ctrl.map[PConfig::ActionShowCheckpoint].type == PConfig::UserControl::TypeKey &&
+            ctrl.map[PConfig::ActionShowCheckpoint].key.sym == ke.keysym.sym) {
+          showcheckpoint = !showcheckpoint;
+          return;
+        }
+
+
+        switch (ke.keysym.sym) {
+          case SDLK_ESCAPE:
+            endGame(game->getFinishState());
+            pauserace = false;
+            /*
+                      if (game->getFinishState() == GF_PASS)
+                        endGame(GF_PASS);
+                      else // GF_FAIL or GF_NOT_FINISHED
+                        endGame(GF_FAIL);
+            */
             return;
-      }
-
-
-      switch (ke.keysym.sym) {
-      case SDLK_ESCAPE:
-          endGame(game->getFinishState());
-          pauserace = false;
-/*
-          if (game->getFinishState() == GF_PASS)
-            endGame(GF_PASS);
-          else // GF_FAIL or GF_NOT_FINISHED
-            endGame(GF_FAIL);
-*/
-        return;
-      default:
+          default:
+            break;
+        }
         break;
-      }
-      break;
-    case AS_END_SCREEN:
-      requestExit();
-      return;
+      case AS_END_SCREEN:
+        requestExit();
+        return;
     }
 
     switch (ke.keysym.sym) {
-    case SDLK_ESCAPE:
-      quitGame();
-      return;
-    default:
-      break;
+      case SDLK_ESCAPE:
+        quitGame();
+        return;
+      default:
+        break;
     }
   }
 }
 
-void MainApp::touchEvent(const SDL_TouchFingerEvent& te) {
-    // Main fields of interest:
-    // te.type = SDL_FINGERDOWN | SDL_FINGERUP | SDL_FINGERMOTION
-    // te.fingerId = ID of the finger (64-bit value of type SDL_FingerID)
-    // te.x, te.y = coordinates of touch (0..1)
-    // te.dx, te.dy = delta of x and y (requires testing), (-1..1)
+void MainApp::touchEvent(const SDL_TouchFingerEvent& te)
+{
+  // Main fields of interest:
+  // te.type = SDL_FINGERDOWN | SDL_FINGERUP | SDL_FINGERMOTION
+  // te.fingerId = ID of the finger (64-bit value of type SDL_FingerID)
+  // te.x, te.y = coordinates of touch (0..1)
+  // te.dx, te.dy = delta of x and y (requires testing), (-1..1)
 }
 
-void MainApp::touchMoveEvent(const SDL_TouchFingerEvent& te) {
+void MainApp::touchMoveEvent(const SDL_TouchFingerEvent& te)
+{
 }
 
 void MainApp::enterGame()
 {
-    if (!game->vehiclechoices[choose_type]->getLocked()) {
-        initAudio();
-        game->chooseVehicle(game->vehiclechoices[choose_type]);
-        if (cfg.getEnableGhost())
-          ghost.recordStart(race_data.mapname, game->vehiclechoices[choose_type]->getName());
+  if (!game->vehiclechoices[choose_type]->getLocked()) {
+    initAudio();
+    game->chooseVehicle(game->vehiclechoices[choose_type]);
+    if (cfg.getEnableGhost())
+      ghost.recordStart(race_data.mapname, game->vehiclechoices[choose_type]->getName());
 
-        if (lss.state == AM_TOP_LVL_PREP)
-        {
-            const float bct = best_times.getBestClassTime(
-                race_data.mapname,
-                game->vehicle.front()->type->proper_class);
+    if (lss.state == AM_TOP_LVL_PREP) {
+      const float bct = best_times.getBestClassTime(
+                          race_data.mapname,
+                          game->vehicle.front()->type->proper_class);
 
-            if (bct >= 0.0f)
-                game->targettime = bct;
-        }
-
-        appstate = AS_IN_GAME;
+      if (bct >= 0.0f)
+        game->targettime = bct;
     }
+
+    appstate = AS_IN_GAME;
+  }
 }
 
 void MainApp::mouseMoveEvent(int dx, int dy)
@@ -1654,61 +1606,59 @@ void MainApp::joyButtonEvent(int which, int button, bool down)
     auto& ctrl = cfg.getCtrl();
 
     switch (appstate) {
-    case AS_CHOOSE_VEHICLE:
+      case AS_CHOOSE_VEHICLE:
 
-      if (ctrl.map[PConfig::ActionLeft].type == PConfig::UserControl::TypeJoyButton &&
-        ctrl.map[PConfig::ActionLeft].joybutton.button == button) {
-        if (--choose_type < 0)
-          choose_type = (int)game->vehiclechoices.size()-1;
-        return;
-      }
-      if ((ctrl.map[PConfig::ActionRight].type == PConfig::UserControl::TypeJoyButton &&
-        ctrl.map[PConfig::ActionRight].joybutton.button == button) ||
-        (ctrl.map[PConfig::ActionNext].type == PConfig::UserControl::TypeJoyButton &&
-        ctrl.map[PConfig::ActionNext].joybutton.button == button)) {
-        if (++choose_type >= (int)game->vehiclechoices.size())
-          choose_type = 0;
-        return;
-      }
+        if (ctrl.map[PConfig::ActionLeft].type == PConfig::UserControl::TypeJoyButton &&
+            ctrl.map[PConfig::ActionLeft].joybutton.button == button) {
+          if (--choose_type < 0)
+            choose_type = (int)game->vehiclechoices.size() - 1;
+          return;
+        }
+        if ((ctrl.map[PConfig::ActionRight].type == PConfig::UserControl::TypeJoyButton &&
+             ctrl.map[PConfig::ActionRight].joybutton.button == button) ||
+            (ctrl.map[PConfig::ActionNext].type == PConfig::UserControl::TypeJoyButton &&
+             ctrl.map[PConfig::ActionNext].joybutton.button == button)) {
+          if (++choose_type >= (int)game->vehiclechoices.size())
+            choose_type = 0;
+          return;
+        }
 
-      break;
+        break;
 
-    case AS_IN_GAME:
+      case AS_IN_GAME:
 
-      if (ctrl.map[PConfig::ActionRecover].type == PConfig::UserControl::TypeJoyButton &&
-        ctrl.map[PConfig::ActionRecover].joybutton.button == button) {
-        game->vehicle[0]->doReset();
-        return;
-      }
-      if (ctrl.map[PConfig::ActionRecoverAtCheckpoint].type == PConfig::UserControl::TypeJoyButton &&
-        ctrl.map[PConfig::ActionRecoverAtCheckpoint].joybutton.button == button)
-      {
+        if (ctrl.map[PConfig::ActionRecover].type == PConfig::UserControl::TypeJoyButton &&
+            ctrl.map[PConfig::ActionRecover].joybutton.button == button) {
+          game->vehicle[0]->doReset();
+          return;
+        }
+        if (ctrl.map[PConfig::ActionRecoverAtCheckpoint].type == PConfig::UserControl::TypeJoyButton &&
+            ctrl.map[PConfig::ActionRecoverAtCheckpoint].joybutton.button == button) {
           game->resetAtCheckpoint(game->vehicle[0]);
           return;
-      }
-      if (ctrl.map[PConfig::ActionCamMode].type == PConfig::UserControl::TypeJoyButton &&
-        ctrl.map[PConfig::ActionCamMode].joybutton.button == button) {
-		cameraview = static_cast<CameraMode>((static_cast<int>(cameraview) + 1) % static_cast<int>(CameraMode::count));
-        camera_user_angle = 0.0f;
-        return;
-      }
-      if (ctrl.map[PConfig::ActionShowMap].type == PConfig::UserControl::TypeJoyButton &&
-        ctrl.map[PConfig::ActionShowMap].joybutton.button == button) {
-        showmap = !showmap;
-        return;
-      }
-      if (ctrl.map[PConfig::ActionPauseRace].type == PConfig::UserControl::TypeJoyButton &&
-        ctrl.map[PConfig::ActionPauseRace].joybutton.button == button)
-        {
-            toggleSounds(pauserace);
-            pauserace = !pauserace;
-            return;
         }
-      if (ctrl.map[PConfig::ActionShowUi].type == PConfig::UserControl::TypeJoyButton &&
-        ctrl.map[PConfig::ActionShowUi].joybutton.button == button) {
-        showui = !showui;
-        return;
-      }
+        if (ctrl.map[PConfig::ActionCamMode].type == PConfig::UserControl::TypeJoyButton &&
+            ctrl.map[PConfig::ActionCamMode].joybutton.button == button) {
+          cameraview = static_cast<CameraMode>((static_cast<int>(cameraview) + 1) % static_cast<int>(CameraMode::count));
+          camera_user_angle = 0.0f;
+          return;
+        }
+        if (ctrl.map[PConfig::ActionShowMap].type == PConfig::UserControl::TypeJoyButton &&
+            ctrl.map[PConfig::ActionShowMap].joybutton.button == button) {
+          showmap = !showmap;
+          return;
+        }
+        if (ctrl.map[PConfig::ActionPauseRace].type == PConfig::UserControl::TypeJoyButton &&
+            ctrl.map[PConfig::ActionPauseRace].joybutton.button == button) {
+          toggleSounds(pauserace);
+          pauserace = !pauserace;
+          return;
+        }
+        if (ctrl.map[PConfig::ActionShowUi].type == PConfig::UserControl::TypeJoyButton &&
+            ctrl.map[PConfig::ActionShowUi].joybutton.button == button) {
+          showui = !showui;
+          return;
+        }
     }
   }
 }
@@ -1720,51 +1670,51 @@ bool MainApp::joyAxisEvent(int which, int axis, float value, bool down)
   if (which == 0) {
 
     switch (appstate) {
-    case AS_CHOOSE_VEHICLE:
+      case AS_CHOOSE_VEHICLE:
 
-      if (ctrl.map[PConfig::ActionLeft].type == PConfig::UserControl::TypeJoyAxis &&
-        ctrl.map[PConfig::ActionLeft].joyaxis.axis == axis &&
-        ctrl.map[PConfig::ActionLeft].joyaxis.sign * value > 0.5) {
-        if (!down)
-          if (--choose_type < 0)
-            choose_type = (int)game->vehiclechoices.size()-1;
-        return true;
-      }
-      else if (ctrl.map[PConfig::ActionRight].type == PConfig::UserControl::TypeJoyAxis &&
-        ctrl.map[PConfig::ActionRight].joyaxis.axis == axis &&
-        ctrl.map[PConfig::ActionRight].joyaxis.sign * value > 0.5) {
-        if (!down)
-          if (++choose_type >= (int)game->vehiclechoices.size())
-            choose_type = 0;
-        return true;
-      }
-      else if ((ctrl.map[PConfig::ActionLeft].type == PConfig::UserControl::TypeJoyAxis &&
-        ctrl.map[PConfig::ActionLeft].joyaxis.axis == axis &&
-        ctrl.map[PConfig::ActionLeft].joyaxis.sign * value <= 0.5) ||
-        (ctrl.map[PConfig::ActionRight].type == PConfig::UserControl::TypeJoyAxis &&
-        ctrl.map[PConfig::ActionRight].joyaxis.axis == axis &&
-        ctrl.map[PConfig::ActionRight].joyaxis.sign * value <= 0.5)) {
+        if (ctrl.map[PConfig::ActionLeft].type == PConfig::UserControl::TypeJoyAxis &&
+            ctrl.map[PConfig::ActionLeft].joyaxis.axis == axis &&
+            ctrl.map[PConfig::ActionLeft].joyaxis.sign * value > 0.5) {
+          if (!down)
+            if (--choose_type < 0)
+              choose_type = (int)game->vehiclechoices.size() - 1;
+          return true;
+        } else if (ctrl.map[PConfig::ActionRight].type == PConfig::UserControl::TypeJoyAxis &&
+                   ctrl.map[PConfig::ActionRight].joyaxis.axis == axis &&
+                   ctrl.map[PConfig::ActionRight].joyaxis.sign * value > 0.5) {
+          if (!down)
+            if (++choose_type >= (int)game->vehiclechoices.size())
+              choose_type = 0;
+          return true;
+        } else if ((ctrl.map[PConfig::ActionLeft].type == PConfig::UserControl::TypeJoyAxis &&
+                    ctrl.map[PConfig::ActionLeft].joyaxis.axis == axis &&
+                    ctrl.map[PConfig::ActionLeft].joyaxis.sign * value <= 0.5) ||
+                   (ctrl.map[PConfig::ActionRight].type == PConfig::UserControl::TypeJoyAxis &&
+                    ctrl.map[PConfig::ActionRight].joyaxis.axis == axis &&
+                    ctrl.map[PConfig::ActionRight].joyaxis.sign * value <= 0.5)) {
           return false;
-      }
+        }
 
-      break;
+        break;
     }
   }
   return down;
 }
 
-float MainApp::getCtrlActionBackValue() {
-   return cfg.getCtrl().map[PConfig::ActionBack].value;
+float MainApp::getCtrlActionBackValue()
+{
+  return cfg.getCtrl().map[PConfig::ActionBack].value;
 }
 
-int MainApp::getVehicleCurrentGear() {
+int MainApp::getVehicleCurrentGear()
+{
   if (game->vehicle.size() > 0)
     return game->vehicle.front()->getCurrentGear();
   return 0;
 }
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
-    PUtil::initLog();
-    return MainApp("Trigger Rally-NG", ".trigger-rally").run(argc, argv);
+  PUtil::initLog();
+  return MainApp("Trigger Rally-NG", ".trigger-rally").run(argc, argv);
 }

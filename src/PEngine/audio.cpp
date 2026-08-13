@@ -48,39 +48,35 @@
 
 // This function is common to the various implementations
 
-PAudioSample *PSSAudio::loadSample(const std::string &name, bool positional3D)
+PAudioSample* PSSAudio::loadSample(const std::string &name, bool positional3D)
 {
-    PAudioSample *samp = samplist.find(name);
+  PAudioSample *samp = samplist.find(name);
 
-    if (!samp)
-    {
-        try
-        {
-            samp = new PAudioSample(name, positional3D);
-        }
-        catch (PException &e)
-        {
-            if (PUtil::isDebugLevel(DEBUGLEVEL_ENDUSER))
-                PUtil::outLog() << "Failed to load " << name << ": " << e.what() << std::endl;
+  if (!samp) {
+    try {
+      samp = new PAudioSample(name, positional3D);
+    } catch (PException &e) {
+      if (PUtil::isDebugLevel(DEBUGLEVEL_ENDUSER))
+        PUtil::outLog() << "Failed to load " << name << ": " << e.what() << std::endl;
 
-            return nullptr;
-        }
-        samplist.add(samp);
+      return nullptr;
     }
-    return samp;
+    samplist.add(samp);
+  }
+  return samp;
 }
 
 #ifdef USE_NULL
 
 PSSAudio::PSSAudio(PApp &parentApp) : PSubsystem(parentApp)
 {
-    PUtil::outLog() << "Initialising audio subsystem [NULL]" << std::endl;
+  PUtil::outLog() << "Initialising audio subsystem [NULL]" << std::endl;
 }
 
 PSSAudio::~PSSAudio()
 {
-    PUtil::outLog() << "Shutting down audio subsystem" << std::endl;
-    samplist.clear();
+  PUtil::outLog() << "Shutting down audio subsystem" << std::endl;
+  samplist.clear();
 }
 
 void PSSAudio::tick()
@@ -89,13 +85,13 @@ void PSSAudio::tick()
 
 PAudioSample::PAudioSample(const std::string &filename, bool positional3D)
 {
-    buffer = 0;
+  buffer = 0;
 
-    if (PUtil::isDebugLevel(DEBUGLEVEL_TEST))
-        PUtil::outLog() << "Loading sample \"" << filename << "\"" << std::endl;
+  if (PUtil::isDebugLevel(DEBUGLEVEL_TEST))
+    PUtil::outLog() << "Loading sample \"" << filename << "\"" << std::endl;
 
-    unload();
-    name = filename;
+  unload();
+  name = filename;
 }
 
 void PAudioSample::unload()
@@ -103,7 +99,7 @@ void PAudioSample::unload()
 }
 
 PAudioInstance::PAudioInstance(PAudioSample *_samp, bool looping) :
-    samp(_samp)
+  samp(_samp)
 {
 }
 
@@ -139,7 +135,7 @@ void PAudioInstance::stop()
 
 bool PAudioInstance::isPlaying()
 {
-    return false;
+  return false;
 }
 
 #endif // USE_NULL
@@ -153,17 +149,17 @@ bool PAudioInstance::isPlaying()
 
 PSSAudio::PSSAudio(PApp &parentApp) : PSubsystem(parentApp)
 {
-    PUtil::outLog() << "Initialising audio subsystem [OpenAL]" << std::endl;
+  PUtil::outLog() << "Initialising audio subsystem [OpenAL]" << std::endl;
 
-    if (alutInit(0, nullptr) != AL_TRUE)
-        throw MakePException("ALUT:alutInit() error: " + alutGetErrorString(alutGetError()));
+  if (alutInit(0, nullptr) != AL_TRUE)
+    throw MakePException("ALUT:alutInit() error: " + alutGetErrorString(alutGetError()));
 }
 
 PSSAudio::~PSSAudio()
 {
-    PUtil::outLog() << "Shutting down audio subsystem" << std::endl;
-    samplist.clear();
-    alutExit();
+  PUtil::outLog() << "Shutting down audio subsystem" << std::endl;
+  samplist.clear();
+  alutExit();
 }
 
 void PSSAudio::tick()
@@ -172,115 +168,112 @@ void PSSAudio::tick()
 
 PAudioSample::PAudioSample(const std::string &filename, bool positional3D)
 {
-    buffer = 0;
-    positional3D = positional3D; // unused (atm)
+  buffer = 0;
+  positional3D = positional3D; // unused (atm)
 
-    if (PUtil::isDebugLevel(DEBUGLEVEL_TEST))
-        PUtil::outLog() << "Loading sample \"" << filename << "\"" << std::endl;
+  if (PUtil::isDebugLevel(DEBUGLEVEL_TEST))
+    PUtil::outLog() << "Loading sample \"" << filename << "\"" << std::endl;
 
-    unload();
-    /* load contents from file into memory using physfs functions */
-    name = filename;
-    PHYSFS_file *pfile = PHYSFS_openRead(filename.c_str());
+  unload();
+  /* load contents from file into memory using physfs functions */
+  name = filename;
+  PHYSFS_file *pfile = PHYSFS_openRead(filename.c_str());
 
-    if (!pfile)
-    {
-        throw MakePException ("Load failed: PhysFS: " + physfs_getErrorString());
-    }
+  if (!pfile) {
+    throw MakePException ("Load failed: PhysFS: " + physfs_getErrorString());
+  }
 
-    int filesize = PHYSFS_fileLength(pfile);
+  int filesize = PHYSFS_fileLength(pfile);
 
-    char *wavbuffer = new char[filesize];
+  char* wavbuffer = new char[filesize];
 
-    physfs_read(pfile, wavbuffer, sizeof(char), filesize);
-    PHYSFS_close(pfile);
+  physfs_read(pfile, wavbuffer, sizeof(char), filesize);
+  PHYSFS_close(pfile);
 
-    /* create the alut buffer from memory contents */
-    this->buffer = alutCreateBufferFromFileImage(
-                       reinterpret_cast<const ALvoid *>(wavbuffer),
-                       filesize);
+  /* create the alut buffer from memory contents */
+  this->buffer = alutCreateBufferFromFileImage(
+                   reinterpret_cast<const ALvoid*>(wavbuffer),
+                   filesize);
 
-    /* clean up */
-    delete [] wavbuffer;
+  /* clean up */
+  delete [] wavbuffer;
 
-    /* check if loading was successful */
-    if (AL_NONE == this->buffer)
-    {
-        throw MakePException("Sample load failed:"
-                             + alutGetErrorString(alutGetError()));
-    }
+  /* check if loading was successful */
+  if (AL_NONE == this->buffer) {
+    throw MakePException("Sample load failed:"
+                         + alutGetErrorString(alutGetError()));
+  }
 }
 
 void PAudioSample::unload()
 {
-    if (buffer)
-    {
-        alDeleteBuffers(1, &buffer);
-        buffer = 0;
-    }
+  if (buffer) {
+    alDeleteBuffers(1, &buffer);
+    buffer = 0;
+  }
 }
 
 
 
 PAudioInstance::PAudioInstance(PAudioSample *_samp, bool looping)
 {
-    samp = _samp;
+  samp = _samp;
 
-    alGenSources(1, &source);
+  alGenSources(1, &source);
 
-    alSourcei(source, AL_BUFFER, samp->buffer);
-    alSourcei(source, AL_LOOPING, looping ? AL_TRUE : AL_FALSE);
+  alSourcei(source, AL_BUFFER, samp->buffer);
+  alSourcei(source, AL_LOOPING, looping ? AL_TRUE : AL_FALSE);
 
-    //alSourcePlay(source);
+  //alSourcePlay(source);
 }
 
 PAudioInstance::~PAudioInstance()
 {
-    if (isPlaying()) stop();
-    alDeleteSources(1, &source);
+  if (isPlaying()) stop();
+  alDeleteSources(1, &source);
 }
 
 
 void PAudioInstance::update(const vec3f &pos, const vec3f &vel)
 {
-    alSourcefv(source, AL_POSITION, (vec3f)pos);
-    alSourcefv(source, AL_VELOCITY, (vec3f)vel);
+  alSourcefv(source, AL_POSITION, (vec3f)pos);
+  alSourcefv(source, AL_VELOCITY, (vec3f)vel);
 }
 
 void PAudioInstance::setGain(float gain)
 {
-    //alSourcef(source, AL_MIN_GAIN, gain);
-    //alSourcef(source, AL_MAX_GAIN, gain);
-    alSourcef(source, AL_GAIN, gain);
+  //alSourcef(source, AL_MIN_GAIN, gain);
+  //alSourcef(source, AL_MAX_GAIN, gain);
+  alSourcef(source, AL_GAIN, gain);
 }
 
 void PAudioInstance::setHalfDistance(float lambda)
 {
-    alSourcef(source, AL_REFERENCE_DISTANCE, lambda);
+  alSourcef(source, AL_REFERENCE_DISTANCE, lambda);
 }
 
 void PAudioInstance::setPitch(float pitch)
 {
-    alSourcef(source, AL_PITCH, pitch);
+  alSourcef(source, AL_PITCH, pitch);
 }
 
 
 void PAudioInstance::play()
 {
-    alSourceRewind(source);
-    alSourcePlay(source);
+  alSourceRewind(source);
+  alSourcePlay(source);
 }
 
 void PAudioInstance::stop()
 {
-    alSourceStop(source);
+  alSourceStop(source);
 }
 
 bool PAudioInstance::isPlaying()
 {
-    int state = AL_STOPPED;
-    alGetSourcei(source, AL_SOURCE_STATE, &state);
-    return (state == AL_PLAYING);
+  int state = AL_STOPPED;
+  alGetSourcei(source, AL_SOURCE_STATE, &state);
+  return (state == AL_PLAYING);
 }
 
 #endif // USE_OPENAL
@@ -293,75 +286,73 @@ bool PAudioInstance::isPlaying()
 namespace
 {
 
-FMOD_SYSTEM *fs;
+  FMOD_SYSTEM* fs;
 
 // callbacks to integrate PhysFS with FMOD
-FMOD_RESULT F_CALLBACK fmod_file_open(const char *name, unsigned int *filesize, void **handle, void *userdata);
-FMOD_RESULT F_CALLBACK fmod_file_close(void *handle, void *userdata);
-FMOD_RESULT F_CALLBACK fmod_file_read(void *handle, void *buffer, unsigned int sizebytes, unsigned int *bytesread, void *userdata);
-FMOD_RESULT F_CALLBACK fmod_file_seek(void *handle, unsigned int pos, void *userdata);
+  FMOD_RESULT F_CALLBACK fmod_file_open(const char* name, unsigned int* filesize, void** handle, void* userdata);
+  FMOD_RESULT F_CALLBACK fmod_file_close(void* handle, void* userdata);
+  FMOD_RESULT F_CALLBACK fmod_file_read(void* handle, void* buffer, unsigned int sizebytes, unsigned int* bytesread,
+                                        void* userdata);
+  FMOD_RESULT F_CALLBACK fmod_file_seek(void* handle, unsigned int pos, void* userdata);
 
-FMOD_RESULT F_CALLBACK fmod_file_open(const char *name, unsigned int *filesize, void **handle, void *userdata)
-{
+  FMOD_RESULT F_CALLBACK fmod_file_open(const char* name, unsigned int* filesize, void** handle, void* userdata)
+  {
     UNREFERENCED_PARAMETER(userdata);
 
-    if (PHYSFS_exists(name) == 0)
-    {
-        PUtil::outLog() << "PhysFS: file \"" << name << "\" was not found." << std::endl;
-        return FMOD_ERR_FILE_NOTFOUND;
+    if (PHYSFS_exists(name) == 0) {
+      PUtil::outLog() << "PhysFS: file \"" << name << "\" was not found." << std::endl;
+      return FMOD_ERR_FILE_NOTFOUND;
     }
 
     *handle = PHYSFS_openRead(name);
 
-    if (*handle == nullptr)
-    {
-        PUtil::outLog() << "PhysFS: " << physfs_getErrorString() << std::endl;
-        return FMOD_ERR_FILE_BAD;
+    if (*handle == nullptr) {
+      PUtil::outLog() << "PhysFS: " << physfs_getErrorString() << std::endl;
+      return FMOD_ERR_FILE_BAD;
     }
 
-    *filesize = PHYSFS_fileLength(reinterpret_cast<PHYSFS_File *> (*handle));
+    *filesize = PHYSFS_fileLength(reinterpret_cast<PHYSFS_File*> (*handle));
     return FMOD_OK;
-}
+  }
 
-FMOD_RESULT F_CALLBACK fmod_file_close(void *handle, void *userdata)
-{
+  FMOD_RESULT F_CALLBACK fmod_file_close(void* handle, void* userdata)
+  {
     UNREFERENCED_PARAMETER(userdata);
 
-    if (PHYSFS_close(reinterpret_cast<PHYSFS_File *> (handle)) == 0)
-        PUtil::outLog() << "PhysFS: could not close a file." << std::endl;
+    if (PHYSFS_close(reinterpret_cast<PHYSFS_File*> (handle)) == 0)
+      PUtil::outLog() << "PhysFS: could not close a file." << std::endl;
 
     return FMOD_OK;
-}
+  }
 
-FMOD_RESULT F_CALLBACK fmod_file_read(void *handle, void *buffer, unsigned int sizebytes, unsigned int *bytesread, void *userdata)
-{
+  FMOD_RESULT F_CALLBACK fmod_file_read(void* handle, void* buffer, unsigned int sizebytes, unsigned int* bytesread,
+                                        void* userdata)
+  {
     UNREFERENCED_PARAMETER(userdata);
 
-    PHYSFS_File *hfile = reinterpret_cast<PHYSFS_File *> (handle);
+    PHYSFS_File *hfile = reinterpret_cast<PHYSFS_File*> (handle);
     PHYSFS_sint64 numbytes = physfs_read(hfile, buffer, sizeof(char), sizebytes);
 
-    if (numbytes == -1)
-    {
-        PUtil::outLog() << "PhysFS: " << physfs_getErrorString() << std::endl;
-        return FMOD_ERR_FILE_ENDOFDATA;
+    if (numbytes == -1) {
+      PUtil::outLog() << "PhysFS: " << physfs_getErrorString() << std::endl;
+      return FMOD_ERR_FILE_ENDOFDATA;
     }
 
     *bytesread = numbytes;
     return FMOD_OK;
-}
+  }
 
-FMOD_RESULT F_CALLBACK fmod_file_seek(void *handle, unsigned int pos, void *userdata)
-{
+  FMOD_RESULT F_CALLBACK fmod_file_seek(void* handle, unsigned int pos, void* userdata)
+  {
     UNREFERENCED_PARAMETER(userdata);
 
-    if (PHYSFS_seek(reinterpret_cast<PHYSFS_File *> (handle), pos) == 0)
-    {
-        PUtil::outLog() << "PhysFS: " << physfs_getErrorString() << std::endl;
-        return FMOD_ERR_FILE_COULDNOTSEEK;
+    if (PHYSFS_seek(reinterpret_cast<PHYSFS_File*> (handle), pos) == 0) {
+      PUtil::outLog() << "PhysFS: " << physfs_getErrorString() << std::endl;
+      return FMOD_ERR_FILE_COULDNOTSEEK;
     }
 
     return FMOD_OK;
-}
+  }
 
 }
 
@@ -371,34 +362,34 @@ FMOD_RESULT F_CALLBACK fmod_file_seek(void *handle, unsigned int pos, void *user
 /// @todo Put FMOD credit line in documentation?
 ///
 PSSAudio::PSSAudio(PApp &parentApp):
-    PSubsystem(parentApp)
+  PSubsystem(parentApp)
 {
-    PUtil::outLog() << "Initialising audio subsystem [FMOD]" << std::endl;
+  PUtil::outLog() << "Initialising audio subsystem [FMOD]" << std::endl;
 //  PUtil::outLog() << "Audio Engine supplied by FMOD by Firelight Technologies." << std::endl;
 
-    FMOD_RESULT fr = FMOD_System_Create(&fs);
+  FMOD_RESULT fr = FMOD_System_Create(&fs);
 
-    if (fr != FMOD_OK)
-        throw MakePException("FMOD initialisation failed: " + FMOD_ErrorString(fr));
+  if (fr != FMOD_OK)
+    throw MakePException("FMOD initialisation failed: " + FMOD_ErrorString(fr));
 
-    fr = FMOD_System_Init(fs, 512, FMOD_INIT_NORMAL, nullptr);
+  fr = FMOD_System_Init(fs, 512, FMOD_INIT_NORMAL, nullptr);
 
-    if (fr != FMOD_OK)
-        throw MakePException("FMOD initialisation failed: " + FMOD_ErrorString(fr));
+  if (fr != FMOD_OK)
+    throw MakePException("FMOD initialisation failed: " + FMOD_ErrorString(fr));
 
-    fr = FMOD_System_SetFileSystem(
-             fs,
-             fmod_file_open,
-             fmod_file_close,
-             fmod_file_read,
-             fmod_file_seek,
-             nullptr,
-             nullptr,
-             -1
-         );
+  fr = FMOD_System_SetFileSystem(
+         fs,
+         fmod_file_open,
+         fmod_file_close,
+         fmod_file_read,
+         fmod_file_seek,
+         nullptr,
+         nullptr,
+         -1
+       );
 
-    if (fr != FMOD_OK)
-        throw MakePException("FMOD initialisation failed: " + FMOD_ErrorString(fr));
+  if (fr != FMOD_OK)
+    throw MakePException("FMOD initialisation failed: " + FMOD_ErrorString(fr));
 }
 
 ///
@@ -406,9 +397,9 @@ PSSAudio::PSSAudio(PApp &parentApp):
 ///
 PSSAudio::~PSSAudio()
 {
-    PUtil::outLog() << "Shutting down audio subsystem" << std::endl;
-    samplist.clear();
-    FMOD_System_Release(fs);
+  PUtil::outLog() << "Shutting down audio subsystem" << std::endl;
+  samplist.clear();
+  FMOD_System_Release(fs);
 }
 
 ///
@@ -416,7 +407,7 @@ PSSAudio::~PSSAudio()
 ///
 void PSSAudio::tick()
 {
-    FMOD_System_Update(fs);
+  FMOD_System_Update(fs);
 }
 
 ///
@@ -425,18 +416,18 @@ void PSSAudio::tick()
 /// @param positional3D     Flag to load file as 3D or 2D.
 ///
 PAudioSample::PAudioSample(const std::string &filename, bool positional3D):
-    buffer(nullptr)
+  buffer(nullptr)
 {
-    if (PUtil::isDebugLevel(DEBUGLEVEL_TEST))
-        PUtil::outLog() << "Loading sample \"" << filename << "\"" << std::endl;
+  if (PUtil::isDebugLevel(DEBUGLEVEL_TEST))
+    PUtil::outLog() << "Loading sample \"" << filename << "\"" << std::endl;
 
-    name = filename;
+  name = filename;
 
-    FMOD_RESULT fr = FMOD_System_CreateSound(fs, filename.c_str(),
-                     /*FMOD_UNIQUE |*/ (positional3D ? FMOD_3D : FMOD_2D), nullptr, &buffer);
+  FMOD_RESULT fr = FMOD_System_CreateSound(fs, filename.c_str(),
+                   /*FMOD_UNIQUE |*/ (positional3D ? FMOD_3D : FMOD_2D), nullptr, &buffer);
 
-    if (fr != FMOD_OK)
-        throw MakePException("Sample load failed: " + FMOD_ErrorString(fr));
+  if (fr != FMOD_OK)
+    throw MakePException("Sample load failed: " + FMOD_ErrorString(fr));
 }
 
 ///
@@ -444,11 +435,10 @@ PAudioSample::PAudioSample(const std::string &filename, bool positional3D):
 ///
 void PAudioSample::unload()
 {
-    if (buffer != nullptr)
-    {
-        FMOD_Sound_Release(buffer);
-        buffer = nullptr;
-    }
+  if (buffer != nullptr) {
+    FMOD_Sound_Release(buffer);
+    buffer = nullptr;
+  }
 }
 
 ///
@@ -458,24 +448,24 @@ void PAudioSample::unload()
 /// @param looping          Flag to enable looping.
 ///
 PAudioInstance::PAudioInstance(PAudioSample *_samp, bool looping):
-    samp(_samp)
+  samp(_samp)
 {
-    FMOD_System_PlaySound(fs, samp->buffer, nullptr, true, &source);
-    FMOD_Channel_GetFrequency(source, &reserved1);
-    FMOD_Channel_SetMode(source, looping ? FMOD_LOOP_NORMAL : FMOD_LOOP_OFF);
+  FMOD_System_PlaySound(fs, samp->buffer, nullptr, true, &source);
+  FMOD_Channel_GetFrequency(source, &reserved1);
+  FMOD_Channel_SetMode(source, looping ? FMOD_LOOP_NORMAL : FMOD_LOOP_OFF);
 }
 
 PAudioInstance::~PAudioInstance()
 {
-    if (isPlaying())
-        stop();
+  if (isPlaying())
+    stop();
 }
 
 void PAudioInstance::update(const vec3f &pos, const vec3f &vel)
 {
-    // TODO
-    UNREFERENCED_PARAMETER(pos);
-    UNREFERENCED_PARAMETER(vel);
+  // TODO
+  UNREFERENCED_PARAMETER(pos);
+  UNREFERENCED_PARAMETER(vel);
 }
 
 ///
@@ -485,14 +475,14 @@ void PAudioInstance::update(const vec3f &pos, const vec3f &vel)
 ///
 void PAudioInstance::setGain(float gain)
 {
-    CLAMP(gain, 0.0f, 1.0f);
-    FMOD_Channel_SetVolume(source, gain);
+  CLAMP(gain, 0.0f, 1.0f);
+  FMOD_Channel_SetVolume(source, gain);
 }
 
 void PAudioInstance::setHalfDistance(float lambda)
 {
-    // TODO
-    UNREFERENCED_PARAMETER(lambda);
+  // TODO
+  UNREFERENCED_PARAMETER(lambda);
 }
 
 ///
@@ -501,7 +491,7 @@ void PAudioInstance::setHalfDistance(float lambda)
 ///
 void PAudioInstance::setPitch(float pitch)
 {
-    FMOD_Channel_SetFrequency(source, pitch * reserved1);
+  FMOD_Channel_SetFrequency(source, pitch * reserved1);
 }
 
 ///
@@ -509,7 +499,7 @@ void PAudioInstance::setPitch(float pitch)
 ///
 void PAudioInstance::play()
 {
-    FMOD_Channel_SetPaused(source, false);
+  FMOD_Channel_SetPaused(source, false);
 }
 
 ///
@@ -517,7 +507,7 @@ void PAudioInstance::play()
 ///
 void PAudioInstance::stop()
 {
-    FMOD_Channel_Stop(source);
+  FMOD_Channel_Stop(source);
 }
 
 ///
@@ -529,10 +519,10 @@ void PAudioInstance::stop()
 ///
 bool PAudioInstance::isPlaying()
 {
-    FMOD_BOOL fb;
+  FMOD_BOOL fb;
 
-    FMOD_Channel_IsPlaying(source, &fb);
-    return static_cast<bool> (fb);
+  FMOD_Channel_IsPlaying(source, &fb);
+  return static_cast<bool> (fb);
 }
 
 #endif // USE_FMOD
@@ -543,89 +533,85 @@ bool PAudioInstance::isPlaying()
 
 PSSAudio::PSSAudio(PApp &parentApp) : PSubsystem(parentApp)
 {
-    PUtil::outLog() << "Initialising audio subsystem [SDL_mixer]" << std::endl;
+  PUtil::outLog() << "Initialising audio subsystem [SDL_mixer]" << std::endl;
 
-    if (Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 1, 2048) != 0)
-    {
-        PUtil::outLog() << "SDL_mixer failed to initialise" << std::endl;
-        PUtil::outLog() << "SDL_mixer: " << Mix_GetError() << std::endl;
-        return PException ();
-    }
+  if (Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 1, 2048) != 0) {
+    PUtil::outLog() << "SDL_mixer failed to initialise" << std::endl;
+    PUtil::outLog() << "SDL_mixer: " << Mix_GetError() << std::endl;
+    return PException ();
+  }
 }
 
 PSSAudio::~PSSAudio()
 {
-    PUtil::outLog() << "Shutting down audio subsystem" << std::endl;
+  PUtil::outLog() << "Shutting down audio subsystem" << std::endl;
 
-    samplist.clear();
+  samplist.clear();
 
-    Mix_CloseAudio();
+  Mix_CloseAudio();
 }
 
 
 PAudioSample::PAudioSample(const std::string &filename, bool positional3D)
 {
-    buffer = 0;
+  buffer = 0;
 
-    if (PUtil::isDebugLevel(DEBUGLEVEL_TEST))
-        PUtil::outLog() << "Loading sample \"" << filename << "\"" << std::endl;
+  if (PUtil::isDebugLevel(DEBUGLEVEL_TEST))
+    PUtil::outLog() << "Loading sample \"" << filename << "\"" << std::endl;
 
-    unload();
+  unload();
 
-    name = filename;
+  name = filename;
 
-    PHYSFS_file *pfile = PHYSFS_openRead(filename.c_str());
+  PHYSFS_file *pfile = PHYSFS_openRead(filename.c_str());
 
-    if (!pfile)
-    {
-        PUtil::outLog() << "Load failed: PhysFS: " << physfs_getErrorString() << std::endl;
-        throw PFileException ();
-    }
+  if (!pfile) {
+    PUtil::outLog() << "Load failed: PhysFS: " << physfs_getErrorString() << std::endl;
+    throw PFileException ();
+  }
 
-    buffer = (uint32) Mix_LoadWAV_RW(PUtil::allocPhysFSops(pfile), 1);
+  buffer = (uint32) Mix_LoadWAV_RW(PUtil::allocPhysFSops(pfile), 1);
 
-    PHYSFS_close(pfile);
+  PHYSFS_close(pfile);
 
-    if (!buffer)
-    {
-        PUtil::outLog() << "Sample load failed" << std::endl;
-        PUtil::outLog() << "SDL_mixer: " << Mix_GetError() << std::endl;
-        throw PFileException ();
-    }
+  if (!buffer) {
+    PUtil::outLog() << "Sample load failed" << std::endl;
+    PUtil::outLog() << "SDL_mixer: " << Mix_GetError() << std::endl;
+    throw PFileException ();
+  }
 }
 
 void PAudioSample::unload()
 {
-    if (buffer)
-        Mix_FreeChunk((Mix_Chunk *) buffer);
-    buffer = 0;
+  if (buffer)
+    Mix_FreeChunk((Mix_Chunk*) buffer);
+  buffer = 0;
 }
 }
 
 
 PAudioInstance::PAudioInstance(PAudioSample *_samp, bool looping) :
-    samp(_samp)
+  samp(_samp)
 {
-    source = (uint32) Mix_PlayChannel(-1
-                                      (Mix_Chunk *)samp->buffer, looping ? -1 : 0);
+  source = (uint32) Mix_PlayChannel(-1
+                                    (Mix_Chunk*)samp->buffer, looping ? -1 : 0);
 
-    *((float*)&reserved1) = (float)FSOUND_GetFrequency((int)source);
+  *((float*)&reserved1) = (float)FSOUND_GetFrequency((int)source);
 
-    FSOUND_SetLoopMode((int)source,
-                       looping ? FSOUND_LOOP_NORMAL : FSOUND_LOOP_OFF);
+  FSOUND_SetLoopMode((int)source,
+                     looping ? FSOUND_LOOP_NORMAL : FSOUND_LOOP_OFF);
 }
 
 PAudioInstance::~PAudioInstance()
 {
-    if (source != -1)
-    {
-    }
+  if (source != -1) {
+  }
 }
 
 
 void PAudioInstance::update(const vec3f &pos, const vec3f &vel)
 {
-    // TODO
+  // TODO
 }
 
 void PAudioInstance::setGain(float gain)
@@ -634,7 +620,7 @@ void PAudioInstance::setGain(float gain)
 
 void PAudioInstance::setHalfDistance(float lambda)
 {
-    // TODO
+  // TODO
 }
 
 void PAudioInstance::setPitch(float pitch)
@@ -652,7 +638,7 @@ void PAudioInstance::stop()
 
 bool PAudioInstance::isPlaying()
 {
-    return false;
+  return false;
 }
 
 #endif // USE_SDL_MIXER

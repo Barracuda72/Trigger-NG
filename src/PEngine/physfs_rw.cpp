@@ -22,9 +22,9 @@
 ///
 Sint64 physfs_size(SDL_RWops *context)
 {
-    PHYSFS_File * const file = reinterpret_cast<PHYSFS_File *> (context->hidden.unknown.data1);
+  PHYSFS_File * const file = reinterpret_cast<PHYSFS_File*> (context->hidden.unknown.data1);
 
-    return PHYSFS_fileLength(file);
+  return PHYSFS_fileLength(file);
 }
 
 ///
@@ -37,31 +37,30 @@ Sint64 physfs_size(SDL_RWops *context)
 ///
 Sint64 physfs_seek(SDL_RWops *context, Sint64 offset, int whence)
 {
-    PHYSFS_File * const file = reinterpret_cast<PHYSFS_File *> (context->hidden.unknown.data1);
-    PHYSFS_sint64 const curr = PHYSFS_tell(file);
-    PHYSFS_sint64 const end = PHYSFS_fileLength(file);
-    Sint64 pos;
+  PHYSFS_File * const file = reinterpret_cast<PHYSFS_File*> (context->hidden.unknown.data1);
+  PHYSFS_sint64 const curr = PHYSFS_tell(file);
+  PHYSFS_sint64 const end = PHYSFS_fileLength(file);
+  Sint64 pos;
 
-    assert(curr != -1);
-    assert(end != -1);
+  assert(curr != -1);
+  assert(end != -1);
 
-    switch (whence)
-    {
-        case RW_SEEK_SET:
-        default:
-            pos = 0 + offset;
-            break;
+  switch (whence) {
+    case RW_SEEK_SET:
+    default:
+      pos = 0 + offset;
+      break;
 
-        case RW_SEEK_CUR:
-            pos = curr + offset;
-            break;
+    case RW_SEEK_CUR:
+      pos = curr + offset;
+      break;
 
-        case RW_SEEK_END:
-            pos = end + offset;
-            break;
-    }
+    case RW_SEEK_END:
+      pos = end + offset;
+      break;
+  }
 
-    return PHYSFS_seek(file, pos) == 0 ? -1 : pos;
+  return PHYSFS_seek(file, pos) == 0 ? -1 : pos;
 }
 
 ///
@@ -73,18 +72,18 @@ Sint64 physfs_seek(SDL_RWops *context, Sint64 offset, int whence)
 /// @return Number of objects read.
 /// @retval 0   Error encountered and/or no objects read.
 ///
-size_t physfs_read(SDL_RWops *context, void *ptr, size_t size, size_t maxnum)
+size_t physfs_read(SDL_RWops *context, void* ptr, size_t size, size_t maxnum)
 {
-    PHYSFS_File * const file = reinterpret_cast<PHYSFS_File *> (context->hidden.unknown.data1);
-    #if PHYSFS_VER_MAJOR >= 3
-    PHYSFS_sint64 const r = PHYSFS_readBytes(file, ptr, size * maxnum);
+  PHYSFS_File * const file = reinterpret_cast<PHYSFS_File*> (context->hidden.unknown.data1);
+#if PHYSFS_VER_MAJOR >= 3
+  PHYSFS_sint64 const r = PHYSFS_readBytes(file, ptr, size * maxnum);
 
-    return r == -1 ? 0 : r / size;
-    #else
-    PHYSFS_sint64 const r = PHYSFS_read(file, ptr, size, maxnum);
+  return r == -1 ? 0 : r / size;
+#else
+  PHYSFS_sint64 const r = PHYSFS_read(file, ptr, size, maxnum);
 
-    return r == -1 ? 0 : r;
-    #endif
+  return r == -1 ? 0 : r;
+#endif
 }
 
 ///
@@ -96,18 +95,18 @@ size_t physfs_read(SDL_RWops *context, void *ptr, size_t size, size_t maxnum)
 /// @return Number of objects written.
 /// @retval 0   Error encountered and/or no objects written.
 ///
-size_t physfs_write(SDL_RWops *context, const void *ptr, size_t size, size_t num)
+size_t physfs_write(SDL_RWops *context, const void* ptr, size_t size, size_t num)
 {
-    PHYSFS_File * const file = reinterpret_cast<PHYSFS_File *> (context->hidden.unknown.data1);
-    #if PHYSFS_VER_MAJOR >= 3
-    PHYSFS_sint64 const r = PHYSFS_writeBytes(file, ptr, size * num);
+  PHYSFS_File * const file = reinterpret_cast<PHYSFS_File*> (context->hidden.unknown.data1);
+#if PHYSFS_VER_MAJOR >= 3
+  PHYSFS_sint64 const r = PHYSFS_writeBytes(file, ptr, size * num);
 
-    return r == -1 ? 0 : r / size;
-    #else
-    PHYSFS_sint64 const r = PHYSFS_write(file, ptr, size, num);
+  return r == -1 ? 0 : r / size;
+#else
+  PHYSFS_sint64 const r = PHYSFS_write(file, ptr, size, num);
 
-    return r == -1 ? 0 : r;
-    #endif
+  return r == -1 ? 0 : r;
+#endif
 }
 
 ///
@@ -119,10 +118,10 @@ size_t physfs_write(SDL_RWops *context, const void *ptr, size_t size, size_t num
 ///
 int physfs_close(SDL_RWops *context)
 {
-    PHYSFS_File * const file = reinterpret_cast<PHYSFS_File *> (context->hidden.unknown.data1);
+  PHYSFS_File * const file = reinterpret_cast<PHYSFS_File*> (context->hidden.unknown.data1);
 
-    SDL_FreeRW(context);
-    return PHYSFS_close(file) == 0 ? -1 : 0;
+  SDL_FreeRW(context);
+  return PHYSFS_close(file) == 0 ? -1 : 0;
 }
 
 //
@@ -139,69 +138,69 @@ int physfs_close(SDL_RWops *context)
 //
 std::string physfs_getErrorString()
 {
-	std::stringstream ss;
-	#if PHYSFS_VER_MAJOR >= 3
-		auto err = PHYSFS_getLastErrorCode();
-		ss << err << " - " << PHYSFS_getErrorByCode(err);
-	// version 2.x and downwards
-	#else
-		ss << PHYSFS_getLastError();
-	#endif
+  std::stringstream ss;
+#if PHYSFS_VER_MAJOR >= 3
+  auto err = PHYSFS_getLastErrorCode();
+  ss << err << " - " << PHYSFS_getErrorByCode(err);
+  // version 2.x and downwards
+#else
+  ss << PHYSFS_getLastError();
+#endif
 
-	return ss.str();
+  return ss.str();
 }
 
 PHYSFS_sint64 physfs_read
 (
-	PHYSFS_File *  	handle,
-	void *  		buffer,
-	PHYSFS_uint32  	objSize,
-	PHYSFS_uint32  	objCount
+  PHYSFS_File *   handle,
+  void*       buffer,
+  PHYSFS_uint32   objSize,
+  PHYSFS_uint32   objCount
 )
 {
-	#if PHYSFS_VER_MAJOR >= 3
-	return PHYSFS_readBytes(handle, buffer, objSize*objCount);
-	#else
-	return PHYSFS_read(handle, buffer, objSize, objCount);
-	#endif
+#if PHYSFS_VER_MAJOR >= 3
+  return PHYSFS_readBytes(handle, buffer, objSize * objCount);
+#else
+  return PHYSFS_read(handle, buffer, objSize, objCount);
+#endif
 }
 
 PHYSFS_sint64 physfs_write
 (
-	PHYSFS_File *	handle,
-	const void *	buffer,
-	PHYSFS_uint32	objSize,
-	PHYSFS_uint32	objCount
+  PHYSFS_File * handle,
+  const void*   buffer,
+  PHYSFS_uint32 objSize,
+  PHYSFS_uint32 objCount
 )
 {
-	#if PHYSFS_VER_MAJOR >= 3
-	return PHYSFS_writeBytes(handle, buffer, objSize*objCount);
-	#else
-	return PHYSFS_write(handle, buffer, objSize, objCount);
-	#endif
+#if PHYSFS_VER_MAJOR >= 3
+  return PHYSFS_writeBytes(handle, buffer, objSize * objCount);
+#else
+  return PHYSFS_write(handle, buffer, objSize, objCount);
+#endif
 }
 
 std::string physfs_getDir()
 {
-	#if PHYSFS_VER_MAJOR >= 3
-	return PHYSFS_getPrefDir("trigger-rally-team","trigger-rally");
-	#else
-	const std::string trdir = ".trigger-rally";
-	PHYSFS_setWriteDir(PHYSFS_getUserDir());
-	PHYSFS_mkdir(trdir.c_str());
-	return PHYSFS_getUserDir() + trdir;
-	#endif
+#if PHYSFS_VER_MAJOR >= 3
+  return PHYSFS_getPrefDir("trigger-rally-team", "trigger-rally");
+#else
+  const std::string trdir = ".trigger-rally";
+  PHYSFS_setWriteDir(PHYSFS_getUserDir());
+  PHYSFS_mkdir(trdir.c_str());
+  return PHYSFS_getUserDir() + trdir;
+#endif
 }
 
 bool physfs_isDirectory(const std::string& file)
 {
-	#if PHYSFS_VER_MAJOR >= 3
-	PHYSFS_Stat stat;
-	PHYSFS_stat(file.c_str(), &stat);
+#if PHYSFS_VER_MAJOR >= 3
+  PHYSFS_Stat stat;
+  PHYSFS_stat(file.c_str(), &stat);
 
-	return stat.filetype == PHYSFS_FILETYPE_DIRECTORY;
+  return stat.filetype == PHYSFS_FILETYPE_DIRECTORY;
 
-	#else
-	return PHYSFS_isDirectory(file.c_str());
-	#endif
+#else
+  return PHYSFS_isDirectory(file.c_str());
+#endif
 }

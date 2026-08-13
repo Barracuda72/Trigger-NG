@@ -28,10 +28,10 @@
 /// @param[in] config   Configuration data of game from XML file
 ///
 PControl::PControl(Gui &parent, PConfig &config) :
-    parent(parent),
-    cfg(config),
-    pos(0),
-    activepos(-1)
+  parent(parent),
+  cfg(config),
+  pos(0),
+  activepos(-1)
 {
   controls.push_back({ PConfig::ActionForward, "forward" });
   controls.push_back({ PConfig::ActionBack, "back" });
@@ -119,11 +119,11 @@ void PControl::addControl(Control &control, bool active)
   }
 
   parent.addLabel(80.0f, 490.0f - (float)pos * 26.0f,
-      control.text, PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 22.0f, LabelStyle::Regular);
+                  control.text, PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 22.0f, LabelStyle::Regular);
   parent.makeClickable(
-      parent.addLabel(340.0f, 490.0f - (float)pos * 26.0f, keyname,
-          PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 22.0f, LabelStyle::Regular),
-      AA_PICK_CTRL, pos);
+    parent.addLabel(340.0f, 490.0f - (float)pos * 26.0f, keyname,
+                    PTEXT_HZA_LEFT | PTEXT_VTA_TOP, 22.0f, LabelStyle::Regular),
+    AA_PICK_CTRL, pos);
   ++pos;
 }
 
@@ -133,7 +133,7 @@ void PControl::addControl(Control &control, bool active)
 ///
 void PControl::unassignKey(SDL_Keycode keycode)
 {
-  for (Control control: controls) {
+  for (Control control : controls) {
     if (cfg.getCtrl().map[control.action].key.sym == keycode) {
       cfg.getCtrl().map[control.action].type = PConfig::UserControl::TypeUnassigned;
       cfg.getCtrl().map[control.action].key.sym = SDLK_UNKNOWN;

@@ -23,17 +23,17 @@
 /// @param clip = vector of vehicle clips
 /// @param ref_world = to calculate world coordinates
 ///
-PCollision::PCollision(const std::vector<vehicle_clip_s> &clip, PReferenceFrame &ref_world) :
-    crashpoint(vec3f::zero())
+PCollision::PCollision(const std::vector<vehicle_clip_s>& clip, PReferenceFrame &ref_world) :
+  crashpoint(vec3f::zero())
 {
   boxmin = vec3f(
-    std::numeric_limits<float>::max(),
-    std::numeric_limits<float>::max(),
-    std::numeric_limits<float>::max());
+             std::numeric_limits<float>::max(),
+             std::numeric_limits<float>::max(),
+             std::numeric_limits<float>::max());
   boxmax = vec3f(
-    std::numeric_limits<float>::lowest(),
-    std::numeric_limits<float>::lowest(),
-    std::numeric_limits<float>::lowest());
+             std::numeric_limits<float>::lowest(),
+             std::numeric_limits<float>::lowest(),
+             std::numeric_limits<float>::lowest());
 
   for (unsigned int i = 0; i < clip.size(); ++i) {
     const vec3f &lcliptop = clip[i].pt;
@@ -57,7 +57,7 @@ PCollision::PCollision(const std::vector<vehicle_clip_s> &clip, PReferenceFrame 
 /// @param foliage = vector of world objects
 /// @retval vector of inside objects
 ///
-const std::vector<PTerrainFoliage> PCollision::checkContact(const std::vector<PTerrainFoliage> *foliage) const
+const std::vector<PTerrainFoliage> PCollision::checkContact(const std::vector<PTerrainFoliage>* foliage) const
 {
   std::vector<PTerrainFoliage> contact;
 
@@ -76,7 +76,7 @@ const std::vector<PTerrainFoliage> PCollision::checkContact(const std::vector<PT
 }
 
 ///
-/// @brief Prevents vehicle to be stuck with world objects 
+/// @brief Prevents vehicle to be stuck with world objects
 /// @param body = position of vehicle
 /// @param contact = position of world object
 /// @param diff = distance moved by vehicle
@@ -95,7 +95,7 @@ bool PCollision::towardsContact(const vec3f &body, const vec3f &contact, const v
 /// @param foliage = crash object
 /// @retval position to apply crash force
 ///
-const vec3f &PCollision::getCrashPoint(const vec3f &body, const PTerrainFoliage &foliage)
+const vec3f& PCollision::getCrashPoint(const vec3f &body, const PTerrainFoliage &foliage)
 {
   // Either take vehicle center Z position or highest point of object
   crashpoint = foliage.pos;

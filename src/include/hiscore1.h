@@ -36,62 +36,61 @@
 
 #define GETLINE_SKIP_EMPTY_LINES(InputStream, String)   if (true) { \
     while (std::getline(InputStream, String)) {                     \
-        if (!String.empty())                                        \
-            break;                                                  \
+      if (!String.empty())                                        \
+        break;                                                  \
     }                                                               \
     if (String.empty())                                             \
-        return InputStream;                                         \
-} else (void)0
+      return InputStream;                                         \
+  } else (void)0
 
 
 // TODO: remove duplicate code
 #define GETLINE_SKIP_EMPTY_LINES_B(InputStream, String) if (true) { \
     while (std::getline(InputStream, String)) {                     \
-        if (!String.empty())                                        \
-            break;                                                  \
+      if (!String.empty())                                        \
+        break;                                                  \
     }                                                               \
     if (String.empty())                                             \
-        return static_cast<bool> (InputStream);                     \
-} else (void)0
+      return static_cast<bool> (InputStream);                     \
+  } else (void)0
 
 ///
 /// @brief Basic structure to load and save race results.
 ///
-struct RaceData
-{
-    std::string playername;     ///< e.g. "Andrei"
-    std::string mapname;        ///< e.g. "/maps/jumpy/jumpy.level"
-    std::string carname;        ///< e.g. "FMC Fox"
-    std::string carclass;       ///< e.g. "Super500"
-    float totaltime;            ///< e.g. "102.2"
-    float maxspeed;             ///< e.g. "212.0"
+struct RaceData {
+  std::string playername;     ///< e.g. "Andrei"
+  std::string mapname;        ///< e.g. "/maps/jumpy/jumpy.level"
+  std::string carname;        ///< e.g. "FMC Fox"
+  std::string carclass;       ///< e.g. "Super500"
+  float totaltime;            ///< e.g. "102.2"
+  float maxspeed;             ///< e.g. "212.0"
 
-    RaceData() = default;
+  RaceData() = default;
 
-    ///
-    /// @note This exists because the player's name isn't read from file.
-    ///
-    explicit RaceData(const std::string &playername):
-        playername(playername)
-    {
-    }
+  ///
+  /// @note This exists because the player's name isn't read from file.
+  ///
+  explicit RaceData(const std::string &playername):
+    playername(playername)
+  {
+  }
 
-    RaceData(
-        const std::string &playername,
-        const std::string &mapname,
-        const std::string &carname,
-        const std::string &carclass,
-        float totaltime,
-        float maxspeed
-        ):
-        playername(playername),
-        mapname(mapname),
-        carname(carname),
-        carclass(carclass),
-        totaltime(totaltime),
-        maxspeed(maxspeed)
-    {
-    }
+  RaceData(
+    const std::string &playername,
+    const std::string &mapname,
+    const std::string &carname,
+    const std::string &carclass,
+    float totaltime,
+    float maxspeed
+  ):
+    playername(playername),
+    mapname(mapname),
+    carname(carname),
+    carclass(carclass),
+    totaltime(totaltime),
+    maxspeed(maxspeed)
+  {
+  }
 };
 
 ///
@@ -102,18 +101,18 @@ struct RaceData
 /// @param [out] rd         Race data to be read.
 /// @returns The input stream.
 ///
-inline std::istream & operator >> (std::istream &is, RaceData &rd)
+inline std::istream& operator >> (std::istream &is, RaceData &rd)
 {
-    std::string ts; // Temporary String
+  std::string ts; // Temporary String
 
-    GETLINE_SKIP_EMPTY_LINES(is, rd.mapname);
-    GETLINE_SKIP_EMPTY_LINES(is, rd.carname);
-    GETLINE_SKIP_EMPTY_LINES(is, rd.carclass);
-    GETLINE_SKIP_EMPTY_LINES(is, ts);
-    rd.totaltime = std::stof(ts);
-    GETLINE_SKIP_EMPTY_LINES(is, ts);
-    rd.maxspeed = std::stof(ts);
-    return is;
+  GETLINE_SKIP_EMPTY_LINES(is, rd.mapname);
+  GETLINE_SKIP_EMPTY_LINES(is, rd.carname);
+  GETLINE_SKIP_EMPTY_LINES(is, rd.carclass);
+  GETLINE_SKIP_EMPTY_LINES(is, ts);
+  rd.totaltime = std::stof(ts);
+  GETLINE_SKIP_EMPTY_LINES(is, ts);
+  rd.maxspeed = std::stof(ts);
+  return is;
 }
 
 ///
@@ -124,28 +123,27 @@ inline std::istream & operator >> (std::istream &is, RaceData &rd)
 /// @param [in] rd          Race data to be written.
 /// @returns The output stream.
 ///
-inline std::ostream & operator << (std::ostream &os, const RaceData &rd)
+inline std::ostream& operator << (std::ostream &os, const RaceData &rd)
 {
-    os << rd.mapname << '\n';
-    os << rd.carname << '\n';
-    os << rd.carclass << '\n';
-    os << rd.totaltime << '\n';
-    os << rd.maxspeed << "\n\n";
-    return os;
+  os << rd.mapname << '\n';
+  os << rd.carname << '\n';
+  os << rd.carclass << '\n';
+  os << rd.totaltime << '\n';
+  os << rd.maxspeed << "\n\n";
+  return os;
 }
 
-enum class HISCORE1_SORT
-{
-    BY_TOTALTIME_ASC,
-    BY_TOTALTIME_DESC,
-    BY_MAXSPEED_ASC,
-    BY_MAXSPEED_DESC,
-    BY_PLAYERNAME_ASC,
-    BY_PLAYERNAME_DESC,
-    BY_CARNAME_ASC,
-    BY_CARNAME_DESC,
-    BY_CARCLASS_ASC,
-    BY_CARCLASS_DESC
+enum class HISCORE1_SORT {
+  BY_TOTALTIME_ASC,
+  BY_TOTALTIME_DESC,
+  BY_MAXSPEED_ASC,
+  BY_MAXSPEED_DESC,
+  BY_PLAYERNAME_ASC,
+  BY_PLAYERNAME_DESC,
+  BY_CARNAME_ASC,
+  BY_CARNAME_DESC,
+  BY_CARCLASS_ASC,
+  BY_CARCLASS_DESC
 };
 
 using UnlockData = std::unordered_set<std::string>;
@@ -153,22 +151,21 @@ using UnlockData = std::unordered_set<std::string>;
 ///
 /// @brief Used to display the best times information.
 ///
-struct TimeEntry
-{
-    unsigned long int place = 0;    ///< True place, depending on time.
-    RaceData rd;                    ///< Race data.
-    bool highlighted = false;       ///< Highlight flag.
+struct TimeEntry {
+  unsigned long int place = 0;    ///< True place, depending on time.
+  RaceData rd;                    ///< Race data.
+  bool highlighted = false;       ///< Highlight flag.
 
-    TimeEntry(
-        unsigned long int place,
-        const RaceData &rd,
-        bool highlighted
-        ):
-        place(place),
-        rd(rd),
-        highlighted(highlighted)
-    {
-    }
+  TimeEntry(
+    unsigned long int place,
+    const RaceData &rd,
+    bool highlighted
+  ):
+    place(place),
+    rd(rd),
+    highlighted(highlighted)
+  {
+  }
 };
 
 ///
@@ -179,7 +176,7 @@ struct TimeEntry
 ///
 class HiScore1
 {
-public:
+  public:
 
     HiScore1() = delete;
 
@@ -190,10 +187,10 @@ public:
     /// @todo Don't use magic numbers for preemptive storage reservation.
     ///
     explicit HiScore1(const std::string &searchdir, const std::string &playername = "Player"):
-        searchdir(searchdir),
-        playername(playername)
+      searchdir(searchdir),
+      playername(playername)
     {
-        currenttimes.reserve(16);
+      currenttimes.reserve(16);
     }
 
     ///
@@ -201,7 +198,7 @@ public:
     ///
     ~HiScore1()
     {
-        writePlayerData(playername);
+      writePlayerData(playername);
     }
 
     ///
@@ -210,7 +207,7 @@ public:
     ///
     void setPlayerName(const std::string &pname)
     {
-        playername = pname;
+      playername = pname;
     }
 
     ///
@@ -218,31 +215,30 @@ public:
     ///
     void loadAllTimes()
     {
-        if (PHYSFS_isInit() == 0)
-            return;
+      if (PHYSFS_isInit() == 0)
+        return;
 
-        char **rc = PHYSFS_enumerateFiles(searchdir.c_str());
+      char** rc = PHYSFS_enumerateFiles(searchdir.c_str());
 
-        for (char **fname = rc; *fname != nullptr; ++fname)
-        {
-            // remove the extension from the filename
-            std::smatch mr; // Match Results
-            std::regex pat(R"(^([\s\w]+)(\.player)$)"); // Pattern
-            std::string fn(*fname); // Filename
+      for (char** fname = rc; *fname != nullptr; ++fname) {
+        // remove the extension from the filename
+        std::smatch mr; // Match Results
+        std::regex pat(R"(^([\s\w]+)(\.player)$)"); // Pattern
+        std::string fn(*fname); // Filename
 
-            if (!std::regex_search(fn, mr, pat))
-                continue;
+        if (!std::regex_search(fn, mr, pat))
+          continue;
 
-            std::string pname = mr[1]; // Player Name
-            PHYSFS_File *pfile = PHYSFS_openRead((searchdir + '/' + *fname).c_str()); // Player File
-            std::string pdata(PHYSFS_fileLength(pfile), '\0'); // Player Data
+        std::string pname = mr[1]; // Player Name
+        PHYSFS_File *pfile = PHYSFS_openRead((searchdir + '/' + *fname).c_str()); // Player File
+        std::string pdata(PHYSFS_fileLength(pfile), '\0'); // Player Data
 
-            physfs_read(pfile, &pdata.front(), sizeof(char), pdata.size());
-            readPlayerData(pname, pdata);
-            PHYSFS_close(pfile);
-        }
+        physfs_read(pfile, &pdata.front(), sizeof(char), pdata.size());
+        readPlayerData(pname, pdata);
+        PHYSFS_close(pfile);
+      }
 
-        PHYSFS_freeList(rc);
+      PHYSFS_freeList(rc);
     }
 
     ///
@@ -251,7 +247,7 @@ public:
     ///
     void addNewTime(const RaceData &rd)
     {
-        alltimes.insert({rd.mapname, rd});
+      alltimes.insert({rd.mapname, rd});
     }
 
     ///
@@ -260,8 +256,8 @@ public:
     ///
     void setSkipSaves(unsigned long int sk)
     {
-        skipSaves = sk;
-        sc = 0; // reset Skip Counter
+      skipSaves = sk;
+      sc = 0; // reset Skip Counter
     }
 
     ///
@@ -269,7 +265,7 @@ public:
     ///
     void savePlayer() const
     {
-        writePlayerData(playername);
+      writePlayerData(playername);
     }
 
     ///
@@ -279,14 +275,13 @@ public:
     ///
     void skipSavePlayer() const
     {
-        if (skipSaves <= -1) // save only by destructor
-            return;
+      if (skipSaves <= -1) // save only by destructor
+        return;
 
-        if (sc++ == skipSaves)
-        {
-            writePlayerData(playername);
-            sc = 0;
-        }
+      if (sc++ == skipSaves) {
+        writePlayerData(playername);
+        sc = 0;
+      }
     }
 
     ///
@@ -295,7 +290,7 @@ public:
     ///
     void addNewUnlock(const std::string &udata)
     {
-        addNewUnlock(playername, udata);
+      addNewUnlock(playername, udata);
     }
 
     ///
@@ -305,7 +300,7 @@ public:
     ///
     void addNewUnlock(const std::string &pname, const std::string &udata)
     {
-        allunlocks[pname].insert(udata);
+      allunlocks[pname].insert(udata);
     }
 
     ///
@@ -314,7 +309,7 @@ public:
     ///
     UnlockData getUnlockData() const
     {
-        return getUnlockData(playername);
+      return getUnlockData(playername);
     }
 
     ///
@@ -324,10 +319,10 @@ public:
     ///
     UnlockData getUnlockData(const std::string &pname) const
     {
-        if (allunlocks.count(pname) == 0)
-            return UnlockData {};
+      if (allunlocks.count(pname) == 0)
+        return UnlockData {};
 
-        return allunlocks.at(pname);
+      return allunlocks.at(pname);
     }
 
     ///
@@ -340,18 +335,17 @@ public:
     ///
     float getBestTime(const std::string &mapname)
     {
-        if (alltimes.count(mapname) == 0)
-            return -1.0f;
+      if (alltimes.count(mapname) == 0)
+        return -1.0f;
 
-        const auto range = alltimes.equal_range(mapname);
+      const auto range = alltimes.equal_range(mapname);
 
-        const auto rdi = std::min_element(range.first, range.second,
-            [](decltype (*range.first) a, decltype (*range.first) b) -> bool
-            {
-                return a.second.totaltime < b.second.totaltime;
-            });
+      const auto rdi = std::min_element(range.first, range.second,
+      [](decltype (*range.first) a, decltype (*range.first) b) -> bool {
+        return a.second.totaltime < b.second.totaltime;
+      });
 
-        return rdi->second.totaltime;
+      return rdi->second.totaltime;
     }
 
     ///
@@ -364,30 +358,29 @@ public:
     ///
     float getBestClassTime(const std::string &mapname, const std::string &carclass)
     {
-        if (alltimes.count(mapname) == 0)
-            return -1.0f;
+      if (alltimes.count(mapname) == 0)
+        return -1.0f;
 
-        const auto range = alltimes.equal_range(mapname);
+      const auto range = alltimes.equal_range(mapname);
 
-        bool found_a_time = false;
-        float bct; // Best Class Time
+      bool found_a_time = false;
+      float bct; // Best Class Time
 
-        if (std::numeric_limits<float>::has_infinity) // "usually true"
-            bct = std::numeric_limits<float>::infinity();
-        else // maximum is good enough
-            bct = std::numeric_limits<float>::max();
+      if (std::numeric_limits<float>::has_infinity) // "usually true"
+        bct = std::numeric_limits<float>::infinity();
+      else // maximum is good enough
+        bct = std::numeric_limits<float>::max();
 
-        for (auto i = range.first; i != range.second; ++i)
-            if (i->second.carclass == carclass)
-            {
-                bct = std::min(bct, i->second.totaltime);
-                found_a_time = true;
-            }
+      for (auto i = range.first; i != range.second; ++i)
+        if (i->second.carclass == carclass) {
+          bct = std::min(bct, i->second.totaltime);
+          found_a_time = true;
+        }
 
-        if (!found_a_time)
-            return -1.0f;
+      if (!found_a_time)
+        return -1.0f;
 
-        return bct;
+      return bct;
     }
 
     ///
@@ -398,22 +391,21 @@ public:
     /// @note For `mapname == ""` the current results list will be re-sorted.
     /// @returns Sorted list of results.
     ///
-    const std::vector<TimeEntry> & getCurrentTimes(const std::string &mapname, HISCORE1_SORT sortmethod)
+    const std::vector<TimeEntry>& getCurrentTimes(const std::string &mapname, HISCORE1_SORT sortmethod)
     {
-        if (!mapname.empty())
-        {
-            const auto range = alltimes.equal_range(mapname);
+      if (!mapname.empty()) {
+        const auto range = alltimes.equal_range(mapname);
 
-            currenttimes.clear();
+        currenttimes.clear();
 
-            for (auto i = range.first; i != range.second; ++i)
-                currenttimes.push_back({0, i->second, false});
+        for (auto i = range.first; i != range.second; ++i)
+          currenttimes.push_back({0, i->second, false});
 
-            sortAndUpdatePlaces();
-        }
+        sortAndUpdatePlaces();
+      }
 
-        sortCurrentTimes(sortmethod);
-        return currenttimes;
+      sortCurrentTimes(sortmethod);
+      return currenttimes;
     }
 
     ///
@@ -422,10 +414,10 @@ public:
     /// @see `HISCORE1_SORT` enum.
     /// @returns Sorted list of highlighted results.
     ///
-    const std::vector<TimeEntry> & getCurrentTimesHL(HISCORE1_SORT sortmethod)
+    const std::vector<TimeEntry>& getCurrentTimesHL(HISCORE1_SORT sortmethod)
     {
-        sortCurrentTimes(sortmethod);
-        return currenttimes;
+      sortCurrentTimes(sortmethod);
+      return currenttimes;
     }
 
     ///
@@ -435,20 +427,20 @@ public:
     /// @param [in] rd              Race data to be inserted and highlighted.
     /// @returns Sorted list of highlighted results.
     ///
-    const std::vector<TimeEntry> & insertAndGetCurrentTimesHL(const RaceData &rd)
+    const std::vector<TimeEntry>& insertAndGetCurrentTimesHL(const RaceData &rd)
     {
-        // get old times before inserting newest one
-        const auto range = alltimes.equal_range(rd.mapname);
+      // get old times before inserting newest one
+      const auto range = alltimes.equal_range(rd.mapname);
 
-        currenttimes.clear();
+      currenttimes.clear();
 
-        for (auto i = range.first; i != range.second; ++i)
-            currenttimes.push_back({0, i->second, false});
+      for (auto i = range.first; i != range.second; ++i)
+        currenttimes.push_back({0, i->second, false});
 
-        currenttimes.push_back({0, rd, true}); // the newest, highlighted time
-        sortAndUpdatePlaces();
-        alltimes.insert({rd.mapname, rd});
-        return currenttimes;
+      currenttimes.push_back({0, rd, true}); // the newest, highlighted time
+      sortAndUpdatePlaces();
+      alltimes.insert({rd.mapname, rd});
+      return currenttimes;
     }
 
 #ifndef NDEBUG
@@ -459,26 +451,25 @@ public:
     ///
     void printCurrentTimes(std::ostream &os) const
     {
-        for (const TimeEntry &te: currenttimes)
-        {
-            if (te.highlighted)
-                os << std::setw(5) << "> " + std::to_string(te.place) << ' ';
-            else
-                os << std::setw(5) << te.place << ' ';
+      for (const TimeEntry &te : currenttimes) {
+        if (te.highlighted)
+          os << std::setw(5) << "> " + std::to_string(te.place) << ' ';
+        else
+          os << std::setw(5) << te.place << ' ';
 
-            os << std::setw(12) << te.rd.playername << ' ';
-            os << std::setw(12) << te.rd.carname << ' ';
-            os << std::setw(12) << te.rd.carclass << ' ';
-            os << std::setw(6) << te.rd.maxspeed << " SU ";
-            os << std::setw(6) << te.rd.totaltime;
+        os << std::setw(12) << te.rd.playername << ' ';
+        os << std::setw(12) << te.rd.carname << ' ';
+        os << std::setw(12) << te.rd.carclass << ' ';
+        os << std::setw(6) << te.rd.maxspeed << " SU ";
+        os << std::setw(6) << te.rd.totaltime;
 
-            if (te.highlighted)
-                os << " <\n";
-            else
-                os << '\n';
-        }
+        if (te.highlighted)
+          os << " <\n";
+        else
+          os << '\n';
+      }
 
-        os << "***" << std::endl;
+      os << "***" << std::endl;
     }
 
     ///
@@ -487,32 +478,31 @@ public:
     ///
     void printCurrentUnlocks(std::ostream &os) const
     {
-        for (const auto &p: allunlocks)
-        {
-            os << p.first << ":\n";
+      for (const auto &p : allunlocks) {
+        os << p.first << ":\n";
 
-            for (const std::string &s: p.second)
-                os << '\t' << s << '\n';
-        }
+        for (const std::string &s : p.second)
+          os << '\t' << s << '\n';
+      }
 
-        os << "***" << std::endl;
+      os << "***" << std::endl;
     }
 
 #endif
 
-private:
+  private:
 
     ///
     /// @brief Sorts the current times list by time and updates places data.
     ///
     void sortAndUpdatePlaces()
     {
-        sortCurrentTimes(HISCORE1_SORT::BY_TOTALTIME_ASC);
+      sortCurrentTimes(HISCORE1_SORT::BY_TOTALTIME_ASC);
 
-        unsigned long int p = 1; // Place
+      unsigned long int p = 1; // Place
 
-        for (TimeEntry &te: currenttimes)
-            te.place = p++;
+      for (TimeEntry &te : currenttimes)
+        te.place = p++;
     }
 
     ///
@@ -523,123 +513,112 @@ private:
     ///
     void sortCurrentTimes(HISCORE1_SORT sortmethod)
     {
-        std::function<bool (const TimeEntry &, const TimeEntry &)> cmpfunc; // Comparison Function
+      std::function<bool (const TimeEntry&, const TimeEntry&)> cmpfunc;   // Comparison Function
 
-        switch (sortmethod)
-        {
-            // case HISCORE1_SORT::BY_TOTALTIME_ASC: // later, this is the default
+      switch (sortmethod) {
+        // case HISCORE1_SORT::BY_TOTALTIME_ASC: // later, this is the default
 
-            case HISCORE1_SORT::BY_TOTALTIME_DESC:
+        case HISCORE1_SORT::BY_TOTALTIME_DESC:
 
-                cmpfunc = [](const TimeEntry &a, const TimeEntry &b) -> bool
-                {
-                    return a.rd.totaltime > b.rd.totaltime;
-                };
+          cmpfunc = [](const TimeEntry & a, const TimeEntry & b) -> bool {
+            return a.rd.totaltime > b.rd.totaltime;
+          };
 
-                break;
+          break;
 
-            case HISCORE1_SORT::BY_MAXSPEED_ASC:
+        case HISCORE1_SORT::BY_MAXSPEED_ASC:
 
-                cmpfunc = [](const TimeEntry &a, const TimeEntry &b) -> bool
-                {
-                    return a.rd.maxspeed > b.rd.maxspeed;
-                };
+          cmpfunc = [](const TimeEntry & a, const TimeEntry & b) -> bool {
+            return a.rd.maxspeed > b.rd.maxspeed;
+          };
 
-                break;
+          break;
 
-            case HISCORE1_SORT::BY_MAXSPEED_DESC:
+        case HISCORE1_SORT::BY_MAXSPEED_DESC:
 
-                cmpfunc = [](const TimeEntry &a, const TimeEntry &b) -> bool
-                {
-                    return a.rd.maxspeed < b.rd.maxspeed;
-                };
+          cmpfunc = [](const TimeEntry & a, const TimeEntry & b) -> bool {
+            return a.rd.maxspeed < b.rd.maxspeed;
+          };
 
-                break;
+          break;
 
-            case HISCORE1_SORT::BY_PLAYERNAME_ASC:
+        case HISCORE1_SORT::BY_PLAYERNAME_ASC:
 
-                cmpfunc = [](const TimeEntry &a, const TimeEntry &b) -> bool
-                {
-                    if (a.rd.playername == b.rd.playername)
-                        return a.rd.totaltime < b.rd.totaltime;
+          cmpfunc = [](const TimeEntry & a, const TimeEntry & b) -> bool {
+            if (a.rd.playername == b.rd.playername)
+              return a.rd.totaltime < b.rd.totaltime;
 
-                    return a.rd.playername < b.rd.playername;
-                };
+            return a.rd.playername < b.rd.playername;
+          };
 
-                break;
+          break;
 
-            case HISCORE1_SORT::BY_PLAYERNAME_DESC:
+        case HISCORE1_SORT::BY_PLAYERNAME_DESC:
 
-                cmpfunc = [](const TimeEntry &a, const TimeEntry &b) -> bool
-                {
-                    if (a.rd.playername == b.rd.playername)
-                        return a.rd.totaltime < b.rd.totaltime;
+          cmpfunc = [](const TimeEntry & a, const TimeEntry & b) -> bool {
+            if (a.rd.playername == b.rd.playername)
+              return a.rd.totaltime < b.rd.totaltime;
 
-                    return a.rd.playername > b.rd.playername;
-                };
+            return a.rd.playername > b.rd.playername;
+          };
 
-                break;
+          break;
 
-            case HISCORE1_SORT::BY_CARNAME_ASC:
+        case HISCORE1_SORT::BY_CARNAME_ASC:
 
-                cmpfunc = [](const TimeEntry &a, const TimeEntry &b) -> bool
-                {
-                    if (a.rd.carname == b.rd.carname)
-                        return a.rd.totaltime < b.rd.totaltime;
+          cmpfunc = [](const TimeEntry & a, const TimeEntry & b) -> bool {
+            if (a.rd.carname == b.rd.carname)
+              return a.rd.totaltime < b.rd.totaltime;
 
-                    return a.rd.carname < b.rd.carname;
-                };
+            return a.rd.carname < b.rd.carname;
+          };
 
-                break;
+          break;
 
-            case HISCORE1_SORT::BY_CARNAME_DESC:
+        case HISCORE1_SORT::BY_CARNAME_DESC:
 
-                cmpfunc = [](const TimeEntry &a, const TimeEntry &b) -> bool
-                {
-                    if (a.rd.carname == b.rd.carname)
-                        return a.rd.totaltime < b.rd.totaltime;
+          cmpfunc = [](const TimeEntry & a, const TimeEntry & b) -> bool {
+            if (a.rd.carname == b.rd.carname)
+              return a.rd.totaltime < b.rd.totaltime;
 
-                    return a.rd.carname > b.rd.carname;
-                };
+            return a.rd.carname > b.rd.carname;
+          };
 
-                break;
+          break;
 
-            case HISCORE1_SORT::BY_CARCLASS_ASC:
+        case HISCORE1_SORT::BY_CARCLASS_ASC:
 
-                cmpfunc = [](const TimeEntry &a, const TimeEntry &b) -> bool
-                {
-                    if (a.rd.carclass == b.rd.carclass)
-                        return a.rd.totaltime < b.rd.totaltime;
+          cmpfunc = [](const TimeEntry & a, const TimeEntry & b) -> bool {
+            if (a.rd.carclass == b.rd.carclass)
+              return a.rd.totaltime < b.rd.totaltime;
 
-                    return a.rd.carclass < b.rd.carclass;
-                };
+            return a.rd.carclass < b.rd.carclass;
+          };
 
-                break;
+          break;
 
-            case HISCORE1_SORT::BY_CARCLASS_DESC:
+        case HISCORE1_SORT::BY_CARCLASS_DESC:
 
-                cmpfunc = [](const TimeEntry &a, const TimeEntry &b) -> bool
-                {
-                    if (a.rd.carclass == b.rd.carclass)
-                        return a.rd.totaltime < b.rd.totaltime;
+          cmpfunc = [](const TimeEntry & a, const TimeEntry & b) -> bool {
+            if (a.rd.carclass == b.rd.carclass)
+              return a.rd.totaltime < b.rd.totaltime;
 
-                    return a.rd.carclass > b.rd.carclass;
-                };
+            return a.rd.carclass > b.rd.carclass;
+          };
 
-                break;
+          break;
 
-            case HISCORE1_SORT::BY_TOTALTIME_ASC:
-            default:
+        case HISCORE1_SORT::BY_TOTALTIME_ASC:
+        default:
 
-                cmpfunc = [](const TimeEntry &a, const TimeEntry &b) -> bool
-                {
-                    return a.rd.totaltime < b.rd.totaltime;
-                };
+          cmpfunc = [](const TimeEntry & a, const TimeEntry & b) -> bool {
+            return a.rd.totaltime < b.rd.totaltime;
+          };
 
-                break;
-        }
+          break;
+      }
 
-        std::sort(currenttimes.begin(), currenttimes.end(), cmpfunc);
+      std::sort(currenttimes.begin(), currenttimes.end(), cmpfunc);
     }
 
     ///
@@ -647,56 +626,56 @@ private:
     /// @warning Changing this invalidates all highscore files of previous versions!
     ///
     const std::vector<unsigned char> edkey {
-        0x02, 0x43, 0x5E, 0xAC, 0x2E, 0x40, 0xD2, 0x7F, 0x84, 0xFB, 0xA0, 0x53, 0x52, 0x05, 0x4E, 0xEC,
-        0x1A, 0xAB, 0x58, 0x8D, 0x2E, 0xFA, 0xC6, 0x2F, 0x65, 0x99, 0x69, 0x3D, 0xBC, 0x38, 0x0E, 0x64,
-        0x45, 0x4B, 0xD9, 0x4B, 0xE5, 0x51, 0x73, 0xB3, 0x8A, 0x4E, 0x1B, 0xC1, 0x80, 0x11, 0x73, 0x16,
-        0xE6, 0x66, 0x63, 0x09, 0x3A, 0x29, 0x90, 0x7F, 0xEC, 0xF6, 0x6B, 0xA5, 0x23, 0x2E, 0x77, 0xEC,
-        0xDF, 0xA0, 0x92, 0x12, 0xB9, 0x7F, 0x3E, 0x63, 0x44, 0x9A, 0x53, 0x59, 0x97, 0xE0, 0x91, 0xE2,
-        0x48, 0x20, 0xAA, 0x5C, 0x68, 0x4C, 0x09, 0x20, 0x63, 0xA6, 0x0A, 0xED, 0x80, 0x21, 0x12, 0xF0,
-        0xE3, 0x4A, 0x74, 0xCA, 0x8C, 0xE0, 0x88, 0xDE, 0xC8, 0x47, 0xC8, 0xB2, 0x5B, 0x3C, 0x58, 0xFB,
-        0x93, 0xC1, 0x1F, 0xFE, 0xEE, 0x16, 0x7D, 0xC7, 0x32, 0x00, 0x09, 0xE5, 0x32, 0x60, 0x5F, 0x31,
-        0x98, 0x12, 0x30, 0x4D, 0x5A, 0xC8, 0x72, 0xF7, 0x83, 0xFE, 0x9B, 0xF1, 0x49, 0x6B, 0x83, 0x79,
-        0xD4, 0xD1, 0x99, 0x1D, 0xB2, 0x1A, 0xC4, 0xFB, 0xB4, 0x6F, 0x8F, 0xE7, 0xE8, 0x0C, 0xB6, 0x14,
-        0x84, 0x70, 0x37, 0xBE, 0x18, 0x84, 0xC9, 0x8B, 0xD9, 0x3D, 0xDD, 0x25, 0x1C, 0x17, 0x45, 0x20,
-        0xED, 0x78, 0xC6, 0x40, 0xCA, 0x55, 0xF2, 0x2A, 0x4A, 0x28, 0x62, 0x3F, 0x94, 0xEB, 0xC9, 0x62,
-        0x3F, 0xCF, 0x16, 0x9D, 0x6A, 0x53, 0x04, 0xEE, 0xFC, 0x2E, 0x10, 0xFE, 0xB6, 0xA7, 0x5B, 0x27,
-        0x4C, 0x22, 0x15, 0xF9, 0x00, 0x73, 0x10, 0x3A, 0x29, 0x3B, 0x30, 0xCC, 0x41, 0x86, 0x15, 0x35,
-        0xF1, 0x22, 0x22, 0x67, 0xC0, 0xEB, 0xA1, 0xD9, 0x9A, 0x12, 0x3B, 0x98, 0x70, 0x22, 0x3D, 0x6E,
-        0x08, 0xF7, 0xF4, 0x98, 0xFE, 0x5A, 0xD3, 0x80, 0xC8, 0xC3, 0x78, 0x8F, 0xBB, 0xAD, 0x50, 0xF0,
-        0xF3, 0x8A, 0xDB, 0x9B, 0xD1, 0xBD, 0xB3, 0x57, 0x67, 0xC4, 0x7B, 0xB2, 0xF1, 0x1E, 0x0B, 0xF7,
-        0xF8, 0xC0, 0xEF, 0x31, 0x25, 0x3A, 0x4A, 0xE3, 0xC9, 0xDC, 0xAC, 0x52, 0x19, 0xC4, 0xC9, 0xBE,
-        0x83, 0xC3, 0xDC, 0x53, 0xEC, 0xD7, 0xD1, 0x64, 0xF8, 0x39, 0x57, 0xBA, 0x84, 0x62, 0xF1, 0xEA,
-        0x5E, 0x12, 0x9D, 0xF8, 0x59, 0x3D, 0xAB, 0x07, 0xBC, 0x62, 0x6F, 0x86, 0x4E, 0x41, 0x54, 0x23,
-        0xB4, 0xFE, 0x3A, 0xB7, 0x1C, 0xFC, 0x86, 0x24, 0x69, 0xB8, 0x5E, 0xB7, 0x17, 0xA6, 0xA8, 0x0B,
-        0xD8, 0x5C, 0x8B, 0x6E, 0x74, 0x70, 0xD9, 0x35, 0xBB, 0xEF, 0xAF, 0xBA, 0xD5, 0xCB, 0x6D, 0x21,
-        0x38, 0x75, 0xC1, 0x77, 0x58, 0xC1, 0x76, 0xA6, 0x3D, 0xE7, 0xB7, 0x0A, 0x08, 0x55, 0x9D, 0xDA,
-        0x2B, 0x12, 0xC1, 0xAE, 0xDE, 0x27, 0xB0, 0x5D, 0x9B, 0x49, 0xDD, 0x76, 0xAC, 0xD0, 0xAE, 0x55,
-        0x61, 0x7C, 0x36, 0xE4, 0x2A, 0x0B, 0xC7, 0x7F, 0xA4, 0x8C, 0x86, 0xDE, 0x39, 0x79, 0x5C, 0xE6,
-        0x5B, 0xE7, 0xFF, 0x80, 0x45, 0xD7, 0xD9, 0xDE, 0xF9, 0xC2, 0xAC, 0x50, 0x84, 0xA7, 0xD9, 0x13,
-        0x95, 0xC9, 0xEB, 0x6B, 0x7D, 0x66, 0x1E, 0x88, 0xFE, 0xA4, 0xE4, 0xC9, 0x8F, 0x00, 0xF1, 0x9F,
-        0x3F, 0x8C, 0x04, 0x5F, 0x30, 0xDF, 0x43, 0x7A, 0x73, 0x27, 0xAD, 0x1D, 0x90, 0x79, 0x36, 0x95,
-        0x1F, 0xCE, 0x4D, 0xBA, 0xED, 0x28, 0x93, 0xD5, 0x08, 0xA4, 0x0B, 0x5A, 0xCA, 0x42, 0x9D, 0x84,
-        0x66, 0x85, 0x8B, 0xCF, 0x25, 0xED, 0xB8, 0x91, 0x88, 0x04, 0x4F, 0x87, 0xE6, 0xBC, 0xA8, 0x6D,
-        0xAE, 0xA4, 0x8F, 0x5E, 0x30, 0xB6, 0x39, 0x45, 0xDD, 0x78, 0x49, 0x08, 0xC5, 0x78, 0x72, 0x02,
-        0x13, 0xB3, 0xA2, 0x90, 0x17, 0x1D, 0xA3, 0xC6, 0xD1, 0xD1, 0x77, 0x20, 0x0C, 0x54, 0x05, 0x15,
-        0xB3, 0x76, 0x53, 0x33, 0x50, 0x9B, 0xF8, 0xDD, 0x28, 0x62, 0x27, 0x02, 0x97, 0xEF, 0xE7, 0x21,
-        0x0A, 0x70, 0x5D, 0x84, 0x44, 0xAA, 0x38, 0x0E, 0xB4, 0xDE, 0xCA, 0xFA, 0x22, 0x98, 0x96, 0xF5,
-        0x8F, 0x4B, 0xA5, 0xF9, 0xAF, 0xDE, 0x87, 0xCD, 0x70, 0x68, 0x2B, 0xCB, 0x28, 0xA1, 0x89, 0x2E,
-        0x6D, 0xB3, 0x68, 0xA0, 0xB6, 0xD9, 0x64, 0xDA, 0xF9, 0xD9, 0xCB, 0xE7, 0x04, 0x33, 0xF2, 0xB8,
-        0xCA, 0xDC, 0x61, 0xFC, 0x63, 0x7E, 0xDA, 0xD2, 0x27, 0x36, 0x44, 0xC1, 0x6D, 0xA0, 0xDB, 0xBD,
-        0xB3, 0x0F, 0xD6, 0xF1, 0x0D, 0x18, 0xA6, 0x6F, 0x5B, 0xD7, 0x4F, 0xE5, 0xCA, 0xEE, 0xA5, 0xCE,
-        0x5C, 0xB1, 0x52, 0x2F, 0xB5, 0x0F, 0xBF, 0xD3, 0x19, 0x5A, 0x65, 0x6E, 0x4B, 0xE5, 0xC8, 0x37,
-        0x27, 0xF8, 0x7A, 0x4D, 0xA3, 0x3E, 0x33, 0x37, 0xDE, 0x16, 0x03, 0x1A, 0xC6, 0x2E, 0x87, 0x01,
-        0xAE, 0x6B, 0xB7, 0x39, 0xBD, 0xE8, 0x17, 0x9B, 0x58, 0x4B, 0x01, 0x82, 0xD6, 0x09, 0x50, 0xBE,
-        0xF3, 0x78, 0x2D, 0xB2, 0xB8, 0x8B, 0x17, 0x50, 0x02, 0x03, 0xFE, 0x1F, 0x45, 0x76, 0xF7, 0xD6,
-        0x63, 0xCA, 0x85, 0x10, 0x3A, 0x61, 0x6D, 0xD2, 0x69, 0x96, 0x5E, 0x64, 0x09, 0xE4, 0x80, 0xC2,
-        0x23, 0x63, 0x2E, 0x46, 0xF2, 0x3D, 0x4C, 0xE1, 0x11, 0xD5, 0x8F, 0x33, 0xBE, 0x10, 0x25, 0x8F,
-        0x11, 0x7D, 0x90, 0xCC, 0x3A, 0xA0, 0x47, 0x09, 0xD7, 0xA4, 0x3B, 0x77, 0x96, 0x61, 0xFE, 0x8D,
-        0xDB, 0x0A, 0x1F, 0x1B, 0xCC, 0x44, 0x32, 0x65, 0x2B, 0xB9, 0x7F, 0x3C, 0x75, 0x58, 0x52, 0x82,
-        0x48, 0x50, 0xE5, 0xE7, 0x34, 0x53, 0xFD, 0x7A, 0x17, 0xF8, 0xE1, 0x91, 0x73, 0x65, 0x82, 0xAD,
-        0xDB, 0x1F, 0xA3, 0xA5, 0x19, 0x90, 0x38, 0xDF, 0x0A, 0x0D, 0x96, 0x69, 0x0D, 0xB9, 0xA6, 0x88,
-        0x3C, 0xC0, 0x02, 0xEB, 0x0A, 0xBF, 0x03, 0x09, 0x9D, 0x2F, 0x39, 0xBC, 0x73, 0x97, 0x65, 0xB3,
-        0x79, 0x5B, 0x69, 0xE4, 0xAE, 0xF9, 0x6F, 0x32, 0xC8, 0x47, 0xBF, 0x14, 0x8F, 0x6E, 0x78, 0xDE
+      0x02, 0x43, 0x5E, 0xAC, 0x2E, 0x40, 0xD2, 0x7F, 0x84, 0xFB, 0xA0, 0x53, 0x52, 0x05, 0x4E, 0xEC,
+      0x1A, 0xAB, 0x58, 0x8D, 0x2E, 0xFA, 0xC6, 0x2F, 0x65, 0x99, 0x69, 0x3D, 0xBC, 0x38, 0x0E, 0x64,
+      0x45, 0x4B, 0xD9, 0x4B, 0xE5, 0x51, 0x73, 0xB3, 0x8A, 0x4E, 0x1B, 0xC1, 0x80, 0x11, 0x73, 0x16,
+      0xE6, 0x66, 0x63, 0x09, 0x3A, 0x29, 0x90, 0x7F, 0xEC, 0xF6, 0x6B, 0xA5, 0x23, 0x2E, 0x77, 0xEC,
+      0xDF, 0xA0, 0x92, 0x12, 0xB9, 0x7F, 0x3E, 0x63, 0x44, 0x9A, 0x53, 0x59, 0x97, 0xE0, 0x91, 0xE2,
+      0x48, 0x20, 0xAA, 0x5C, 0x68, 0x4C, 0x09, 0x20, 0x63, 0xA6, 0x0A, 0xED, 0x80, 0x21, 0x12, 0xF0,
+      0xE3, 0x4A, 0x74, 0xCA, 0x8C, 0xE0, 0x88, 0xDE, 0xC8, 0x47, 0xC8, 0xB2, 0x5B, 0x3C, 0x58, 0xFB,
+      0x93, 0xC1, 0x1F, 0xFE, 0xEE, 0x16, 0x7D, 0xC7, 0x32, 0x00, 0x09, 0xE5, 0x32, 0x60, 0x5F, 0x31,
+      0x98, 0x12, 0x30, 0x4D, 0x5A, 0xC8, 0x72, 0xF7, 0x83, 0xFE, 0x9B, 0xF1, 0x49, 0x6B, 0x83, 0x79,
+      0xD4, 0xD1, 0x99, 0x1D, 0xB2, 0x1A, 0xC4, 0xFB, 0xB4, 0x6F, 0x8F, 0xE7, 0xE8, 0x0C, 0xB6, 0x14,
+      0x84, 0x70, 0x37, 0xBE, 0x18, 0x84, 0xC9, 0x8B, 0xD9, 0x3D, 0xDD, 0x25, 0x1C, 0x17, 0x45, 0x20,
+      0xED, 0x78, 0xC6, 0x40, 0xCA, 0x55, 0xF2, 0x2A, 0x4A, 0x28, 0x62, 0x3F, 0x94, 0xEB, 0xC9, 0x62,
+      0x3F, 0xCF, 0x16, 0x9D, 0x6A, 0x53, 0x04, 0xEE, 0xFC, 0x2E, 0x10, 0xFE, 0xB6, 0xA7, 0x5B, 0x27,
+      0x4C, 0x22, 0x15, 0xF9, 0x00, 0x73, 0x10, 0x3A, 0x29, 0x3B, 0x30, 0xCC, 0x41, 0x86, 0x15, 0x35,
+      0xF1, 0x22, 0x22, 0x67, 0xC0, 0xEB, 0xA1, 0xD9, 0x9A, 0x12, 0x3B, 0x98, 0x70, 0x22, 0x3D, 0x6E,
+      0x08, 0xF7, 0xF4, 0x98, 0xFE, 0x5A, 0xD3, 0x80, 0xC8, 0xC3, 0x78, 0x8F, 0xBB, 0xAD, 0x50, 0xF0,
+      0xF3, 0x8A, 0xDB, 0x9B, 0xD1, 0xBD, 0xB3, 0x57, 0x67, 0xC4, 0x7B, 0xB2, 0xF1, 0x1E, 0x0B, 0xF7,
+      0xF8, 0xC0, 0xEF, 0x31, 0x25, 0x3A, 0x4A, 0xE3, 0xC9, 0xDC, 0xAC, 0x52, 0x19, 0xC4, 0xC9, 0xBE,
+      0x83, 0xC3, 0xDC, 0x53, 0xEC, 0xD7, 0xD1, 0x64, 0xF8, 0x39, 0x57, 0xBA, 0x84, 0x62, 0xF1, 0xEA,
+      0x5E, 0x12, 0x9D, 0xF8, 0x59, 0x3D, 0xAB, 0x07, 0xBC, 0x62, 0x6F, 0x86, 0x4E, 0x41, 0x54, 0x23,
+      0xB4, 0xFE, 0x3A, 0xB7, 0x1C, 0xFC, 0x86, 0x24, 0x69, 0xB8, 0x5E, 0xB7, 0x17, 0xA6, 0xA8, 0x0B,
+      0xD8, 0x5C, 0x8B, 0x6E, 0x74, 0x70, 0xD9, 0x35, 0xBB, 0xEF, 0xAF, 0xBA, 0xD5, 0xCB, 0x6D, 0x21,
+      0x38, 0x75, 0xC1, 0x77, 0x58, 0xC1, 0x76, 0xA6, 0x3D, 0xE7, 0xB7, 0x0A, 0x08, 0x55, 0x9D, 0xDA,
+      0x2B, 0x12, 0xC1, 0xAE, 0xDE, 0x27, 0xB0, 0x5D, 0x9B, 0x49, 0xDD, 0x76, 0xAC, 0xD0, 0xAE, 0x55,
+      0x61, 0x7C, 0x36, 0xE4, 0x2A, 0x0B, 0xC7, 0x7F, 0xA4, 0x8C, 0x86, 0xDE, 0x39, 0x79, 0x5C, 0xE6,
+      0x5B, 0xE7, 0xFF, 0x80, 0x45, 0xD7, 0xD9, 0xDE, 0xF9, 0xC2, 0xAC, 0x50, 0x84, 0xA7, 0xD9, 0x13,
+      0x95, 0xC9, 0xEB, 0x6B, 0x7D, 0x66, 0x1E, 0x88, 0xFE, 0xA4, 0xE4, 0xC9, 0x8F, 0x00, 0xF1, 0x9F,
+      0x3F, 0x8C, 0x04, 0x5F, 0x30, 0xDF, 0x43, 0x7A, 0x73, 0x27, 0xAD, 0x1D, 0x90, 0x79, 0x36, 0x95,
+      0x1F, 0xCE, 0x4D, 0xBA, 0xED, 0x28, 0x93, 0xD5, 0x08, 0xA4, 0x0B, 0x5A, 0xCA, 0x42, 0x9D, 0x84,
+      0x66, 0x85, 0x8B, 0xCF, 0x25, 0xED, 0xB8, 0x91, 0x88, 0x04, 0x4F, 0x87, 0xE6, 0xBC, 0xA8, 0x6D,
+      0xAE, 0xA4, 0x8F, 0x5E, 0x30, 0xB6, 0x39, 0x45, 0xDD, 0x78, 0x49, 0x08, 0xC5, 0x78, 0x72, 0x02,
+      0x13, 0xB3, 0xA2, 0x90, 0x17, 0x1D, 0xA3, 0xC6, 0xD1, 0xD1, 0x77, 0x20, 0x0C, 0x54, 0x05, 0x15,
+      0xB3, 0x76, 0x53, 0x33, 0x50, 0x9B, 0xF8, 0xDD, 0x28, 0x62, 0x27, 0x02, 0x97, 0xEF, 0xE7, 0x21,
+      0x0A, 0x70, 0x5D, 0x84, 0x44, 0xAA, 0x38, 0x0E, 0xB4, 0xDE, 0xCA, 0xFA, 0x22, 0x98, 0x96, 0xF5,
+      0x8F, 0x4B, 0xA5, 0xF9, 0xAF, 0xDE, 0x87, 0xCD, 0x70, 0x68, 0x2B, 0xCB, 0x28, 0xA1, 0x89, 0x2E,
+      0x6D, 0xB3, 0x68, 0xA0, 0xB6, 0xD9, 0x64, 0xDA, 0xF9, 0xD9, 0xCB, 0xE7, 0x04, 0x33, 0xF2, 0xB8,
+      0xCA, 0xDC, 0x61, 0xFC, 0x63, 0x7E, 0xDA, 0xD2, 0x27, 0x36, 0x44, 0xC1, 0x6D, 0xA0, 0xDB, 0xBD,
+      0xB3, 0x0F, 0xD6, 0xF1, 0x0D, 0x18, 0xA6, 0x6F, 0x5B, 0xD7, 0x4F, 0xE5, 0xCA, 0xEE, 0xA5, 0xCE,
+      0x5C, 0xB1, 0x52, 0x2F, 0xB5, 0x0F, 0xBF, 0xD3, 0x19, 0x5A, 0x65, 0x6E, 0x4B, 0xE5, 0xC8, 0x37,
+      0x27, 0xF8, 0x7A, 0x4D, 0xA3, 0x3E, 0x33, 0x37, 0xDE, 0x16, 0x03, 0x1A, 0xC6, 0x2E, 0x87, 0x01,
+      0xAE, 0x6B, 0xB7, 0x39, 0xBD, 0xE8, 0x17, 0x9B, 0x58, 0x4B, 0x01, 0x82, 0xD6, 0x09, 0x50, 0xBE,
+      0xF3, 0x78, 0x2D, 0xB2, 0xB8, 0x8B, 0x17, 0x50, 0x02, 0x03, 0xFE, 0x1F, 0x45, 0x76, 0xF7, 0xD6,
+      0x63, 0xCA, 0x85, 0x10, 0x3A, 0x61, 0x6D, 0xD2, 0x69, 0x96, 0x5E, 0x64, 0x09, 0xE4, 0x80, 0xC2,
+      0x23, 0x63, 0x2E, 0x46, 0xF2, 0x3D, 0x4C, 0xE1, 0x11, 0xD5, 0x8F, 0x33, 0xBE, 0x10, 0x25, 0x8F,
+      0x11, 0x7D, 0x90, 0xCC, 0x3A, 0xA0, 0x47, 0x09, 0xD7, 0xA4, 0x3B, 0x77, 0x96, 0x61, 0xFE, 0x8D,
+      0xDB, 0x0A, 0x1F, 0x1B, 0xCC, 0x44, 0x32, 0x65, 0x2B, 0xB9, 0x7F, 0x3C, 0x75, 0x58, 0x52, 0x82,
+      0x48, 0x50, 0xE5, 0xE7, 0x34, 0x53, 0xFD, 0x7A, 0x17, 0xF8, 0xE1, 0x91, 0x73, 0x65, 0x82, 0xAD,
+      0xDB, 0x1F, 0xA3, 0xA5, 0x19, 0x90, 0x38, 0xDF, 0x0A, 0x0D, 0x96, 0x69, 0x0D, 0xB9, 0xA6, 0x88,
+      0x3C, 0xC0, 0x02, 0xEB, 0x0A, 0xBF, 0x03, 0x09, 0x9D, 0x2F, 0x39, 0xBC, 0x73, 0x97, 0x65, 0xB3,
+      0x79, 0x5B, 0x69, 0xE4, 0xAE, 0xF9, 0x6F, 0x32, 0xC8, 0x47, 0xBF, 0x14, 0x8F, 0x6E, 0x78, 0xDE
     };
 
     ///
@@ -709,17 +688,16 @@ private:
     ///
     std::string xorcrypt(std::string pdata) const
     {
-        auto ki = edkey.cbegin(); // Key Iterator
+      auto ki = edkey.cbegin(); // Key Iterator
 
-        for (char &c: pdata)
-        {
-            if (ki == edkey.cend())
-                ki = edkey.cbegin();
+      for (char& c : pdata) {
+        if (ki == edkey.cend())
+          ki = edkey.cbegin();
 
-            c ^= *ki++;
-        }
+        c ^= *ki++;
+      }
 
-        return pdata;
+      return pdata;
     }
 
     ///
@@ -729,27 +707,26 @@ private:
     ///
     bool readPlayerData(const std::string &pname, const std::string &pdata)
     {
-        unsigned long int nu = 0; // Number of Unlocks
-        std::string ts; // Temporary String
-        RaceData rd(pname);
+      unsigned long int nu = 0; // Number of Unlocks
+      std::string ts; // Temporary String
+      RaceData rd(pname);
 
 #define decrypt xorcrypt
-        std::istringstream sspdata(decrypt(pdata));
+      std::istringstream sspdata(decrypt(pdata));
 #undef decrypt
 
+      GETLINE_SKIP_EMPTY_LINES_B(sspdata, ts);
+      nu = std::stoul(ts);
+
+      while (nu-- != 0) {
         GETLINE_SKIP_EMPTY_LINES_B(sspdata, ts);
-        nu = std::stoul(ts);
+        allunlocks[pname].insert(ts);
+      }
 
-        while (nu-- != 0)
-        {
-            GETLINE_SKIP_EMPTY_LINES_B(sspdata, ts);
-            allunlocks[pname].insert(ts);
-        }
+      while (sspdata >> rd)
+        alltimes.insert({rd.mapname, rd});
 
-        while (sspdata >> rd)
-            alltimes.insert({rd.mapname, rd});
-
-        return static_cast<bool> (sspdata);
+      return static_cast<bool> (sspdata);
     }
 
     ///
@@ -760,50 +737,47 @@ private:
     ///
     void writePlayerData(const std::string &pname) const
     {
-        if (pname.empty())
-            return;
+      if (pname.empty())
+        return;
 
-        if (PHYSFS_isInit() == 0)
-            return;
+      if (PHYSFS_isInit() == 0)
+        return;
 
-        std::string pfname = searchdir + '/' + pname + ".player"; // Player Filename
-        std::ostringstream sspdata;
+      std::string pfname = searchdir + '/' + pname + ".player"; // Player Filename
+      std::ostringstream sspdata;
 
-        // save unlock data
-        if (allunlocks.count(pname) != 0)
-        {
-            sspdata << allunlocks.at(pname).size() << '\n';
+      // save unlock data
+      if (allunlocks.count(pname) != 0) {
+        sspdata << allunlocks.at(pname).size() << '\n';
 
-            for (const std::string &s: allunlocks.at(pname))
-                sspdata << s << '\n';
-        }
-        else
-            sspdata << 0 << '\n';
+        for (const std::string &s : allunlocks.at(pname))
+          sspdata << s << '\n';
+      } else
+        sspdata << 0 << '\n';
 
-        sspdata << '\n';
+      sspdata << '\n';
 
-        // save race data
-        for (const auto &p: alltimes)
-            if (p.second.playername == pname)
-                sspdata << p.second;
+      // save race data
+      for (const auto &p : alltimes)
+        if (p.second.playername == pname)
+          sspdata << p.second;
 
 #define encrypt xorcrypt
-        sspdata.str(encrypt(sspdata.str()));
+      sspdata.str(encrypt(sspdata.str()));
 #undef encrypt
 
-        PHYSFS_File *pfile = PHYSFS_openWrite(pfname.c_str());
+      PHYSFS_File *pfile = PHYSFS_openWrite(pfname.c_str());
 
 #ifndef NDEBUG
-        if (pfile == nullptr)
-        {
-            std::clog << "pfname is \"" << pfname << "\"\n";
-            std::clog << "PhysFS error: " << physfs_getErrorString() << std::endl;
-            return;
-        }
+      if (pfile == nullptr) {
+        std::clog << "pfname is \"" << pfname << "\"\n";
+        std::clog << "PhysFS error: " << physfs_getErrorString() << std::endl;
+        return;
+      }
 #endif
 
-        physfs_write(pfile, sspdata.str().data(), sizeof(char), sspdata.str().size());
-        PHYSFS_close(pfile);
+      physfs_write(pfile, sspdata.str().data(), sizeof(char), sspdata.str().size());
+      PHYSFS_close(pfile);
     }
 
     std::unordered_multimap<std::string, RaceData> alltimes;    ///< All times for all maps.

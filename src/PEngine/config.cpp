@@ -27,9 +27,9 @@
 /// @param [in] app Used by load function to change a few settings
 ///
 PConfig::PConfig(MainApp *app) :
-    mainapp(app),
-    rootelem(NULL),
-    cfgfilename("")
+  mainapp(app),
+  rootelem(NULL),
+  cfgfilename("")
 {
 }
 
@@ -103,15 +103,14 @@ void PConfig::loadConfig()
   if (!PHYSFS_exists(cfgfilename.c_str())) {
 #ifdef UNIX
     const std::vector<std::string> cfghidingplaces {
-        "/usr/share/games/trigger-rally/"
+      "/usr/share/games/trigger-rally/"
     };
 
-    for (const std::string &cfgpath: cfghidingplaces)
-        if (PHYSFS_mount(cfgpath.c_str(), NULL, 1) == 0)
-        {
-            PUtil::outLog() << "Failed to add PhysFS search directory \"" <<
-                cfgpath << "\"\nPhysFS: " << physfs_getErrorString() << std::endl;
-        }
+    for (const std::string &cfgpath : cfghidingplaces)
+      if (PHYSFS_mount(cfgpath.c_str(), NULL, 1) == 0) {
+        PUtil::outLog() << "Failed to add PhysFS search directory \"" <<
+                        cfgpath << "\"\nPhysFS: " << physfs_getErrorString() << std::endl;
+      }
 #endif
     PUtil::outLog() << "No user config file, copying over defaults" << std::endl;
 
@@ -138,44 +137,40 @@ void PConfig::loadConfig()
     throw MakePException ("Boink");
   }
 
-  const char *val;
+  const char* val;
 
   for (XMLElement *walk = rootelem->FirstChildElement();
-    walk; walk = walk->NextSiblingElement()) {
+       walk; walk = walk->NextSiblingElement()) {
 
-    if (strcmp(walk->Value(), "player") == 0)
-    {
-        val = walk->Attribute("name");
+    if (strcmp(walk->Value(), "player") == 0) {
+      val = walk->Attribute("name");
 
-        if (val != nullptr)
-        {
-            cfg_playername = val;
-            mainapp->best_times.setPlayerName(val);
-        }
+      if (val != nullptr) {
+        cfg_playername = val;
+        mainapp->best_times.setPlayerName(val);
+      }
 
-        val = walk->Attribute("copydefplayers");
+      val = walk->Attribute("copydefplayers");
 
-        if (val != nullptr && std::string(val) == "no")
-            cfg_copydefplayers = false;
-        else
-            cfg_copydefplayers = true;
+      if (val != nullptr && std::string(val) == "no")
+        cfg_copydefplayers = false;
+      else
+        cfg_copydefplayers = true;
 
-        val = walk->Attribute("skipsaves");
+      val = walk->Attribute("skipsaves");
 
-        if (val != nullptr)
-            cfg_skip_saves = std::stol(val);
+      if (val != nullptr)
+        cfg_skip_saves = std::stol(val);
 
-        mainapp->best_times.setSkipSaves(cfg_skip_saves);
-    }
-    else
-    if (!strcmp(walk->Value(), "video")) {
+      mainapp->best_times.setSkipSaves(cfg_skip_saves);
+    } else if (!strcmp(walk->Value(), "video")) {
 
-        val = walk->Attribute("automatic");
+      val = walk->Attribute("automatic");
 
-        if (val != nullptr && std::string(val) == "yes")
-          mainapp->automaticVideoMode(true);
-        else
-          mainapp->automaticVideoMode(false);
+      if (val != nullptr && std::string(val) == "yes")
+        mainapp->automaticVideoMode(true);
+      else
+        mainapp->automaticVideoMode(false);
 
       val = walk->Attribute("width");
       if (val) cfg_video_cx = atoi(val);
@@ -250,109 +245,86 @@ void PConfig::loadConfig()
       if (val) {
         mainapp->setStereoEyeSeperation(atof(val) * sepMult);
       }
-    }
-    else
-    if (!strcmp(walk->Value(), "audio"))
-    {
-        val = walk->Attribute("enginevolume");
+    } else if (!strcmp(walk->Value(), "audio")) {
+      val = walk->Attribute("enginevolume");
 
-        if (val != nullptr)
-            cfg_volume_engine = atof(val);
+      if (val != nullptr)
+        cfg_volume_engine = atof(val);
 
-        val = walk->Attribute("sfxvolume");
+      val = walk->Attribute("sfxvolume");
 
-        if (val != nullptr)
-            cfg_volume_sfx = atof(val);
+      if (val != nullptr)
+        cfg_volume_sfx = atof(val);
 
-        val = walk->Attribute("codrivervolume");
+      val = walk->Attribute("codrivervolume");
 
-        if (val != nullptr)
-            cfg_volume_codriver = atof(val);
-    }
-    else
-    if (!strcmp(walk->Value(), "graphics"))
-    {
-        val = walk->Attribute("anisotropy");
+      if (val != nullptr)
+        cfg_volume_codriver = atof(val);
+    } else if (!strcmp(walk->Value(), "graphics")) {
+      val = walk->Attribute("anisotropy");
 
-        if (val)
-        {
-            if (!strcmp(val, "off"))
-            {
-                cfg_anisotropy = 0.0f;
-            }
-            else
-            if (!strcmp(val, "max"))
-            {
-                glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &cfg_anisotropy);
-            }
-            else // TODO: listen to the user, but don't trust him
-            {
-                cfg_anisotropy = atof(val);
-                CLAMP_LOWER(cfg_anisotropy, 1.0f);
-            }
+      if (val) {
+        if (!strcmp(val, "off")) {
+          cfg_anisotropy = 0.0f;
+        } else if (!strcmp(val, "max")) {
+          glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &cfg_anisotropy);
+        } else { // TODO: listen to the user, but don't trust him
+          cfg_anisotropy = atof(val);
+          CLAMP_LOWER(cfg_anisotropy, 1.0f);
         }
+      }
 
-        val = walk->Attribute("foliage");
+      val = walk->Attribute("foliage");
 
-        if (val)
-        {
-            if (!strcmp(val, "no"))
-                cfg_foliage = false;
-            else // "yes"
-                cfg_foliage = true;
-        }
+      if (val) {
+        if (!strcmp(val, "no"))
+          cfg_foliage = false;
+        else // "yes"
+          cfg_foliage = true;
+      }
 
-        val = walk->Attribute("roadsigns");
+      val = walk->Attribute("roadsigns");
 
-        if (val != nullptr)
-        {
-            if (strcmp(val, "no") == 0)
-                cfg_roadsigns = false;
-            else // yes
-                cfg_roadsigns = true;
-        }
+      if (val != nullptr) {
+        if (strcmp(val, "no") == 0)
+          cfg_roadsigns = false;
+        else // yes
+          cfg_roadsigns = true;
+      }
 
-        val = walk->Attribute("weather");
+      val = walk->Attribute("weather");
 
-        if (val)
-        {
-            if (!strcmp(val, "no"))
-                cfg_weather = false;
-            else // "yes"
-                cfg_weather = true;
-        }
+      if (val) {
+        if (!strcmp(val, "no"))
+          cfg_weather = false;
+        else // "yes"
+          cfg_weather = true;
+      }
 
-        val = walk->Attribute("snowflaketype");
+      val = walk->Attribute("snowflaketype");
 
-        if (val)
-        {
-            if (!strcmp(val, "square"))
-                cfg_snowflaketype = SnowFlakeType::square;
-            else
-            if (!strcmp(val, "textured"))
-                cfg_snowflaketype = SnowFlakeType::textured;
-            else // default
-                cfg_snowflaketype = SnowFlakeType::point;
-        }
+      if (val) {
+        if (!strcmp(val, "square"))
+          cfg_snowflaketype = SnowFlakeType::square;
+        else if (!strcmp(val, "textured"))
+          cfg_snowflaketype = SnowFlakeType::textured;
+        else // default
+          cfg_snowflaketype = SnowFlakeType::point;
+      }
 
-        val = walk->Attribute("dirteffect");
+      val = walk->Attribute("dirteffect");
 
-        if (val)
-        {
-            if (!strcmp(val, "yes"))
-                cfg_dirteffect = true;
-            else
-                cfg_dirteffect = false;
-        }
-    }
-    else
-    if (!strcmp(walk->Value(), "datadirectory"))
-    {
-        for (XMLElement *walk2 = walk->FirstChildElement(); walk2; walk2 = walk2->NextSiblingElement())
-            if (!strcmp(walk2->Value(), "data"))
-                cfg_datadirs.push_back(walk2->Attribute("path"));
-    }
-    else if (!strcmp(walk->Value(), "parameters")) {
+      if (val) {
+        if (!strcmp(val, "yes"))
+          cfg_dirteffect = true;
+        else
+          cfg_dirteffect = false;
+      }
+    } else if (!strcmp(walk->Value(), "datadirectory")) {
+      for (XMLElement *walk2 = walk->FirstChildElement(); walk2; walk2 = walk2->NextSiblingElement())
+        if (!strcmp(walk2->Value(), "data"))
+          cfg_datadirs.push_back(walk2->Attribute("path"));
+    } else if (!strcmp(walk->Value(), "parameters")) {
 
       val = walk->Attribute("drivingassist");
       if (val) cfg_drivingassist = atof(val);
@@ -365,31 +337,28 @@ void PConfig::loadConfig()
           cfg_enable_sound = false;
       }
 
-        val = walk->Attribute("enablecodriversigns");
+      val = walk->Attribute("enablecodriversigns");
 
-        if (val != nullptr)
-        {
-            if (strcmp(val, "yes") == 0)
-                cfg_enable_codriversigns = true;
-            else
-            if (strcmp(val, "no") == 0)
-                cfg_enable_codriversigns = false;
-        }
+      if (val != nullptr) {
+        if (strcmp(val, "yes") == 0)
+          cfg_enable_codriversigns = true;
+        else if (strcmp(val, "no") == 0)
+          cfg_enable_codriversigns = false;
+      }
 
       val = walk->Attribute("speedunit");
       if (val) {
         if (!strcmp(val, "mph")) {
-            cfg_speed_unit = mph;
-            hud_speedo_start_deg = MPH_ZERO_DEG;
-            hud_speedo_mps_deg_mult = MPS_MPH_DEG_MULT;
-            hud_speedo_mps_speed_mult = MPS_MPH_SPEED_MULT;
-          }
-        else if (!strcmp(val, "kph")) {
-           cfg_speed_unit = kph;
-           hud_speedo_start_deg = KPH_ZERO_DEG;
-           hud_speedo_mps_deg_mult = MPS_KPH_DEG_MULT;
-           hud_speedo_mps_speed_mult = MPS_KPH_SPEED_MULT;
-         }
+          cfg_speed_unit = mph;
+          hud_speedo_start_deg = MPH_ZERO_DEG;
+          hud_speedo_mps_deg_mult = MPS_MPH_DEG_MULT;
+          hud_speedo_mps_speed_mult = MPS_MPH_SPEED_MULT;
+        } else if (!strcmp(val, "kph")) {
+          cfg_speed_unit = kph;
+          hud_speedo_start_deg = KPH_ZERO_DEG;
+          hud_speedo_mps_deg_mult = MPS_KPH_DEG_MULT;
+          hud_speedo_mps_speed_mult = MPS_KPH_SPEED_MULT;
+        }
       }
 
       val = walk->Attribute("enablefps");
@@ -403,7 +372,7 @@ void PConfig::loadConfig()
       val = walk->Attribute("enableghost");
       if (val) {
         if (!strcmp(val, "yes"))
-          cfg_enable_ghost= true;
+          cfg_enable_ghost = true;
         else if (!strcmp(val, "no"))
           cfg_enable_ghost = false;
       }
@@ -423,33 +392,33 @@ void PConfig::loadConfig()
 
       val = walk->Attribute("codriversigns");
 
-        if (val != nullptr)
-            cfg_codriversigns = val;
+      if (val != nullptr)
+        cfg_codriversigns = val;
 
-        val = walk->Attribute("codriversignslife");
+      val = walk->Attribute("codriversignslife");
 
-        if (val != nullptr)
-            cfg_codriveruserconfig.life = std::stof(val);
+      if (val != nullptr)
+        cfg_codriveruserconfig.life = std::stof(val);
 
-        val = walk->Attribute("codriversignsposx");
+      val = walk->Attribute("codriversignsposx");
 
-        if (val != nullptr)
-            cfg_codriveruserconfig.posx = std::stof(val);
+      if (val != nullptr)
+        cfg_codriveruserconfig.posx = std::stof(val);
 
-        val = walk->Attribute("codriversignsposy");
+      val = walk->Attribute("codriversignsposy");
 
-        if (val != nullptr)
-            cfg_codriveruserconfig.posy = std::stof(val);
+      if (val != nullptr)
+        cfg_codriveruserconfig.posy = std::stof(val);
 
-        val = walk->Attribute("codriversignsscale");
+      val = walk->Attribute("codriversignsscale");
 
-        if (val != nullptr)
-            cfg_codriveruserconfig.scale = std::stof(val);
+      if (val != nullptr)
+        cfg_codriveruserconfig.scale = std::stof(val);
 
     } else if (!strcmp(walk->Value(), "controls")) {
 
       for (XMLElement *walk2 = walk->FirstChildElement();
-        walk2; walk2 = walk2->NextSiblingElement()) {
+           walk2; walk2 = walk2->NextSiblingElement()) {
 
         if (!strcmp(walk2->Value(), "keyboard")) {
 
@@ -458,7 +427,7 @@ void PConfig::loadConfig()
             continue;
 
           for (XMLElement *walk3 = walk2->FirstChildElement();
-            walk3; walk3 = walk3->NextSiblingElement()) {
+               walk3; walk3 = walk3->NextSiblingElement()) {
 
             if (!strcmp(walk3->Value(), "key")) {
 
@@ -483,10 +452,9 @@ void PConfig::loadConfig()
 
               val = walk3->Attribute("id");
 
-              if (!val)
-              {
-                  PUtil::outLog() << "Config ctrls: Key has no ID" << std::endl;
-                  continue;
+              if (!val) {
+                PUtil::outLog() << "Config ctrls: Key has no ID" << std::endl;
+                continue;
               }
 
               ctrl.map[a].type = UserControl::TypeKey;
@@ -502,7 +470,7 @@ void PConfig::loadConfig()
             continue;
 
           for (XMLElement *walk3 = walk2->FirstChildElement();
-            walk3; walk3 = walk3->NextSiblingElement()) {
+               walk3; walk3 = walk3->NextSiblingElement()) {
 
             if (!strcmp(walk3->Value(), "button")) {
 
@@ -560,7 +528,7 @@ void PConfig::loadConfig()
                 positive = false;
               else {
                 PUtil::outLog() << "Config ctrls: Joy axis direction \"" << val <<
-                  "\" is neither \"+\" nor \"-\"" << std::endl;
+                                   "\" is neither \"+\" nor \"-\"" << std::endl;
                 continue;
               }
 
@@ -603,8 +571,7 @@ void PConfig::storeConfig()
       walk->SetAttribute("enginevolume", cfg_volume_engine);
       walk->SetAttribute("sfxvolume", cfg_volume_sfx);
       walk->SetAttribute("codrivervolume", cfg_volume_codriver);
-    }
-    else if (!strcmp(walk->Value(), "graphics")) {
+    } else if (!strcmp(walk->Value(), "graphics")) {
       if (cfg_anisotropy == 0.0f)
         walk->SetAttribute("anisotropy", "off");
       else
@@ -625,26 +592,25 @@ void PConfig::storeConfig()
       else
         walk->SetAttribute("weather", "no");
 
-      switch(cfg_snowflaketype) {
-      case SnowFlakeType::point:
-        walk->SetAttribute("snowflaketype", "point");
-        break;
-      case SnowFlakeType::square:
-        walk->SetAttribute("snowflaketype", "quare");
-        break;
-      case SnowFlakeType::textured:
-        walk->SetAttribute("snowflaketype", "textured");
-        break;
-      default:
-        break;
+      switch (cfg_snowflaketype) {
+        case SnowFlakeType::point:
+          walk->SetAttribute("snowflaketype", "point");
+          break;
+        case SnowFlakeType::square:
+          walk->SetAttribute("snowflaketype", "quare");
+          break;
+        case SnowFlakeType::textured:
+          walk->SetAttribute("snowflaketype", "textured");
+          break;
+        default:
+          break;
       }
 
       if (cfg_dirteffect)
         walk->SetAttribute("dirteffect", "yes");
       else
         walk->SetAttribute("dirteffect", "no");
-    }
-    else if (!strcmp(walk->Value(), "parameters")) {
+    } else if (!strcmp(walk->Value(), "parameters")) {
       if (cfg_enable_sound)
         walk->SetAttribute("enablesound", "yes");
       else
@@ -678,13 +644,12 @@ void PConfig::storeConfig()
       walk->SetAttribute("codriver", cfg_codrivername.c_str());
 
       walk->SetAttribute("codriversigns", cfg_codriversigns.c_str());
-    }
-    else if (!strcmp(walk->Value(), "controls")) {
+    } else if (!strcmp(walk->Value(), "controls")) {
       for (XMLElement *walk2 = walk->FirstChildElement(); walk2; walk2 = walk2->NextSiblingElement()) {
         if (!strcmp(walk2->Value(), "keyboard")) {
           for (XMLElement *walk3 = walk2->FirstChildElement(); walk3; walk3 = walk3->NextSiblingElement()) {
             if (!strcmp(walk3->Value(), "key")) {
-              const char *val = walk3->Attribute("action");
+              const char* val = walk3->Attribute("action");
               unsigned int i = 0;
 
               while (i < ActionCount) {
@@ -741,7 +706,7 @@ bool PConfig::getVideoFullscreen() const
   return cfg_video_fullscreen;
 }
 
-const std::list<std::string> &PConfig::getDatadirs() const
+const std::list<std::string>& PConfig::getDatadirs() const
 {
   return cfg_datadirs;
 }
@@ -751,12 +716,12 @@ bool PConfig::getCopydefplayers() const
   return cfg_copydefplayers;
 }
 
-const std::string &PConfig::getPlayername() const
+const std::string& PConfig::getPlayername() const
 {
   return cfg_playername;
 }
 
-struct PConfig::Control &PConfig::getCtrl()
+struct PConfig::Control& PConfig::getCtrl()
 {
   return ctrl;
 }
@@ -766,7 +731,7 @@ float PConfig::getVolumeCodriver() const
   return cfg_volume_codriver;
 }
 
-const PCodriverUserConfig &PConfig::getCodriveruserconfig() const
+const PCodriverUserConfig& PConfig::getCodriveruserconfig() const
 {
   return cfg_codriveruserconfig;
 }
@@ -776,7 +741,7 @@ bool PConfig::getEnableCodriversigns() const
   return cfg_enable_codriversigns;
 }
 
-const std::string &PConfig::getCodriversigns() const
+const std::string& PConfig::getCodriversigns() const
 {
   return cfg_codriversigns;
 }
@@ -786,7 +751,7 @@ bool PConfig::getEnableSound() const
   return cfg_enable_sound;
 }
 
-const std::string &PConfig::getCodrivername() const
+const std::string& PConfig::getCodrivername() const
 {
   return cfg_codrivername;
 }

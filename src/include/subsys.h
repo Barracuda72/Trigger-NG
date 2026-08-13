@@ -27,14 +27,14 @@
 ///
 class PResource
 {
-protected:
-	std::string name;
+  protected:
+    std::string name;
 
-public:
-	const std::string & getName() const
-	{
-		return name;
-	}
+  public:
+    const std::string& getName() const
+    {
+      return name;
+    }
 };
 
 ///
@@ -44,50 +44,50 @@ public:
 template <class T>
 class PResourceList
 {
-private:
+  private:
 
-	std::vector<T *> reslist;
+    std::vector<T*> reslist;
 
-public:
+  public:
 
-	~PResourceList()
-	{
-		clear();
-	}
+    ~PResourceList()
+    {
+      clear();
+    }
 
-	T * add(T *newresource)
-	{
-		reslist.push_back(newresource);
-		return newresource;
-	}
+    T* add(T *newresource)
+    {
+      reslist.push_back(newresource);
+      return newresource;
+    }
 
-	T * find(const std::string &name)
-	{
-		for (T *res: reslist)
-			if (name == res->getName())
-				return res;
-		return nullptr;
-	}
+    T* find(const std::string &name)
+    {
+      for (T *res : reslist)
+        if (name == res->getName())
+          return res;
+      return nullptr;
+    }
 
-	void clear()
-	{
-		for (T *res: reslist)
-			delete res;
+    void clear()
+    {
+      for (T *res : reslist)
+        delete res;
 
-		reslist.clear();
-	}
+      reslist.clear();
+    }
 };
 
 class PSubsystem
 {
-protected:
+  protected:
 
-    PApp &app;
+    PApp& app;
 
-public:
+  public:
 
     PSubsystem(PApp &parentApp):
-        app(parentApp)
+      app(parentApp)
     {
     }
 
@@ -97,10 +97,10 @@ public:
 
     virtual void tick(float delta, const vec3f &eyepos, const mat44f &eyeori, const vec3f &eyevel)
     {
-        UNREFERENCED_PARAMETER(delta);
-        UNREFERENCED_PARAMETER(eyepos);
-        UNREFERENCED_PARAMETER(eyeori);
-        UNREFERENCED_PARAMETER(eyevel);
+      UNREFERENCED_PARAMETER(delta);
+      UNREFERENCED_PARAMETER(eyepos);
+      UNREFERENCED_PARAMETER(eyeori);
+      UNREFERENCED_PARAMETER(eyevel);
     }
 };
 

@@ -33,7 +33,7 @@ PSim::~PSim()
 /// @param ssModel = the PSSModel of the vehicle type
 /// @retval the newly loaded vehicle type, or nullptr if failed to load
 ///
-PVehicleType *PSim::loadVehicleType(const std::string &filename, PSSModel &ssModel)
+PVehicleType* PSim::loadVehicleType(const std::string &filename, PSSModel &ssModel)
 {
   PVehicleType *vtype = vtypelist.find(filename);
   if (!vtype) {
@@ -52,7 +52,7 @@ PVehicleType *PSim::loadVehicleType(const std::string &filename, PSSModel &ssMod
 /// @brief Put a new rigid body in the body vector
 /// @retval the pointer to the new rigid body
 ///
-PRigidBody *PSim::createRigidBody()
+PRigidBody* PSim::createRigidBody()
 {
   PRigidBody *newbody = new PRigidBody(gravity);
 
@@ -65,11 +65,11 @@ PRigidBody *PSim::createRigidBody()
 /// @brief Create a new vehicle and put it in the vehicle vector
 /// @retval the pointer to the newly created vehicle, nullptr if problems occurred
 ///
-PVehicle *PSim::createVehicle(XMLElement *element, const std::string &filepath, PSSModel &ssModel)
+PVehicle* PSim::createVehicle(XMLElement *element, const std::string &filepath, PSSModel &ssModel)
 {
-  const char *val;
+  const char* val;
 
-  const char *type = element->Attribute("type");
+  const char* type = element->Attribute("type");
   if (!type) {
     PUtil::outLog() << "Vehicle has no type\n";
     return nullptr;
@@ -92,7 +92,8 @@ PVehicle *PSim::createVehicle(XMLElement *element, const std::string &filepath, 
 /// @brief Create a new vehicle and put it in the vehicle vector
 /// @retval the pointer to the newly created vehicle, nullptr if problems occurred
 ///
-PVehicle *PSim::createVehicle(const std::string &type, const vec3f &pos, const quatf &ori, const std::string &filepath, PSSModel &ssModel)
+PVehicle* PSim::createVehicle(const std::string &type, const vec3f &pos, const quatf &ori, const std::string &filepath,
+                              PSSModel &ssModel)
 {
   PVehicleType *vtype = loadVehicleType(PUtil::assemblePath(type, filepath), ssModel);
 
@@ -103,7 +104,7 @@ PVehicle *PSim::createVehicle(const std::string &type, const vec3f &pos, const q
 /// @brief Create a new vehicle and put it in the vehicle vector
 /// @retval the pointer to the newly created vehicle, nullptr if problems occurred
 ///
-PVehicle *PSim::createVehicle(PVehicleType *type, const vec3f &pos, const quatf &ori /*, PSSModel &ssModel */)
+PVehicle* PSim::createVehicle(PVehicleType *type, const vec3f &pos, const quatf &ori /*, PSSModel &ssModel */)
 {
   if (!type) return nullptr;
 
@@ -128,12 +129,12 @@ PVehicle *PSim::createVehicle(PVehicleType *type, const vec3f &pos, const quatf 
 void PSim::clear()
 {
   // clear bodies
-  for (unsigned int i=0; i<body.size(); ++i)
+  for (unsigned int i = 0; i < body.size(); ++i)
     delete body[i];
   body.clear();
 
   // clear vehicles
-  for (unsigned int i=0; i<vehicle.size(); ++i)
+  for (unsigned int i = 0; i < vehicle.size(); ++i)
     delete vehicle[i];
   vehicle.clear();
 
@@ -147,41 +148,40 @@ void PSim::clear()
 ///
 void PSim::tick(float delta)
 {
-	if (delta <= 0.0) return;
+  if (delta <= 0.0) return;
 
-	/*
-	 * old code that uses variable step size
-	 * 
-	// Find a new timeslice similar to 0.005 so we can do an int number (num) of equal ticks in the delta interval
-	float timeslice = 0.005;
-	int num = (int)(delta / timeslice) + 1;
-	timeslice = delta / (float)num;
-	// do 'num' ticks each of 'timeslice' length
-	for (int timestep=0; timestep<num; ++timestep) {
-	*/
-	
-	// size of a step
-	const float timeslice = 0.004;
+  /*
+   * old code that uses variable step size
+   *
+  // Find a new timeslice similar to 0.005 so we can do an int number (num) of equal ticks in the delta interval
+  float timeslice = 0.005;
+  int num = (int)(delta / timeslice) + 1;
+  timeslice = delta / (float)num;
+  // do 'num' ticks each of 'timeslice' length
+  for (int timestep=0; timestep<num; ++timestep) {
+  */
 
-	// how much time remains to simulate
-	static float t = 0;
-	t += delta;
-	
-	while(t >= timeslice)
-	{
-		// update time
-		t -= timeslice;
-		
-		// tick for vehicles
-		for (unsigned int i=0; i<vehicle.size(); ++i)
-			vehicle[i]->tick(timeslice);
-		
-		// tick for rigid bodies
-		for (unsigned int i=0; i<body.size(); ++i)
-			body[i]->tick(timeslice);
-		
-		// Update vehicles parts
-		for (unsigned int i=0; i<vehicle.size(); ++i)
-			vehicle[i]->updateParts();
-	}
+  // size of a step
+  const float timeslice = 0.004;
+
+  // how much time remains to simulate
+  static float t = 0;
+  t += delta;
+
+  while (t >= timeslice) {
+    // update time
+    t -= timeslice;
+
+    // tick for vehicles
+    for (unsigned int i = 0; i < vehicle.size(); ++i)
+      vehicle[i]->tick(timeslice);
+
+    // tick for rigid bodies
+    for (unsigned int i = 0; i < body.size(); ++i)
+      body[i]->tick(timeslice);
+
+    // Update vehicles parts
+    for (unsigned int i = 0; i < vehicle.size(); ++i)
+      vehicle[i]->updateParts();
+  }
 }

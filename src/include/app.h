@@ -20,263 +20,262 @@
 
 #include <light.h>
 
-struct joystick_s
-{
-    SDL_Joystick       *sdl_joystick;
-    SDL_Haptic         *sdl_haptic;
-    std::string         name;
-    std::vector<float>  axis;
-    std::vector<bool>   button;
-    std::vector<vec2i>  hat;
+struct joystick_s {
+  SDL_Joystick*       sdl_joystick;
+  SDL_Haptic*         sdl_haptic;
+  std::string         name;
+  std::vector<float>  axis;
+  std::vector<bool>   button;
+  std::vector<vec2i>  hat;
 };
 
 class PApp
 {
-    public:
+  public:
 
-        enum StereoMode
-        {
-            StereoNone,
-            #ifndef GLES2
-            StereoQuadBuffer,
-            #endif
-            StereoRedBlue,
-            StereoRedGreen,
-            StereoRedCyan,
-            StereoYellowBlue
-        };
+    enum StereoMode {
+      StereoNone,
+#ifndef GLES2
+      StereoQuadBuffer,
+#endif
+      StereoRedBlue,
+      StereoRedGreen,
+      StereoRedCyan,
+      StereoYellowBlue
+    };
 
-        HiScore1 best_times;
+    HiScore1 best_times;
 
-    private:
+  private:
 
-        std::string appname, apptitle;
+    std::string appname, apptitle;
 
-        SDL_Window *screen; // TODO: rename this to "window" maybe
-        SDL_GLContext context;
+    SDL_Window* screen; // TODO: rename this to "window" maybe
+    SDL_GLContext context;
 
-        /// Attempts to set fullscreen at native resolution.
-        bool autoVideo = false;
+    /// Attempts to set fullscreen at native resolution.
+    bool autoVideo = false;
 
-    protected:
+  protected:
 
-        int cx, cy, bpp;
+    int cx, cy, bpp;
 
-    private:
+  private:
 
-        bool fullscr, noframe;
-        bool reqRGB, reqAlpha, reqDepth, reqStencil;
-        bool grabinput;
+    bool fullscr, noframe;
+    bool reqRGB, reqAlpha, reqDepth, reqStencil;
+    bool grabinput;
 
-        StereoMode stereo;
-        float stereoEyeTranslation;
+    StereoMode stereo;
+    float stereoEyeTranslation;
 
-        const uint8* sdl_keymap;
-        int sdl_numkeys;
-        uint8 sdl_mousemap;
-        std::vector<joystick_s> sdl_joy;
+    const uint8* sdl_keymap;
+    int sdl_numkeys;
+    uint8 sdl_mousemap;
+    std::vector<joystick_s> sdl_joy;
 
-        bool exit_requested, screenshot_requested;
+    bool exit_requested, screenshot_requested;
 
-        PSSRender *ssrdr;
-        PSSTexture *sstex;
-        PSSEffect *ssfx;
-        PSSModel *ssmod;
-        PSSAudio *ssaud;
+    PSSRender* ssrdr;
+    PSSTexture* sstex;
+    PSSEffect* ssfx;
+    PSSModel* ssmod;
+    PSSAudio* ssaud;
 
-    protected:
+  protected:
 
-        // the derived app should keep these up to date
-        vec3f cam_pos;
-        mat44f cam_orimat;
-        vec3f cam_linvel;
+    // the derived app should keep these up to date
+    vec3f cam_pos;
+    mat44f cam_orimat;
+    vec3f cam_linvel;
 
-    public:
+  public:
 
-        PApp(const std::string &title = "PGame", const std::string &name = ".pgame");
+    PApp(const std::string &title = "PGame", const std::string &name = ".pgame");
 
-        virtual ~PApp()
-        {
-        }
+    virtual ~PApp()
+    {
+    }
 
-        int run(int argc, char *argv[]);
+    int run(int argc, char* argv[]);
 
-    public:
+  public:
 
-        int getWidth() const
-        {
-            return cx;
-        }
+    int getWidth() const
+    {
+      return cx;
+    }
 
-        int getHeight() const
-        {
-            return cy;
-        }
+    int getHeight() const
+    {
+      return cy;
+    }
 
-        int getNumJoysticks()
-        {
-            return (sdl_joy.size());
-        }
+    int getNumJoysticks()
+    {
+      return (sdl_joy.size());
+    }
 
-        int getJoyNumAxes(int j)
-        {
-            return (sdl_joy[j].axis.size());
-        }
+    int getJoyNumAxes(int j)
+    {
+      return (sdl_joy[j].axis.size());
+    }
 
-        int getJoyNumButtons(int j)
-        {
-            return (sdl_joy[j].button.size());
-        }
+    int getJoyNumButtons(int j)
+    {
+      return (sdl_joy[j].button.size());
+    }
 
-        int getJoyNumHats(int j)
-        {
-            return (sdl_joy[j].hat.size());
-        }
+    int getJoyNumHats(int j)
+    {
+      return (sdl_joy[j].hat.size());
+    }
 
-        float getJoyAxis(int j, int a)
-        {
-            return (sdl_joy[j].axis[a]);
-        }
+    float getJoyAxis(int j, int a)
+    {
+      return (sdl_joy[j].axis[a]);
+    }
 
-        bool getJoyButton(int j, int b)
-        {
-            return (sdl_joy[j].button[b]);
-        }
+    bool getJoyButton(int j, int b)
+    {
+      return (sdl_joy[j].button[b]);
+    }
 
-        const vec2i &getJoyHat(int j, int h)
-        {
-            return (sdl_joy[j].hat[h]);
-        }
+    const vec2i& getJoyHat(int j, int h)
+    {
+      return (sdl_joy[j].hat[h]);
+    }
 
-        SDL_Haptic *getJoyHaptic(int j)
-        {
-            return (sdl_joy[j].sdl_haptic);
-        }
+    SDL_Haptic* getJoyHaptic(int j)
+    {
+      return (sdl_joy[j].sdl_haptic);
+    }
 
-        PSSRender & getSSRender()
-        {
-            return *ssrdr;
-        }
+    PSSRender& getSSRender()
+    {
+      return *ssrdr;
+    }
 
-        PSSTexture & getSSTexture()
-        {
-            return *sstex;
-        }
+    PSSTexture& getSSTexture()
+    {
+      return *sstex;
+    }
 
-        PSSEffect & getSSEffect()
-        {
-            return *ssfx;
-        }
+    PSSEffect& getSSEffect()
+    {
+      return *ssfx;
+    }
 
-        PSSModel & getSSModel()
-        {
-            return *ssmod;
-        }
+    PSSModel& getSSModel()
+    {
+      return *ssmod;
+    }
 
-        PSSAudio & getSSAudio()
-        {
-            return *ssaud;
-        }
+    PSSAudio& getSSAudio()
+    {
+      return *ssaud;
+    }
 
-        void automaticVideoMode(bool av = false)
-        {
-            autoVideo = av;
-        }
+    void automaticVideoMode(bool av = false)
+    {
+      autoVideo = av;
+    }
 
-        void requireRGB(bool req = true)
-        {
-            reqRGB = req;
-        }
+    void requireRGB(bool req = true)
+    {
+      reqRGB = req;
+    }
 
-        void requireAlpha(bool req = true)
-        {
-            reqAlpha = req;
-        }
+    void requireAlpha(bool req = true)
+    {
+      reqAlpha = req;
+    }
 
-        void requireDepth(bool req = true)
-        {
-            reqDepth = req;
-        }
+    void requireDepth(bool req = true)
+    {
+      reqDepth = req;
+    }
 
-        void requireStencil(bool req = true)
-        {
-            reqStencil = req;
-        }
+    void requireStencil(bool req = true)
+    {
+      reqStencil = req;
+    }
 
-        void setStereoMode(StereoMode mode)
-        {
-            stereo = mode;
-        }
+    void setStereoMode(StereoMode mode)
+    {
+      stereo = mode;
+    }
 
-        void setStereoEyeSeperation(float distance)
-        {
-            stereoEyeTranslation = distance * 0.5f;
-        }
+    void setStereoEyeSeperation(float distance)
+    {
+      stereoEyeTranslation = distance * 0.5f;
+    }
 
-    protected:
+  protected:
 
-        bool keyDown(int key)
-        {
-            return (sdl_keymap[key] != 0);
-        }
+    bool keyDown(int key)
+    {
+      return (sdl_keymap[key] != 0);
+    }
 
-        bool mouseButtonDown(int bt)
-        {
-            return ((sdl_mousemap & SDL_BUTTON(bt)) != 0);
-        }
+    bool mouseButtonDown(int bt)
+    {
+      return ((sdl_mousemap & SDL_BUTTON(bt)) != 0);
+    }
 
-        void requestExit()
-        {
-            exit_requested = true;
-        }
+    void requestExit()
+    {
+      exit_requested = true;
+    }
 
-        void saveScreenshot()
-        {
-            screenshot_requested = true;
-        }
+    void saveScreenshot()
+    {
+      screenshot_requested = true;
+    }
 
-        void grabMouse(bool grab = true);
+    void grabMouse(bool grab = true);
 
-        void drawModel(PModel &model, const Light& light, const Material& material, bool is_ghost, const glm::mat4& mv, const glm::mat4& p);
+    void drawModel(PModel &model, const Light& light, const Material& material, bool is_ghost, const glm::mat4& mv,
+                   const glm::mat4& p);
 
-        //void stereoGLProject(float xmin, float xmax, float ymin, float ymax, float znear, float zfar, float zzps, float dist, float eye);
-        glm::mat4 stereoFrustum(float xmin, float xmax, float ymin, float ymax, float znear, float zfar, float zzps, float eye);
+    //void stereoGLProject(float xmin, float xmax, float ymin, float ymax, float znear, float zfar, float zzps, float dist, float eye);
+    glm::mat4 stereoFrustum(float xmin, float xmax, float ymin, float ymax, float znear, float zfar, float zzps, float eye);
 
-        // config stuff
+    // config stuff
 
-        void setScreenMode(int w, int h, bool fullScreen = false, bool hideFrame = false);
+    void setScreenMode(int w, int h, bool fullScreen = false, bool hideFrame = false);
 
-        void setScreenBPP(int _bpp)
-        {
-            if (autoVideo)
-                return;
+    void setScreenBPP(int _bpp)
+    {
+      if (autoVideo)
+        return;
 
-            bpp = _bpp;
-        }
+      bpp = _bpp;
+    }
 
-        void setScreenModeAutoWindow();
-        void setScreenModeFastFullScreen();
+    void setScreenModeAutoWindow();
+    void setScreenModeFastFullScreen();
 
-        // callbacks for derived classes
+    // callbacks for derived classes
 
-        virtual void config() /* throw (PUserException) */ ; // very light setup/config func
-        virtual void load() /* throw (PUserException) */ ; // main resource loading
-        virtual void unload(); // free resources
+    virtual void config() /* throw (PUserException) */ ; // very light setup/config func
+    virtual void load() /* throw (PUserException) */ ; // main resource loading
+    virtual void unload(); // free resources
 
-        virtual void tick(float delta);
-        virtual void resize();
-        virtual void render(float eyetranslation);
-        virtual void keyEvent(const SDL_KeyboardEvent &ke);
-        virtual void touchEvent(const SDL_TouchFingerEvent& te);
-        virtual void touchMoveEvent(const SDL_TouchFingerEvent& te);
-        virtual void mouseButtonEvent(const SDL_MouseButtonEvent &mbe);
-        virtual void mouseMoveEvent(int dx, int dy);
-        virtual void cursorMoveEvent(int posx, int posy);
-        virtual void joyButtonEvent(int which, int button, bool down);
-        virtual bool joyAxisEvent(int which, int axis, float value, bool down);
+    virtual void tick(float delta);
+    virtual void resize();
+    virtual void render(float eyetranslation);
+    virtual void keyEvent(const SDL_KeyboardEvent &ke);
+    virtual void touchEvent(const SDL_TouchFingerEvent& te);
+    virtual void touchMoveEvent(const SDL_TouchFingerEvent& te);
+    virtual void mouseButtonEvent(const SDL_MouseButtonEvent &mbe);
+    virtual void mouseMoveEvent(int dx, int dy);
+    virtual void cursorMoveEvent(int posx, int posy);
+    virtual void joyButtonEvent(int which, int button, bool down);
+    virtual bool joyAxisEvent(int which, int axis, float value, bool down);
 
-public:
-        virtual float getCtrlActionBackValue();
-        virtual int getVehicleCurrentGear();
+  public:
+    virtual float getCtrlActionBackValue();
+    virtual int getVehicleCurrentGear();
 };
 

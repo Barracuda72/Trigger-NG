@@ -29,17 +29,14 @@ PSSTexture::~PSSTexture()
 
 
 
-PTexture *PSSTexture::loadTexture(const std::string &name, bool genMipmaps, bool clamp)
+PTexture* PSSTexture::loadTexture(const std::string &name, bool genMipmaps, bool clamp)
 {
   PTexture *tex = texlist.find(name);
   if (!tex) {
-    try
-    {
-      GLfloat cfgAnisotropy = static_cast<MainApp &>(app).cfg.getAnisotropy();
+    try {
+      GLfloat cfgAnisotropy = static_cast<MainApp&>(app).cfg.getAnisotropy();
       tex = new PTexture(name, cfgAnisotropy, genMipmaps, clamp);
-    }
-    catch (PException &e)
-    {
+    } catch (PException &e) {
       if (PUtil::isDebugLevel(DEBUGLEVEL_ENDUSER))
         PUtil::outLog() << "Failed to load " << name << ": " << e.what () << std::endl;
       return nullptr;
@@ -88,13 +85,13 @@ void PImage::load (const std::string &filename)
   if (SDL_MUSTLOCK(img)) SDL_LockSurface(img);
 
   // TGA COLOUR SWITCH HACK
-  int colmap_normal[] = { 0,1,2,3 };
-  int colmap_flipped[] = { 2,1,0,3 };
-  int *colmap = colmap_normal;
-  const char *fname = filename.c_str();
+  int colmap_normal[] = { 0, 1, 2, 3 };
+  int colmap_flipped[] = { 2, 1, 0, 3 };
+  int* colmap = colmap_normal;
+  const char* fname = filename.c_str();
   int len = strlen(fname);
   if (len > 4) {
-    if (!strcmp(fname+len-4,".tga")) colmap = colmap_flipped;
+    if (!strcmp(fname + len - 4, ".tga")) colmap = colmap_flipped;
   }
 
   cx = img->w;
@@ -102,11 +99,11 @@ void PImage::load (const std::string &filename)
   cc = img->format->BytesPerPixel;
   data = new uint8 [cx * cy * cc];
 
-  for (int y=0; y<cy; y++) {
-    for (int x=0; x<cx; x++) {
-      for (int c=0; c<cc; c++) {
+  for (int y = 0; y < cy; y++) {
+    for (int x = 0; x < cx; x++) {
+      for (int c = 0; c < cc; c++) {
         //data[(y*cx+x)*cc+c] = ((uint8*)img->pixels)[(cy-y-1)*img->pitch + x*cc + c];
-        data[(y*cx+x)*cc+c] = ((uint8*)img->pixels)[(cy-y-1)*img->pitch + x*cc + colmap[c]];
+        data[(y * cx + x)*cc + c] = ((uint8*)img->pixels)[(cy - y - 1) * img->pitch + x * cc + colmap[c]];
       }
     }
   }
@@ -128,8 +125,7 @@ void PImage::load (int _cx, int _cy, int _cc)
 
 void PTexture::unload()
 {
-  if (texid)
-  {
+  if (texid) {
     glDeleteTextures (1, &texid);
     texid = 0;
   }
@@ -155,26 +151,26 @@ void PTexture::load (PImage &img, GLfloat cfgAnisotropy, bool genMipmaps, bool c
   }
 #endif
 
-  GLuint fmt,fmt2;
+  GLuint fmt, fmt2;
 
   switch (img.getcc()) {
-  case 1:
-    fmt = GL_LUMINANCE; fmt2 = GL_LUMINANCE; break;
-  case 2:
-    fmt = GL_LUMINANCE_ALPHA; fmt2 = GL_LUMINANCE_ALPHA; break;
-  case 3:
-    fmt = GL_RGB; fmt2 = GL_RGB; break;
-  case 4:
-    fmt = GL_RGBA; fmt2 = GL_RGBA; break;
-  default:
-    throw MakePException ("loading texture failed, unknown image format");
+    case 1:
+      fmt = GL_LUMINANCE; fmt2 = GL_LUMINANCE; break;
+    case 2:
+      fmt = GL_LUMINANCE_ALPHA; fmt2 = GL_LUMINANCE_ALPHA; break;
+    case 3:
+      fmt = GL_RGB; fmt2 = GL_RGB; break;
+    case 4:
+      fmt = GL_RGBA; fmt2 = GL_RGBA; break;
+    default:
+      throw MakePException ("loading texture failed, unknown image format");
   }
 
   int cx = img.getcx(), cy = img.getcy();
-  int newcx=1, newcy=1, max;
+  int newcx = 1, newcy = 1, max;
   while (newcx < cx) newcx *= 2;
   while (newcy < cy) newcy *= 2;
-  glGetIntegerv(GL_MAX_TEXTURE_SIZE,&max);
+  glGetIntegerv(GL_MAX_TEXTURE_SIZE, &max);
   if (newcx > max) newcx = max;
   if (newcy > max) newcy = max;
 
@@ -184,13 +180,13 @@ void PTexture::load (PImage &img, GLfloat cfgAnisotropy, bool genMipmaps, bool c
     PImage newimage (newcx, newcy, img.getcc ());
 
     scaleImage (fmt,
-        cx, cy, GL_UNSIGNED_BYTE, img.getData (),
-        newcx, newcy, GL_UNSIGNED_BYTE, newimage.getData ());
+                cx, cy, GL_UNSIGNED_BYTE, img.getData (),
+                newcx, newcy, GL_UNSIGNED_BYTE, newimage.getData ());
 
     img.swap (newimage);
   }
 
-  glGenTextures(1,&texid);
+  glGenTextures(1, &texid);
   bind();
 
   if (SDL_GL_ExtensionSupported("GL_EXT_texture_filter_anisotropic"))
@@ -198,30 +194,30 @@ void PTexture::load (PImage &img, GLfloat cfgAnisotropy, bool genMipmaps, bool c
   else
     PUtil::outLog() << "Warning: anisotropic filtering is not supported." << std::endl;
 
-  glTexParameteri(textarget,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+  glTexParameteri(textarget, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   if (genMipmaps)
-    glTexParameteri(textarget,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(textarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
   else
-    glTexParameteri(textarget,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+    glTexParameteri(textarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
   if (clamp) {
-    glTexParameteri(textarget,GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE);
-    glTexParameteri(textarget,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);
+    glTexParameteri(textarget, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(textarget, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   } else {
-    glTexParameteri(textarget,GL_TEXTURE_WRAP_S,GL_REPEAT);
-    glTexParameteri(textarget,GL_TEXTURE_WRAP_T,GL_REPEAT);
+    glTexParameteri(textarget, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(textarget, GL_TEXTURE_WRAP_T, GL_REPEAT);
   }
 
-  glPixelStorei(GL_UNPACK_ALIGNMENT,1);
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
   if (genMipmaps) {
 #ifdef USE_GEN_MIPMAPS
 
     glTexParameteri(textarget, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
 
-    glTexImage2D(GL_TEXTURE_2D,0,fmt2,
-      newcx,newcy,
-      0,fmt,GL_UNSIGNED_BYTE,img.getData());
+    glTexImage2D(GL_TEXTURE_2D, 0, fmt2,
+                 newcx, newcy,
+                 0, fmt, GL_UNSIGNED_BYTE, img.getData());
 
 #else
 
@@ -229,9 +225,9 @@ void PTexture::load (PImage &img, GLfloat cfgAnisotropy, bool genMipmaps, bool c
     uint8 *imd = img.getData();
     int cc = img.getcc();
     while (1) {
-      glTexImage2D(GL_TEXTURE_2D,level,fmt2,
-        newcx,newcy,
-        0,fmt,GL_UNSIGNED_BYTE,imd);
+      glTexImage2D(GL_TEXTURE_2D, level, fmt2,
+                   newcx, newcy,
+                   0, fmt, GL_UNSIGNED_BYTE, imd);
 
       if (newcx <= 1 && newcy <= 1) break;
 
@@ -239,14 +235,14 @@ void PTexture::load (PImage &img, GLfloat cfgAnisotropy, bool genMipmaps, bool c
       if (newcy > 1) newcy /= 2;
       level++;
 
-      for (int y=0; y<newcy; y++) {
-        for (int x=0; x<newcx; x++) {
-          for (int z=0; z<cc; z++) {
-            imd[(y*newcx+x)*cc+z] = (uint8)(((int)
-              imd[(y*newcx*4+x*2+0)*cc+z] +
-              imd[(y*newcx*4+x*2+1)*cc+z] +
-              imd[(y*newcx*4+x*2+0+newcx*2)*cc+z] +
-              imd[(y*newcx*4+x*2+1+newcx*2)*cc+z]) / 4);
+      for (int y = 0; y < newcy; y++) {
+        for (int x = 0; x < newcx; x++) {
+          for (int z = 0; z < cc; z++) {
+            imd[(y * newcx + x)*cc + z] = (uint8)(((int)
+                                                   imd[(y * newcx * 4 + x * 2 + 0) * cc + z] +
+                                                   imd[(y * newcx * 4 + x * 2 + 1) * cc + z] +
+                                                   imd[(y * newcx * 4 + x * 2 + 0 + newcx * 2) * cc + z] +
+                                                   imd[(y * newcx * 4 + x * 2 + 1 + newcx * 2) * cc + z]) / 4);
           }
         }
       }
@@ -254,9 +250,9 @@ void PTexture::load (PImage &img, GLfloat cfgAnisotropy, bool genMipmaps, bool c
 
 #endif
   } else {
-    glTexImage2D(GL_TEXTURE_2D,0,fmt2,
-      newcx,newcy,
-      0,fmt,GL_UNSIGNED_BYTE,img.getData());
+    glTexImage2D(GL_TEXTURE_2D, 0, fmt2,
+                 newcx, newcy,
+                 0, fmt, GL_UNSIGNED_BYTE, img.getData());
   }
 }
 
@@ -275,32 +271,32 @@ void PTexture::loadPiece(PImage &img, int offx, int offy, int sizex, int sizey, 
   genMipmaps = false;
 #endif
 
-  GLuint fmt,fmt2;
+  GLuint fmt, fmt2;
 
   switch (img.getcc()) {
-  case 1:
-    fmt = GL_LUMINANCE; fmt2 = GL_LUMINANCE; break;
-  case 2:
-    fmt = GL_LUMINANCE_ALPHA; fmt2 = GL_LUMINANCE_ALPHA; break;
-  case 3:
-    fmt = GL_RGB; fmt2 = GL_RGB; break;
-  case 4:
-    fmt = GL_RGBA; fmt2 = GL_RGBA; break;
-  default:
-    throw MakePException ("loading texture failed, unknown image format");
+    case 1:
+      fmt = GL_LUMINANCE; fmt2 = GL_LUMINANCE; break;
+    case 2:
+      fmt = GL_LUMINANCE_ALPHA; fmt2 = GL_LUMINANCE_ALPHA; break;
+    case 3:
+      fmt = GL_RGB; fmt2 = GL_RGB; break;
+    case 4:
+      fmt = GL_RGBA; fmt2 = GL_RGBA; break;
+    default:
+      throw MakePException ("loading texture failed, unknown image format");
   }
 
   int cx = sizex, cy = sizey;
-  int newcx=1, newcy=1, max;
+  int newcx = 1, newcy = 1, max;
   while (newcx < cx) newcx *= 2;
   while (newcy < cy) newcy *= 2;
-  glGetIntegerv(GL_MAX_TEXTURE_SIZE,&max);
+  glGetIntegerv(GL_MAX_TEXTURE_SIZE, &max);
   if (newcx > max) newcx = max;
   if (newcy > max) newcy = max;
 
   int cc = img.getcc();
 
-  uint8 *offsetdata = img.getData() + ((offy*img.getcx())+offx)*cc;
+  uint8 *offsetdata = img.getData() + ((offy * img.getcx()) + offx) * cc;
 
   char* buffer = new char[sizex * sizey * cc];
 
@@ -312,29 +308,29 @@ void PTexture::loadPiece(PImage &img, int offx, int offy, int sizex, int sizey, 
     PImage newimage (newcx, newcy, img.getcc ());
 
     scaleImage (fmt,
-        cx, cy, GL_UNSIGNED_BYTE, buffer,
-        newcx, newcy, GL_UNSIGNED_BYTE, newimage.getData ());
+                cx, cy, GL_UNSIGNED_BYTE, buffer,
+                newcx, newcy, GL_UNSIGNED_BYTE, newimage.getData ());
 
     img.swap (newimage);
 
     memcpy(buffer, img.getData(), newcx * newcy * cc);
   }
 
-  glGenTextures(1,&texid);
+  glGenTextures(1, &texid);
   bind();
 
-  glTexParameteri(textarget,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+  glTexParameteri(textarget, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   if (genMipmaps)
-    glTexParameteri(textarget,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(textarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
   else
-    glTexParameteri(textarget,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+    glTexParameteri(textarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
   if (clamp) {
-    glTexParameteri(textarget,GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE);
-    glTexParameteri(textarget,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);
+    glTexParameteri(textarget, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(textarget, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   } else {
-    glTexParameteri(textarget,GL_TEXTURE_WRAP_S,GL_REPEAT);
-    glTexParameteri(textarget,GL_TEXTURE_WRAP_T,GL_REPEAT);
+    glTexParameteri(textarget, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(textarget, GL_TEXTURE_WRAP_T, GL_REPEAT);
   }
 
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -344,9 +340,9 @@ void PTexture::loadPiece(PImage &img, int offx, int offy, int sizex, int sizey, 
     glTexParameteri(textarget, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
 #endif
 
-  glTexImage2D(GL_TEXTURE_2D,0,fmt2,
-    newcx,newcy,
-    0,fmt,GL_UNSIGNED_BYTE,buffer);
+  glTexImage2D(GL_TEXTURE_2D, 0, fmt2,
+               newcx, newcy,
+               0, fmt, GL_UNSIGNED_BYTE, buffer);
 
   delete[] buffer;
 }
@@ -371,32 +367,32 @@ void PTexture::loadAlpha(PImage &img, bool genMipmaps, bool clamp)
   }
 #endif
 
-  GLuint fmt,fmt2;
+  GLuint fmt, fmt2;
 
   switch (img.getcc()) {
-  case 1:
-    fmt = GL_ALPHA; fmt2 = GL_ALPHA; break;
-  case 2:
-    fmt = GL_LUMINANCE_ALPHA; fmt2 = GL_LUMINANCE_ALPHA;
-    PUtil::outLog() << "Warning: loadAlpha() has been used for image with 2 channels" << std::endl;
-    break;
-  case 3:
-    fmt = GL_RGB; fmt2 = GL_RGB;
-    PUtil::outLog() << "Warning: loadAlpha() has been used for RGB image" << std::endl;
-    break;
-  case 4:
-    fmt = GL_RGBA; fmt2 = GL_RGBA;
-    PUtil::outLog() << "Warning: loadAlpha() has been used for RGBA image" << std::endl;
-    break;
-  default:
-    throw MakePException ("loading texture failed, unknown image format");
+    case 1:
+      fmt = GL_ALPHA; fmt2 = GL_ALPHA; break;
+    case 2:
+      fmt = GL_LUMINANCE_ALPHA; fmt2 = GL_LUMINANCE_ALPHA;
+      PUtil::outLog() << "Warning: loadAlpha() has been used for image with 2 channels" << std::endl;
+      break;
+    case 3:
+      fmt = GL_RGB; fmt2 = GL_RGB;
+      PUtil::outLog() << "Warning: loadAlpha() has been used for RGB image" << std::endl;
+      break;
+    case 4:
+      fmt = GL_RGBA; fmt2 = GL_RGBA;
+      PUtil::outLog() << "Warning: loadAlpha() has been used for RGBA image" << std::endl;
+      break;
+    default:
+      throw MakePException ("loading texture failed, unknown image format");
   }
 
   int cx = img.getcx(), cy = img.getcy();
-  int newcx=1, newcy=1, max;
+  int newcx = 1, newcy = 1, max;
   while (newcx < cx) newcx *= 2;
   while (newcy < cy) newcy *= 2;
-  glGetIntegerv(GL_MAX_TEXTURE_SIZE,&max);
+  glGetIntegerv(GL_MAX_TEXTURE_SIZE, &max);
   if (newcx > max) newcx = max;
   if (newcy > max) newcy = max;
 
@@ -404,39 +400,39 @@ void PTexture::loadAlpha(PImage &img, bool genMipmaps, bool clamp)
     PImage newimage (newcx, newcy, img.getcc ());
 
     scaleImage (fmt,
-        cx, cy, GL_UNSIGNED_BYTE, img.getData (),
-        newcx, newcy, GL_UNSIGNED_BYTE, newimage.getData ());
+                cx, cy, GL_UNSIGNED_BYTE, img.getData (),
+                newcx, newcy, GL_UNSIGNED_BYTE, newimage.getData ());
 
     img.swap (newimage);
   }
 
-  glGenTextures(1,&texid);
+  glGenTextures(1, &texid);
   bind();
 
-  glTexParameteri(textarget,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+  glTexParameteri(textarget, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   if (genMipmaps)
-    glTexParameteri(textarget,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(textarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
   else
-    glTexParameteri(textarget,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+    glTexParameteri(textarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
   if (clamp) {
-    glTexParameteri(textarget,GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE);
-    glTexParameteri(textarget,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);
+    glTexParameteri(textarget, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(textarget, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   } else {
-    glTexParameteri(textarget,GL_TEXTURE_WRAP_S,GL_REPEAT);
-    glTexParameteri(textarget,GL_TEXTURE_WRAP_T,GL_REPEAT);
+    glTexParameteri(textarget, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(textarget, GL_TEXTURE_WRAP_T, GL_REPEAT);
   }
 
-  glPixelStorei(GL_UNPACK_ALIGNMENT,1);
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
   if (genMipmaps) {
 #ifdef USE_GEN_MIPMAPS
 
     glTexParameteri(textarget, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
 
-    glTexImage2D(GL_TEXTURE_2D,0,fmt2,
-      newcx,newcy,
-      0,fmt,GL_UNSIGNED_BYTE,img.getData());
+    glTexImage2D(GL_TEXTURE_2D, 0, fmt2,
+                 newcx, newcy,
+                 0, fmt, GL_UNSIGNED_BYTE, img.getData());
 
 #else
 
@@ -444,9 +440,9 @@ void PTexture::loadAlpha(PImage &img, bool genMipmaps, bool clamp)
     uint8 *imd = img.getData();
     int cc = img.getcc();
     while (1) {
-      glTexImage2D(GL_TEXTURE_2D,level,fmt2,
-        newcx,newcy,
-        0,fmt,GL_UNSIGNED_BYTE,imd);
+      glTexImage2D(GL_TEXTURE_2D, level, fmt2,
+                   newcx, newcy,
+                   0, fmt, GL_UNSIGNED_BYTE, imd);
 
       if (newcx <= 1 && newcy <= 1) break;
 
@@ -454,14 +450,14 @@ void PTexture::loadAlpha(PImage &img, bool genMipmaps, bool clamp)
       if (newcy > 1) newcy /= 2;
       level++;
 
-      for (int y=0; y<newcy; y++) {
-        for (int x=0; x<newcx; x++) {
-          for (int z=0; z<cc; z++) {
-            imd[(y*newcx+x)*cc+z] = (uint8)(((int)
-              imd[(y*newcx*4+x*2+0)*cc+z] +
-              imd[(y*newcx*4+x*2+1)*cc+z] +
-              imd[(y*newcx*4+x*2+0+newcx*2)*cc+z] +
-              imd[(y*newcx*4+x*2+1+newcx*2)*cc+z]) / 4);
+      for (int y = 0; y < newcy; y++) {
+        for (int x = 0; x < newcx; x++) {
+          for (int z = 0; z < cc; z++) {
+            imd[(y * newcx + x)*cc + z] = (uint8)(((int)
+                                                   imd[(y * newcx * 4 + x * 2 + 0) * cc + z] +
+                                                   imd[(y * newcx * 4 + x * 2 + 1) * cc + z] +
+                                                   imd[(y * newcx * 4 + x * 2 + 0 + newcx * 2) * cc + z] +
+                                                   imd[(y * newcx * 4 + x * 2 + 1 + newcx * 2) * cc + z]) / 4);
           }
         }
       }
@@ -469,9 +465,9 @@ void PTexture::loadAlpha(PImage &img, bool genMipmaps, bool clamp)
 
 #endif
   } else {
-    glTexImage2D(GL_TEXTURE_2D,0,fmt2,
-      newcx,newcy,
-      0,fmt,GL_UNSIGNED_BYTE,img.getData());
+    glTexImage2D(GL_TEXTURE_2D, 0, fmt2,
+                 newcx, newcy,
+                 0, fmt, GL_UNSIGNED_BYTE, img.getData());
   }
 }
 
@@ -491,7 +487,7 @@ void PTexture::loadCubeMap(const std::string &filenamePrefix, const std::string 
 
   PImage img;
 
-  glGenTextures(1,&texid);
+  glGenTextures(1, &texid);
   bind();
 
 #ifdef USE_GEN_MIPMAPS
@@ -505,33 +501,33 @@ void PTexture::loadCubeMap(const std::string &filenamePrefix, const std::string 
   };
 #endif
 
-  const char *middlename[6] = { "px", "nx", "py", "ny", "pz", "nz" };
+  const char* middlename[6] = { "px", "nx", "py", "ny", "pz", "nz" };
 
-  for (int side=0; side<6; side++) {
+  for (int side = 0; side < 6; side++) {
     std::string filename = filenamePrefix + middlename[side] + filenameSuffix;
 
     img.load(filename);
 
-    GLuint fmt,fmt2;
+    GLuint fmt, fmt2;
 
     switch (img.getcc()) {
-    case 1:
-      fmt = GL_LUMINANCE; fmt2 = GL_LUMINANCE; break;
-    case 2:
-      fmt = GL_LUMINANCE_ALPHA; fmt2 = GL_LUMINANCE_ALPHA; break;
-    case 3:
-      fmt = GL_RGB; fmt2 = GL_RGB; break;
-    case 4:
-      fmt = GL_RGBA; fmt2 = GL_RGBA; break;
-    default:
-      throw MakePException (filename + " load failed, unknown image format");
+      case 1:
+        fmt = GL_LUMINANCE; fmt2 = GL_LUMINANCE; break;
+      case 2:
+        fmt = GL_LUMINANCE_ALPHA; fmt2 = GL_LUMINANCE_ALPHA; break;
+      case 3:
+        fmt = GL_RGB; fmt2 = GL_RGB; break;
+      case 4:
+        fmt = GL_RGBA; fmt2 = GL_RGBA; break;
+      default:
+        throw MakePException (filename + " load failed, unknown image format");
     }
 
     int cx = img.getcx(), cy = img.getcy();
-    int newcx=1, newcy=1, max;
+    int newcx = 1, newcy = 1, max;
     while (newcx < cx) newcx *= 2;
     while (newcy < cy) newcy *= 2;
-    glGetIntegerv(GL_MAX_TEXTURE_SIZE,&max);
+    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &max);
     if (newcx > max) newcx = max;
     if (newcy > max) newcy = max;
 
@@ -539,31 +535,31 @@ void PTexture::loadCubeMap(const std::string &filenamePrefix, const std::string 
       PImage newimage (newcx, newcy, img.getcc ());
 
       scaleImage (fmt,
-          cx, cy, GL_UNSIGNED_BYTE, img.getData (),
-          newcx, newcy, GL_UNSIGNED_BYTE, newimage.getData ());
+                  cx, cy, GL_UNSIGNED_BYTE, img.getData (),
+                  newcx, newcy, GL_UNSIGNED_BYTE, newimage.getData ());
 
       img.swap (newimage);
     }
 
-    glTexParameteri(textarget,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+    glTexParameteri(textarget, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     if (genMipmaps)
-      glTexParameteri(textarget,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+      glTexParameteri(textarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     else
-      glTexParameteri(textarget,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+      glTexParameteri(textarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-    glTexParameteri(textarget,GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE);
-    glTexParameteri(textarget,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);
+    glTexParameteri(textarget, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(textarget, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-    glPixelStorei(GL_UNPACK_ALIGNMENT,1);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
     if (genMipmaps) {
 #ifdef USE_GEN_MIPMAPS
 
       glTexParameteri(textarget, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
 
-      glTexImage2D(sidetarget[side],0,fmt2,
-        newcx,newcy,
-        0,fmt,GL_UNSIGNED_BYTE,img.getData());
+      glTexImage2D(sidetarget[side], 0, fmt2,
+                   newcx, newcy,
+                   0, fmt, GL_UNSIGNED_BYTE, img.getData());
 
 #else
 
@@ -571,9 +567,9 @@ void PTexture::loadCubeMap(const std::string &filenamePrefix, const std::string 
       uint8 *imd = img.getData();
       int cc = img.getcc();
       while (1) {
-        glTexImage2D(GL_TEXTURE_2D,level,fmt2,
-          newcx,newcy,
-          0,fmt,GL_UNSIGNED_BYTE,imd);
+        glTexImage2D(GL_TEXTURE_2D, level, fmt2,
+                     newcx, newcy,
+                     0, fmt, GL_UNSIGNED_BYTE, imd);
         //break;
         if (newcx <= 1 && newcy <= 1) break;
 
@@ -581,14 +577,14 @@ void PTexture::loadCubeMap(const std::string &filenamePrefix, const std::string 
         if (newcy > 1) newcy /= 2;
         level++;
 
-        for (int y=0; y<newcy; y++) {
-          for (int x=0; x<newcx; x++) {
-            for (int z=0; z<cc; z++) {
-              imd[(y*newcx+x)*cc+z] = (uint8)(((int)
-                imd[(y*newcx*4+x*2+0)*cc+z] +
-                imd[(y*newcx*4+x*2+1)*cc+z] +
-                imd[(y*newcx*4+x*2+0+newcx*2)*cc+z] +
-                imd[(y*newcx*4+x*2+1+newcx*2)*cc+z]) / 4);
+        for (int y = 0; y < newcy; y++) {
+          for (int x = 0; x < newcx; x++) {
+            for (int z = 0; z < cc; z++) {
+              imd[(y * newcx + x)*cc + z] = (uint8)(((int)
+                                                     imd[(y * newcx * 4 + x * 2 + 0) * cc + z] +
+                                                     imd[(y * newcx * 4 + x * 2 + 1) * cc + z] +
+                                                     imd[(y * newcx * 4 + x * 2 + 0 + newcx * 2) * cc + z] +
+                                                     imd[(y * newcx * 4 + x * 2 + 1 + newcx * 2) * cc + z]) / 4);
             }
           }
         }
@@ -596,9 +592,9 @@ void PTexture::loadCubeMap(const std::string &filenamePrefix, const std::string 
 
 #endif
     } else {
-      glTexImage2D(GL_TEXTURE_2D,0,fmt2,
-        newcx,newcy,
-        0,fmt,GL_UNSIGNED_BYTE,img.getData());
+      glTexImage2D(GL_TEXTURE_2D, 0, fmt2,
+                   newcx, newcy,
+                   0, fmt, GL_UNSIGNED_BYTE, img.getData());
     }
 
     img.unload();
@@ -621,17 +617,17 @@ void PTexture::unbind()
 }
 
 void PTexture::scaleImage(GLuint format,
-    GLsizei width_in, GLsizei height_in, GLenum type_in, const void* data_in,
-    GLsizei width_out, GLsizei height_out, GLenum type_out, void* data_out
-    )
+                          GLsizei width_in, GLsizei height_in, GLenum type_in, const void* data_in,
+                          GLsizei width_out, GLsizei height_out, GLenum type_out, void* data_out
+                         )
 {
-    int depth = 0;
-    int pitch_in = 0, pitch_out = 0;
+  int depth = 0;
+  int pitch_in = 0, pitch_out = 0;
 
-    unsigned int rm = 0, gm = 0, bm = 0, am = 0; // Masks for colors
+  unsigned int rm = 0, gm = 0, bm = 0, am = 0; // Masks for colors
 
-    // TODO: those masks may be incorrect in terms of color order, but we don't really care about it as we're just performing scaling
-    switch (format) {
+  // TODO: those masks may be incorrect in terms of color order, but we don't really care about it as we're just performing scaling
+  switch (format) {
     case GL_LUMINANCE: // 1 component
       depth = 8;
       rm = 0xFF;
@@ -656,27 +652,27 @@ void PTexture::scaleImage(GLuint format,
       break;
     default:
       throw MakePException ("Scaling failed, unknown image format");
-    }
+  }
 
-    int bpp = depth >> 3;
+  int bpp = depth >> 3;
 
-    pitch_in = width_in * bpp;
-    pitch_out = width_out * bpp;
+  pitch_in = width_in * bpp;
+  pitch_out = width_out * bpp;
 
-    //std::cout << "Resize!" << width_in << " " << width_out << " " << height_in << " " << height_out << std::endl;
+  //std::cout << "Resize!" << width_in << " " << width_out << " " << height_in << " " << height_out << std::endl;
 
-    SDL_Rect srcrect = {.x = 0, .y = 0, .w = width_in, .h = height_in};
-    SDL_Rect dstrect = {.x = 0, .y = 0, .w = width_out, .h = height_out};
-    SDL_Surface* src = SDL_CreateRGBSurfaceFrom((void*)data_in, width_in, height_in, depth, pitch_in, rm, gm, bm, am);
-    SDL_Surface* dst = SDL_CreateRGBSurfaceFrom(data_out, width_out, height_out, depth, pitch_out, rm, gm, bm, am);
+  SDL_Rect srcrect = {.x = 0, .y = 0, .w = width_in, .h = height_in};
+  SDL_Rect dstrect = {.x = 0, .y = 0, .w = width_out, .h = height_out};
+  SDL_Surface* src = SDL_CreateRGBSurfaceFrom((void*)data_in, width_in, height_in, depth, pitch_in, rm, gm, bm, am);
+  SDL_Surface* dst = SDL_CreateRGBSurfaceFrom(data_out, width_out, height_out, depth, pitch_out, rm, gm, bm, am);
 
-    SDL_SetSurfaceBlendMode(src, SDL_BLENDMODE_NONE); // Disable alpha blending with DST values
+  SDL_SetSurfaceBlendMode(src, SDL_BLENDMODE_NONE); // Disable alpha blending with DST values
 
-    if (SDL_BlitScaled(src, &srcrect, dst, &dstrect) < 0)
-        throw MakePException ("Scaling failed, error during scaling");
+  if (SDL_BlitScaled(src, &srcrect, dst, &dstrect) < 0)
+    throw MakePException ("Scaling failed, error during scaling");
 
-    // This won't affect the data
-    SDL_FreeSurface(src);
-    SDL_FreeSurface(dst);
+  // This won't affect the data
+  SDL_FreeSurface(src);
+  SDL_FreeSurface(dst);
 }
 

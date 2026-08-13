@@ -24,16 +24,16 @@
 /// @brief Calculate center position of each vehicle side
 /// @param clip = vector of vehicle clips
 ///
-void PDamage::setClip(const std::vector<vehicle_clip_s> &clip)
+void PDamage::setClip(const std::vector<vehicle_clip_s>& clip)
 {
   vec3f clipmin = vec3f(
-      std::numeric_limits<float>::max(),
-      std::numeric_limits<float>::max(),
-      std::numeric_limits<float>::max());
+                    std::numeric_limits<float>::max(),
+                    std::numeric_limits<float>::max(),
+                    std::numeric_limits<float>::max());
   vec3f clipmax = vec3f(
-      std::numeric_limits<float>::lowest(),
-      std::numeric_limits<float>::lowest(),
-      std::numeric_limits<float>::lowest());
+                    std::numeric_limits<float>::lowest(),
+                    std::numeric_limits<float>::lowest(),
+                    std::numeric_limits<float>::lowest());
 
   for (unsigned int i = 0; i < clip.size(); ++i) {
     if (clip[i].pt.x < clipmin.x) clipmin.x = clip[i].pt.x;
@@ -48,28 +48,28 @@ void PDamage::setClip(const std::vector<vehicle_clip_s> &clip)
     vec3f position = vec3f::zero();
 
     switch (i) {
-    case DamageSide::DamageFrontLeft:
-      position.x = clipmin.x;
-      position.y = clipmax.y;
-      position.z = 0.5f * clipmax.z;
-      break;
-    case DamageSide::DamageFrontRight:
-      position.x = clipmax.x;
-      position.y = clipmax.y;
-      position.z = 0.5f * clipmax.z;
-      break;
-    case DamageSide::DamageRearLeft:
-      position.x = clipmin.x;
-      position.y = clipmin.y;
-      position.z = 0.5f * clipmax.z;
-      break;
-    case DamageSide::DamageRearRight:
-      position.x = clipmax.x;
-      position.y = clipmin.y;
-      position.z = 0.5f * clipmax.z;
-      break;
-    default:
-      break;
+      case DamageSide::DamageFrontLeft:
+        position.x = clipmin.x;
+        position.y = clipmax.y;
+        position.z = 0.5f * clipmax.z;
+        break;
+      case DamageSide::DamageFrontRight:
+        position.x = clipmax.x;
+        position.y = clipmax.y;
+        position.z = 0.5f * clipmax.z;
+        break;
+      case DamageSide::DamageRearLeft:
+        position.x = clipmin.x;
+        position.y = clipmin.y;
+        position.z = 0.5f * clipmax.z;
+        break;
+      case DamageSide::DamageRearRight:
+        position.x = clipmax.x;
+        position.y = clipmin.y;
+        position.z = 0.5f * clipmax.z;
+        break;
+      default:
+        break;
     }
 
     center[i] = position;

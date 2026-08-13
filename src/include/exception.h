@@ -24,19 +24,19 @@
 
 class PException: public std::exception
 {
-public:
+  public:
 
     PException(const std::string &text):
-        text(text)
+      text(text)
     {
     }
 
-    const char * what() const noexcept
+    const char* what() const noexcept
     {
-        return text.c_str();
+      return text.c_str();
     }
 
-private:
+  private:
 
     std::string text;
 };

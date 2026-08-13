@@ -34,9 +34,9 @@ void PTerrain::unload()
 }
 
 
-PTerrain::PTerrain (XMLElement *element, const std::string &filepath, PSSTexture &ssTexture, 
-  const PRigidity &rigidity, bool cfgFoliage, bool cfgRoadsigns) :
-    loaded (false), rigidity(rigidity)
+PTerrain::PTerrain (XMLElement *element, const std::string &filepath, PSSTexture &ssTexture,
+                    const PRigidity &rigidity, bool cfgFoliage, bool cfgRoadsigns) :
+  loaded (false), rigidity(rigidity)
 {
   unload();
 
@@ -45,7 +45,7 @@ PTerrain::PTerrain (XMLElement *element, const std::string &filepath, PSSTexture
   scale_hz = 1.0;
   scale_vt = 1.0;
 
-  const char *val;
+  const char* val;
 
   val = element->Attribute("tilesize");
   if (val) tilesize = atoi(val);
@@ -79,24 +79,23 @@ PTerrain::PTerrain (XMLElement *element, const std::string &filepath, PSSTexture
 
   if (node != nullptr) {
     for (XMLElement *walk = node->FirstChildElement("row");
-        walk != nullptr;
-        walk = walk->NextSiblingElement("row")) {
-      const char *srow = walk->Attribute("data");
+         walk != nullptr;
+         walk = walk->NextSiblingElement("row")) {
+      const char* srow = walk->Attribute("data");
 
       if (srow == nullptr)
-          continue;
+        continue;
 
       std::stringstream bfrow(srow);
       float coef;
       std::vector<float> row;
 
       while (bfrow >> coef)
-          row.push_back(coef);
+        row.push_back(coef);
 
       blurfilter.push_back(row);
     }
-  }
-  else {
+  } else {
     blurfilter = {
       {0.03f, 0.12f, 0.03f},
       {0.12f, 0.40f, 0.12f},
@@ -105,7 +104,7 @@ PTerrain::PTerrain (XMLElement *element, const std::string &filepath, PSSTexture
   }
 
   for (XMLElement *walk = element->FirstChildElement();
-    walk; walk = walk->NextSiblingElement()) {
+       walk; walk = walk->NextSiblingElement()) {
 
     if (strcmp(walk->Value(), "roadsign") == 0 && cfgRoadsigns) {
       road_sign temprs;
@@ -123,9 +122,8 @@ PTerrain::PTerrain (XMLElement *element, const std::string &filepath, PSSTexture
         temprs.sprite_count = atof(val);
 
       for (XMLElement *walk2 = walk->FirstChildElement();
-          walk2 != nullptr;
-          walk2 = walk2->NextSiblingElement())
-      {
+           walk2 != nullptr;
+           walk2 = walk2->NextSiblingElement()) {
         if (strcmp(walk2->Value(), "location") == 0) {
           float deg = 0;
 
@@ -148,8 +146,7 @@ PTerrain::PTerrain (XMLElement *element, const std::string &filepath, PSSTexture
           }
         }
       }
-    }
-    else if (!strcmp(walk->Value(), "foliageband") && cfgFoliage) {
+    } else if (!strcmp(walk->Value(), "foliageband") && cfgFoliage) {
 
       PTerrainFoliageBand tfb;
       tfb.middle = 0.5f;
@@ -209,7 +206,7 @@ PTerrain::PTerrain (XMLElement *element, const std::string &filepath, PSSTexture
   }
 
   if (tilesize != (tilesize & (-tilesize)) ||
-    tilesize < 4) {
+      tilesize < 4) {
     throw MakePException ("Load failed: tile size not power of two dimension, or too small");
   }
 
@@ -222,20 +219,17 @@ PTerrain::PTerrain (XMLElement *element, const std::string &filepath, PSSTexture
   scale_tile_inv = scale_hz_inv / (float)tilesize;
 
   PImage img;
-  try
-  {
+  try {
     img.load (PUtil::assemblePath (heightmap, filepath));
-  }
-  catch (...)
-  {
+  } catch (...) {
     PUtil::outLog() << "Load failed: couldn't open heightmap \"" << heightmap << "\"\n";
     throw;
   }
 
   totsize = img.getcx();
   if (totsize != img.getcy() ||
-    totsize != (totsize & (-totsize)) ||
-    totsize < 16) {
+      totsize != (totsize & (-totsize)) ||
+      totsize < 16) {
     throw MakePException ("Load failed: heightmap not square, or not power of two dimension, or too small");
   }
 
@@ -256,7 +250,7 @@ PTerrain::PTerrain (XMLElement *element, const std::string &filepath, PSSTexture
       PUtil::outLog() << "Warning: heightmap is not single channel\n";
     int cc = img.getcc();
     uint8 *dat = img.getData();
-    for (int s=0, d=0; d<totsizesq; s+=cc, d+=1) hmap[d] = dat[s];
+    for (int s = 0, d = 0; d < totsizesq; s += cc, d += 1) hmap[d] = dat[s];
   } else {
     std::copy(img.getData(), img.getData() + totsize * totsize, &hmap[0]);
   }
@@ -269,37 +263,34 @@ PTerrain::PTerrain (XMLElement *element, const std::string &filepath, PSSTexture
   int cc = img.getcc();
   uint8 *dat = img.getData();
 
-  for (int y=0; y<totsize; ++y) {
-    for (int x=0; x<totsize; ++x) {
+  for (int y = 0; y < totsize; ++y) {
+    for (int x = 0; x < totsize; ++x) {
       float accum = 0.0;
-      for (int yi=0; yi < static_cast<int> (blurfilter.size()); ++yi) {
-        for (int xi=0; xi < static_cast<int> (blurfilter[yi].size()); ++xi) {
+      for (int yi = 0; yi < static_cast<int> (blurfilter.size()); ++yi) {
+        for (int xi = 0; xi < static_cast<int> (blurfilter[yi].size()); ++xi) {
           accum += (float)dat[
-            (((y + yi - (blurfilter.size()-1)/2) & totmask) * totsize +
-            ((x + xi - (blurfilter[yi].size()-1)/2) & totmask)) * cc] * blurfilter[yi][xi];
+                     (((y + yi - (blurfilter.size() - 1) / 2) & totmask) * totsize +
+                      ((x + xi - (blurfilter[yi].size() - 1) / 2) & totmask)) * cc] * blurfilter[yi][xi];
         }
       }
-      hmap[y*totsize + x] = accum * scale_vt;
+      hmap[y * totsize + x] = accum * scale_vt;
     }
   }
 #endif
 
   img.unload();
 
-  try
-  {
+  try {
     cmap.load(PUtil::assemblePath(colormap, filepath));
-  }
-  catch (...)
-  {
+  } catch (...) {
     PUtil::outLog() << "Load failed: couldn't open colormap \"" << colormap << "\"\n";
     throw;
   }
 
   cmaptotsize = cmap.getcx();
   if (cmaptotsize != cmap.getcy() ||
-    cmaptotsize != (cmaptotsize & (-cmaptotsize)) ||
-    cmaptotsize < tilecount) {
+      cmaptotsize != (cmaptotsize & (-cmaptotsize)) ||
+      cmaptotsize < tilecount) {
     throw MakePException ("Load failed: colormap not square, or not power of two dimension, or too small");
   }
 
@@ -307,42 +298,34 @@ PTerrain::PTerrain (XMLElement *element, const std::string &filepath, PSSTexture
   cmaptotmask = cmaptotsize - 1;
 
   // load terrain map image
-  try
-  {
-      if (!terrainmap.empty())
-        tmap.load(PUtil::assemblePath(terrainmap, filepath));
-  }
-  catch (...)
-  {
+  try {
+    if (!terrainmap.empty())
+      tmap.load(PUtil::assemblePath(terrainmap, filepath));
+  } catch (...) {
     PUtil::outLog() << "Load failed: couldn't open terrainmap \"" << terrainmap << "\"\n";
     throw;
   }
 
-    if (tmap.getData() != nullptr && tmap.getcx() != tmap.getcy())
-        throw MakePException("Load failed: terrainmap not square");
+  if (tmap.getData() != nullptr && tmap.getcx() != tmap.getcy())
+    throw MakePException("Load failed: terrainmap not square");
 
-    PImage rmap_img;
+  PImage rmap_img;
 
-    // load road map image
-    try
-    {
-        if (!roadmap.empty())
-            rmap_img.load(PUtil::assemblePath(roadmap, filepath));
-    }
-    catch (...)
-    {
-        PUtil::outLog() << "Load failed: couldn't open roadmap \"" << roadmap << "\"\n";
-        throw;
-    }
+  // load road map image
+  try {
+    if (!roadmap.empty())
+      rmap_img.load(PUtil::assemblePath(roadmap, filepath));
+  } catch (...) {
+    PUtil::outLog() << "Load failed: couldn't open roadmap \"" << roadmap << "\"\n";
+    throw;
+  }
 
-    if (rmap_img.getData() != nullptr)
-    {
-        if (rmap_img.getcx() != rmap_img.getcy())
-            throw MakePException("Load failed: roadmap not square");
-        else
-        if (!rmap.load(rmap_img))
-            throw MakePException("Load failed: bad roadmap image");
-    }
+  if (rmap_img.getData() != nullptr) {
+    if (rmap_img.getcx() != rmap_img.getcy())
+      throw MakePException("Load failed: roadmap not square");
+    else if (!rmap.load(rmap_img))
+      throw MakePException("Load failed: bad roadmap image");
+  }
 
   // calculate foliage try counts for tile size
 
@@ -356,18 +339,15 @@ PTerrain::PTerrain (XMLElement *element, const std::string &filepath, PSSTexture
   fmap.resize(totsizesq, 0.0f);
 
   if (foliagemap.length()) {
-    try
-    {
+    try {
       img.load(PUtil::assemblePath(foliagemap, filepath));
-    }
-    catch (...)
-    {
+    } catch (...) {
       PUtil::outLog() << "Load failed: couldn't open foliage map \"" << foliagemap << "\"\n";
       throw;
     }
 
     if (totsize != img.getcy() ||
-      totsize != img.getcx()) {
+        totsize != img.getcx()) {
       throw MakePException ("Load failed: foliage map size doesn't match heightmap");
     }
 
@@ -425,18 +405,18 @@ PTerrain::PTerrain (XMLElement *element, const std::string &filepath, PSSTexture
   ramfile.clear();*/
 
   // TODO: this code should be rewritten but I'm too lazy for that
-  indices = new unsigned short[(tilesizep1*2 + 2) * tilesize];
+  indices = new unsigned short[(tilesizep1 * 2 + 2) * tilesize];
 
   uint16 index = 0;
-  for (int y=0; y<tilesize; ++y) {
-    int add1 = (y+1) * tilesizep1;
-    int add2 = (y+0) * tilesizep1;
+  for (int y = 0; y < tilesize; ++y) {
+    int add1 = (y + 1) * tilesizep1;
+    int add2 = (y + 0) * tilesizep1;
     if (y > 0) {
       index = 0 + add1;
       indices[numinds] = index;
       numinds++;
     }
-    for (int x=0; x<tilesizep1; ++x) {
+    for (int x = 0; x < tilesizep1; ++x) {
       index = x + add1;
       indices[numinds] = index;
       numinds++;
@@ -444,7 +424,7 @@ PTerrain::PTerrain (XMLElement *element, const std::string &filepath, PSSTexture
       indices[numinds] = index;
       numinds++;
     }
-    if (y+1 < tilesize) {
+    if (y + 1 < tilesize) {
       indices[numinds] = index;
       numinds++;
     }
@@ -464,7 +444,7 @@ PTerrain::PTerrain (XMLElement *element, const std::string &filepath, PSSTexture
 /// @param pos = world position
 /// @retval Pointer to terrain tile
 ///
-const PTerrainTile *PTerrain::getTileAtPos(const vec3f &pos) const
+const PTerrainTile* PTerrain::getTileAtPos(const vec3f &pos) const
 {
   int tilex = pos.x * scale_tile_inv;
   int tiley = pos.y * scale_tile_inv;
@@ -487,7 +467,7 @@ const PTerrainTile *PTerrain::getTileAtPos(const vec3f &pos) const
 /// @param pos = world position
 /// @retval Pointer to world objects on terrain tile
 ///
-const std::vector<PTerrainFoliage> *PTerrain::getFoliageAtPos(const vec3f &pos) const
+const std::vector<PTerrainFoliage>* PTerrain::getFoliageAtPos(const vec3f &pos) const
 {
   const PTerrainTile *tile = getTileAtPos(pos);
 
@@ -497,13 +477,13 @@ const std::vector<PTerrainFoliage> *PTerrain::getFoliageAtPos(const vec3f &pos) 
   return nullptr;
 }
 
-PTerrainTile *PTerrain::getTile(int tilex, int tiley)
+PTerrainTile* PTerrain::getTile(int tilex, int tiley)
 {
   // find the least recently used tile while searching for x,y
   int best_lru = 0, unused = 0;
   PTerrainTile *tileptr = nullptr;
   for (std::list<PTerrainTile>::iterator iter = tile.begin();
-    iter != tile.end(); ++iter) {
+       iter != tile.end(); ++iter) {
     if (iter->posx == tilex && iter->posy == tiley) {
       iter->lru_counter = 0;
       //PUtil::outLog() << "1: " << tilex << " " << tiley << std::endl;
@@ -530,7 +510,7 @@ PTerrainTile *PTerrain::getTile(int tilex, int tiley)
   tileptr->lru_counter = 0;
 
   tileptr->mins = vec3f((float)tilex * scale_hz, (float)tiley * scale_hz, 1000000000.0);
-  tileptr->maxs = vec3f((float)(tilex+1) * scale_hz, (float)(tiley+1) * scale_hz, -1000000000.0);
+  tileptr->maxs = vec3f((float)(tilex + 1) * scale_hz, (float)(tiley + 1) * scale_hz, -1000000000.0);
 
   // TODO: quadtree based thing
 
@@ -549,20 +529,20 @@ PTerrainTile *PTerrain::getTile(int tilex, int tiley)
 
   int index = 0;
 
-  for (int y=0; y<tilesizep1; ++y) {
+  for (int y = 0; y < tilesizep1; ++y) {
     int posy = tileoffsety + y;
     int sampley = posy & totmask;
-    for (int x=0; x<tilesizep1; ++x) {
+    for (int x = 0; x < tilesizep1; ++x) {
       int posx = tileoffsetx + x;
       int samplex = posx & totmask;
       vec3f vert = vec3f(
-        (float)posx * scale_hz,
-        (float)posy * scale_hz,
-        (float)hmap[(sampley * totsize) + samplex]);
+                     (float)posx * scale_hz,
+                     (float)posy * scale_hz,
+                     (float)hmap[(sampley * totsize) + samplex]);
       //ramfile1.write(vert, sizeof(vec3f));
-      vbo[index*3 + 0] = vert.x;
-      vbo[index*3 + 1] = vert.y;
-      vbo[index*3 + 2] = vert.z;
+      vbo[index * 3 + 0] = vert.x;
+      vbo[index * 3 + 1] = vert.y;
+      vbo[index * 3 + 2] = vert.z;
       index++;
       if (tileptr->mins.z > vert.z)
         tileptr->mins.z = vert.z;
@@ -584,8 +564,8 @@ PTerrainTile *PTerrain::getTile(int tilex, int tiley)
   //tileptr->maxs = vec3f((float)(tilex+1) * scale_hz, (float)(tiley+1) * scale_hz, 100.0);
 
   tileptr->tex.loadPiece(cmap,
-    (tilex * cmaptilesize) & cmaptotmask, (tiley * cmaptilesize) & cmaptotmask,
-    cmaptilesize, cmaptilesize, true, true);
+                         (tilex * cmaptilesize) & cmaptotmask, (tiley * cmaptilesize) & cmaptotmask,
+                         cmaptilesize, cmaptilesize, true, true);
 
   // Create foliage
 
@@ -602,8 +582,8 @@ PTerrainTile *PTerrain::getTile(int tilex, int tiley)
     for (int i = 0; i < foliageband[b].trycount; i++) {
       float rigidityvalue = 0.0f;
       vec2f ftry = vec2f(
-        (float)((tileptr->posx * tilesize) + rand01 * tilesize) * scale_hz,
-        (float)((tileptr->posy * tilesize) + rand01 * tilesize) * scale_hz);
+                     (float)((tileptr->posx * tilesize) + rand01 * tilesize) * scale_hz,
+                     (float)((tileptr->posy * tilesize) + rand01 * tilesize) * scale_hz);
 
       float fol = getFoliageLevel(ftry.x, ftry.y);
 
@@ -613,7 +593,7 @@ PTerrainTile *PTerrain::getTile(int tilex, int tiley)
       tileptr->foliage[b].inst.back().pos.x = ftry.x;
       tileptr->foliage[b].inst.back().pos.y = ftry.y;
       tileptr->foliage[b].inst.back().pos.z = getHeight(ftry.x, ftry.y);
-      tileptr->foliage[b].inst.back().ang = rand01 * PI*2.0f;
+      tileptr->foliage[b].inst.back().ang = rand01 * PI * 2.0f;
       //tileptr->foliage[b].inst.back().scale = (1.0f + fol * 0.5f) * (rand01 * rand01 + 0.5) * 1.4;
       //tileptr->foliage[b].inst.back().scale = (foliageband[b].scalemin + fol * 0.5f) * (rand01 * rand01 + 0.5) * foliageband[b].scalemax;
       //tileptr->foliage[b].inst.back().scale = (foliageband[b].scale + fol * 0.5f) * (rand01 * rand01 + 0.5) * 1.4;
@@ -643,7 +623,7 @@ PTerrainTile *PTerrain::getTile(int tilex, int tiley)
     PVert_tv* pvt = (PVert_tv*)vbo;
 
     float angincr = PI / (float)foliageband[b].sprite_count;
-    for (unsigned int j=0; j<tileptr->foliage[b].inst.size(); j++) {
+    for (unsigned int j = 0; j < tileptr->foliage[b].inst.size(); j++) {
       for (float anga = 0.0f; anga < PI - 0.01f; anga += angincr) {
         float interang = tileptr->foliage[b].inst[j].ang + anga;
         int stv = tileptr->foliage[b].numvert;
@@ -651,29 +631,29 @@ PTerrainTile *PTerrain::getTile(int tilex, int tiley)
         PVert_tv tmpv;
 
         tmpv.xyz = tileptr->foliage[b].inst[j].pos +
-          vec3f(cos(interang)*HMULT,sin(interang)*HMULT,0.0f) * tileptr->foliage[b].inst[j].scale;
-        tmpv.st = vec2f(1.0f,0.0f);
+                   vec3f(cos(interang) * HMULT, sin(interang) * HMULT, 0.0f) * tileptr->foliage[b].inst[j].scale;
+        tmpv.st = vec2f(1.0f, 0.0f);
         //ramfile1.write(&tmpv,sizeof(PVert_tv));
         pvt[tileptr->foliage[b].numvert] = tmpv;
         tileptr->foliage[b].numvert++;
 
         tmpv.xyz = tileptr->foliage[b].inst[j].pos +
-          vec3f(-cos(interang)*HMULT,-sin(interang)*HMULT,0.0f) * tileptr->foliage[b].inst[j].scale;
-        tmpv.st = vec2f(0.0f,0.0f);
+                   vec3f(-cos(interang) * HMULT, -sin(interang) * HMULT, 0.0f) * tileptr->foliage[b].inst[j].scale;
+        tmpv.st = vec2f(0.0f, 0.0f);
         //ramfile1.write(&tmpv,sizeof(PVert_tv));
         pvt[tileptr->foliage[b].numvert] = tmpv;
         tileptr->foliage[b].numvert++;
 
         tmpv.xyz = tileptr->foliage[b].inst[j].pos +
-          vec3f(-cos(interang)*HMULT,-sin(interang)*HMULT,VMULT) * tileptr->foliage[b].inst[j].scale;
-        tmpv.st = vec2f(0.0f,1.0f/*-1.0f/32.0f*/);
+                   vec3f(-cos(interang) * HMULT, -sin(interang) * HMULT, VMULT) * tileptr->foliage[b].inst[j].scale;
+        tmpv.st = vec2f(0.0f, 1.0f/*-1.0f/32.0f*/);
         //ramfile1.write(&tmpv,sizeof(PVert_tv));
         pvt[tileptr->foliage[b].numvert] = tmpv;
         tileptr->foliage[b].numvert++;
 
         tmpv.xyz = tileptr->foliage[b].inst[j].pos +
-          vec3f(cos(interang)*HMULT,sin(interang)*HMULT,VMULT) * tileptr->foliage[b].inst[j].scale;
-        tmpv.st = vec2f(1.0f,1.0f/*-1.0f/32.0f*/);
+                   vec3f(cos(interang) * HMULT, sin(interang) * HMULT, VMULT) * tileptr->foliage[b].inst[j].scale;
+        tmpv.st = vec2f(1.0f, 1.0f/*-1.0f/32.0f*/);
         //ramfile1.write(&tmpv,sizeof(PVert_tv));
         pvt[tileptr->foliage[b].numvert] = tmpv;
         tileptr->foliage[b].numvert++;
@@ -723,18 +703,18 @@ PTerrainTile *PTerrain::getTile(int tilex, int tiley)
 
   tileptr->roadsignset.resize(roadsigns.size());
 
-  for (unsigned int b=0; b < roadsigns.size(); ++b) {
+  for (unsigned int b = 0; b < roadsigns.size(); ++b) {
     float rigidityvalue = 0.0f;
 
     vec2f ftry = vec2f(
-      roadsigns[b].x * scale_hz,
-      roadsigns[b].y * scale_hz);
+                   roadsigns[b].x * scale_hz,
+                   roadsigns[b].y * scale_hz);
     vec2f tilemin = vec2f(
-      tileptr->posx * tilesize * scale_hz,
-      tileptr->posy * tilesize * scale_hz);
+                      tileptr->posx * tilesize * scale_hz,
+                      tileptr->posy * tilesize * scale_hz);
     vec2f tilemax = vec2f(
-      (tileptr->posx * tilesize + tilesize) * scale_hz,
-      (tileptr->posy * tilesize + tilesize) * scale_hz);
+                      (tileptr->posx * tilesize + tilesize) * scale_hz,
+                      (tileptr->posy * tilesize + tilesize) * scale_hz);
 
     if (ftry.x >= tilemin.x && ftry.x <= tilemax.x && ftry.y >= tilemin.y && ftry.y <= tilemax.y) {
       tileptr->roadsignset[b].inst.clear();
@@ -764,42 +744,40 @@ PTerrainTile *PTerrain::getTile(int tilex, int tiley)
 
       PVert_tv* pvt = (PVert_tv*)vbo;
 
-      for (unsigned int j=0; j<tileptr->roadsignset[b].inst.size(); j++)
-      {
-        for (float anga = 0.0f; anga < PI - 0.01f; anga += angincr)
-        {
+      for (unsigned int j = 0; j < tileptr->roadsignset[b].inst.size(); j++) {
+        for (float anga = 0.0f; anga < PI - 0.01f; anga += angincr) {
           float interang = tileptr->roadsignset[b].inst[j].ang + anga;
           int stv = tileptr->roadsignset[b].numvert;
           PVert_tv tmpv;
 
           tmpv.xyz = tileptr->roadsignset[b].inst[j].pos +
-            vec3f(cos(interang)*HMULT,sin(interang)*HMULT,0.0f) *
-            tileptr->roadsignset[b].inst[j].scale;
-          tmpv.st = vec2f(1.0f,0.0f);
+                     vec3f(cos(interang) * HMULT, sin(interang) * HMULT, 0.0f) *
+                     tileptr->roadsignset[b].inst[j].scale;
+          tmpv.st = vec2f(1.0f, 0.0f);
           //ramfile1.write(&tmpv,sizeof(PVert_tv));
           pvt[tileptr->roadsignset[b].numvert] = tmpv;
           tileptr->roadsignset[b].numvert++;
 
           tmpv.xyz = tileptr->roadsignset[b].inst[j].pos +
-            vec3f(-cos(interang)*HMULT,-sin(interang)*HMULT,0.0f) *
-            tileptr->roadsignset[b].inst[j].scale;
-          tmpv.st = vec2f(0.0f,0.0f);
+                     vec3f(-cos(interang) * HMULT, -sin(interang) * HMULT, 0.0f) *
+                     tileptr->roadsignset[b].inst[j].scale;
+          tmpv.st = vec2f(0.0f, 0.0f);
           //ramfile1.write(&tmpv,sizeof(PVert_tv));
           pvt[tileptr->roadsignset[b].numvert] = tmpv;
           tileptr->roadsignset[b].numvert++;
 
           tmpv.xyz = tileptr->roadsignset[b].inst[j].pos +
-            vec3f(-cos(interang)*HMULT,-sin(interang)*HMULT,VMULT) *
-            tileptr->roadsignset[b].inst[j].scale;
-          tmpv.st = vec2f(0.0f,1.0f/*-1.0f/32.0f*/);
+                     vec3f(-cos(interang) * HMULT, -sin(interang) * HMULT, VMULT) *
+                     tileptr->roadsignset[b].inst[j].scale;
+          tmpv.st = vec2f(0.0f, 1.0f/*-1.0f/32.0f*/);
           //ramfile1.write(&tmpv,sizeof(PVert_tv));
           pvt[tileptr->roadsignset[b].numvert] = tmpv;
           tileptr->roadsignset[b].numvert++;
 
           tmpv.xyz = tileptr->roadsignset[b].inst[j].pos +
-            vec3f(cos(interang)*HMULT,sin(interang)*HMULT,VMULT) *
-            tileptr->roadsignset[b].inst[j].scale;
-          tmpv.st = vec2f(1.0f,1.0f/*-1.0f/32.0f*/);
+                     vec3f(cos(interang) * HMULT, sin(interang) * HMULT, VMULT) *
+                     tileptr->roadsignset[b].inst[j].scale;
+          tmpv.st = vec2f(1.0f, 1.0f/*-1.0f/32.0f*/);
           //ramfile1.write(&tmpv,sizeof(PVert_tv));
           pvt[tileptr->roadsignset[b].numvert] = tmpv;
           tileptr->roadsignset[b].numvert++;
@@ -832,8 +810,7 @@ PTerrainTile *PTerrain::getTile(int tilex, int tiley)
         }
       }
 
-      if (tileptr->roadsignset[b].numelem)
-      {
+      if (tileptr->roadsignset[b].numelem) {
         /*tileptr->roadsignset[b].buff[0].create(ramfile1.getSize(),
             PVBuffer::VertexContent, PVBuffer::StaticUsage, ramfile1.getData());
           tileptr->roadsignset[b].buff[1].create(ramfile2.getSize(),
@@ -853,13 +830,14 @@ PTerrainTile *PTerrain::getTile(int tilex, int tiley)
 }
 
 
-void PTerrain::render(const glm::vec3 &campos, const glm::mat4 &camorim, PTexture* tex_detail, const vec3f& fog_color, float fog_density, const glm::mat4& mv, const glm::mat4& p)
+void PTerrain::render(const glm::vec3 &campos, const glm::mat4 &camorim, PTexture* tex_detail, const vec3f& fog_color,
+                      float fog_density, const glm::mat4& mv, const glm::mat4& p)
 {
   //float blah = camorim.row[0][0]; blah = blah; // unused
 
   // increase all lru counters
   for (std::list<PTerrainTile>::iterator iter = tile.begin();
-    iter != tile.end(); ++iter) ++iter->lru_counter;
+       iter != tile.end(); ++iter) ++iter->lru_counter;
 
   // get frustum
   /*frustumf frust;
@@ -880,17 +858,17 @@ void PTerrain::render(const glm::vec3 &campos, const glm::mat4 &camorim, PTextur
   if (campos.y < 0.0) --cty;
 
   int mintx = ctx - 3,
-    maxtx = ctx + 4,
-    minty = cty - 3,
-    maxty = cty + 4;
+      maxtx = ctx + 4,
+      minty = cty - 3,
+      maxty = cty + 4;
 
   // Determine list of tiles to draw
 
-  std::list<PTerrainTile *> drawtile;
+  std::list<PTerrainTile*> drawtile;
 
   for (int ty = minty; ty < maxty; ++ty) {
     for (int tx = mintx; tx < maxtx; ++tx) {
-      drawtile.push_back(getTile(tx,ty));
+      drawtile.push_back(getTile(tx, ty));
     }
   }
 
@@ -912,7 +890,7 @@ void PTerrain::render(const glm::vec3 &campos, const glm::mat4 &camorim, PTextur
   sp_tile->uniform("p", p);
   sp_tile->uniform("mv", mv);
 
-  for (std::list<PTerrainTile *>::iterator t = drawtile.begin(); t != drawtile.end(); t++) {
+  for (std::list<PTerrainTile*>::iterator t = drawtile.begin(); t != drawtile.end(); t++) {
     //if (frust.isAABBOutside(tileptr->mins, tileptr->maxs))
     //    glColor3f(1,0,0);
     //else
@@ -944,7 +922,7 @@ void PTerrain::render(const glm::vec3 &campos, const glm::mat4 &camorim, PTextur
   glActiveTexture(GL_TEXTURE0);
 
   // Draw foliage
-  #if 1
+#if 1
   glDisable(GL_CULL_FACE);
 
   sp_terrain->use();
@@ -957,7 +935,7 @@ void PTerrain::render(const glm::vec3 &campos, const glm::mat4 &camorim, PTextur
     foliageband[b].sprite_tex->bind();
     sp_terrain->uniform("image", 0);
 
-    for (std::list<PTerrainTile *>::iterator t = drawtile.begin(); t != drawtile.end(); t++) {
+    for (std::list<PTerrainTile*>::iterator t = drawtile.begin(); t != drawtile.end(); t++) {
 
       if ((*t)->foliage[b].numelem) {
         (*t)->foliage[b].vao->bind();
@@ -968,19 +946,19 @@ void PTerrain::render(const glm::vec3 &campos, const glm::mat4 &camorim, PTextur
         (*t)->foliage[b].vao->unbind();
       }
 
-      #if 0
+#if 0
       for (std::vector<PTerrainFoliage>::iterator f = (*t)->foliage.begin(); f != (*t)->foliage.end(); f++) {
 
-        #if 0
+#if 0
         glBegin(GL_LINES);
         vec3f pos = f->pos;
         glVertex3fv(pos);
         pos += vec3f(0.0f, 0.0f, 2.0f);
         glVertex3fv(pos);
         glEnd();
-        #endif
+#endif
 
-        #if 0
+#if 0
         if (!f->tfb->model) continue;
 
         glPushMatrix();
@@ -989,21 +967,19 @@ void PTerrain::render(const glm::vec3 &campos, const glm::mat4 &camorim, PTextur
         glScalef(f->tfb->modelscale, f->tfb->modelscale, f->tfb->modelscale);
         ssRender.drawModel(*f->tfb->model, ssEffect, ssTexture);
         glPopMatrix();
-        #endif
+#endif
       }
-      #endif
+#endif
     }
   }
 
   // Using same shader
   // draw road signs
-  for (unsigned int b=0; b < roadsigns.size(); ++b)
-  {
+  for (unsigned int b = 0; b < roadsigns.size(); ++b) {
     roadsigns[b].sprite->bind();
 
-    for (std::list<PTerrainTile *>::iterator t = drawtile.begin(); t != drawtile.end(); t++) {
-      if ((*t)->roadsignset[b].numelem)
-      {
+    for (std::list<PTerrainTile*>::iterator t = drawtile.begin(); t != drawtile.end(); t++) {
+      if ((*t)->roadsignset[b].numelem) {
         (*t)->roadsignset[b].vao->bind();
         sp_terrain->attrib("tex_coord", 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GL_FLOAT), 0);
         sp_terrain->attrib("position", 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GL_FLOAT), 2 * sizeof(GL_FLOAT));
@@ -1016,7 +992,7 @@ void PTerrain::render(const glm::vec3 &campos, const glm::mat4 &camorim, PTextur
   }
   sp_terrain->unuse();
 
-  #endif
+#endif
 
   glEnable(GL_CULL_FACE);
 }
@@ -1025,9 +1001,10 @@ void PTerrain::render(const glm::vec3 &campos, const glm::mat4 &camorim, PTextur
  * TODO: This function looks overengineered. That's not how you should draw a shadow.
  * I'll keep in until I implement proper shadows.
  */
-void PTerrain::drawShadow(float x, float y, float scale, float angle, PTexture* tex_shadow, const glm::mat4& mv, const glm::mat4& p)
+void PTerrain::drawShadow(float x, float y, float scale, float angle, PTexture* tex_shadow, const glm::mat4& mv,
+                          const glm::mat4& p)
 {
-  float *hmd = &hmap[0];
+  float* hmd = &hmap[0];
   int cx = totsize;
   int cy = totsize;
 
@@ -1050,17 +1027,17 @@ void PTerrain::drawShadow(float x, float y, float scale, float angle, PTexture* 
   t = glm::scale(t, glm::vec3(0.5f / scale, 0.5f / scale, 1.0f));
   t = glm::translate(t, glm::vec3(-x, -y, 0.0f));
 
-  float* vbo = new float[(maxx-minx)*(maxy-miny+1)*5]; // N times M+1 vertices, each having 2+3 attributes
+  float* vbo = new float[(maxx - minx) * (maxy - miny + 1) * 5]; // N times M+1 vertices, each having 2+3 attributes
 
-  int x_stride = maxx-minx;
+  int x_stride = maxx - minx;
 
-  for (int y2=miny; y2<=maxy; y2++) {
-    int yc = y2 & (cy-1); // Y modulo tile size
+  for (int y2 = miny; y2 <= maxy; y2++) {
+    int yc = y2 & (cy - 1); // Y modulo tile size
     int yc_cx = yc * cx;  // Offset for Y
 
     int y3 = y2 - miny;
 
-    for (int x2=minx; x2<maxx; x2++) {
+    for (int x2 = minx; x2 < maxx; x2++) {
       int xc = x2 & (cx - 1);
 
       int x3 = x2 - minx;
@@ -1068,29 +1045,30 @@ void PTerrain::drawShadow(float x, float y, float scale, float angle, PTexture* 
       glm::vec4 tex_v = glm::vec4(x2, y2, 0.0f, 1.0f);
       tex_v = t * tex_v;
 
-      vbo[(y3 * x_stride + x3)*5 + 0] = tex_v.x;
-      vbo[(y3 * x_stride + x3)*5 + 1] = tex_v.y;
+      vbo[(y3 * x_stride + x3) * 5 + 0] = tex_v.x;
+      vbo[(y3 * x_stride + x3) * 5 + 1] = tex_v.y;
 
-      vbo[(y3 * x_stride + x3)*5 + 2] = x2 * scale_hz;
-      vbo[(y3 * x_stride + x3)*5 + 3] = y2 * scale_hz;
-      vbo[(y3 * x_stride + x3)*5 + 4] = hmd[yc_cx + xc] + 0.05; // TODO: hack to avoid Z-fighting for shadow
+      vbo[(y3 * x_stride + x3) * 5 + 2] = x2 * scale_hz;
+      vbo[(y3 * x_stride + x3) * 5 + 3] = y2 * scale_hz;
+      vbo[(y3 * x_stride + x3) * 5 + 4] = hmd[yc_cx + xc] + 0.05; // TODO: hack to avoid Z-fighting for shadow
     }
   }
 
-  unsigned short* ibo = new unsigned short[(maxx-minx+1)*(maxy-miny)*2]; // N times M squares, each having 2 triangles with 3 vertices
+  unsigned short* ibo = new unsigned short[(maxx - minx + 1) * (maxy - miny) *
+    2]; // N times M squares, each having 2 triangles with 3 vertices
 
-  for (int y2 = 0; y2 < (maxy-miny); y2++) {
-    for (int x2 = 0; x2 < (maxx-minx); x2++) {
-      ibo[(y2 * (x_stride+1) + x2)*2 + 0] = (y2 + 1) * (x_stride) + (x2 + 0);
-      ibo[(y2 * (x_stride+1) + x2)*2 + 1] = (y2 + 0) * (x_stride) + (x2 + 0);
+  for (int y2 = 0; y2 < (maxy - miny); y2++) {
+    for (int x2 = 0; x2 < (maxx - minx); x2++) {
+      ibo[(y2 * (x_stride + 1) + x2) * 2 + 0] = (y2 + 1) * (x_stride) + (x2 + 0);
+      ibo[(y2 * (x_stride + 1) + x2) * 2 + 1] = (y2 + 0) * (x_stride) + (x2 + 0);
     }
-    ibo[(y2 * (x_stride+1) + (maxx-minx))*2 + 0] = 0; // Restart strip
-    ibo[(y2 * (x_stride+1) + (maxx-minx))*2 + 1] = 0;
+    ibo[(y2 * (x_stride + 1) + (maxx - minx)) * 2 + 0] = 0; // Restart strip
+    ibo[(y2 * (x_stride + 1) + (maxx - minx)) * 2 + 1] = 0;
   }
 
   VAO vao(
-    vbo, (maxx-minx)*(maxy-miny+1)*5*sizeof(float),
-    ibo, (maxx-minx+1)*(maxy-miny)*2*sizeof(unsigned short)
+    vbo, (maxx - minx) * (maxy - miny + 1) * 5 * sizeof(float),
+    ibo, (maxx - minx + 1) * (maxy - miny) * 2 * sizeof(unsigned short)
   );
 
   vao.bind();
@@ -1105,7 +1083,7 @@ void PTerrain::drawShadow(float x, float y, float scale, float angle, PTexture* 
   sp_shadow->uniform("p", p);
 
   //glInterleavedArrays(GL_T2F_V3F, 5*sizeof(GL_FLOAT), vbo);
-  glDrawElements(GL_TRIANGLE_STRIP, (maxx-minx+1)*(maxy-miny)*2, GL_UNSIGNED_SHORT, 0);
+  glDrawElements(GL_TRIANGLE_STRIP, (maxx - minx + 1) * (maxy - miny) * 2, GL_UNSIGNED_SHORT, 0);
 
   delete[] ibo;
   delete[] vbo;

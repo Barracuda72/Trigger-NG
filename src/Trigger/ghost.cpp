@@ -31,7 +31,7 @@
 /// @param [in] gw      Ghost wheel to be written
 /// @returns The output stream
 ///
-inline std::ostream & operator << (std::ostream &os, const PGhost::GhostWheel &gw)
+inline std::ostream& operator << (std::ostream &os, const PGhost::GhostWheel &gw)
 {
   os << ',' << gw.pos.x << ',';
   os << gw.pos.y << ',';
@@ -49,7 +49,7 @@ inline std::ostream & operator << (std::ostream &os, const PGhost::GhostWheel &g
 /// @param [out] gd     Ghost data to be read
 /// @returns The input stream
 ///
-inline std::istream & operator >> (std::istream &is, PGhost::GhostData &gd)
+inline std::istream& operator >> (std::istream &is, PGhost::GhostData &gd)
 {
   std::string line;
   std::string cell;
@@ -84,8 +84,7 @@ inline std::istream & operator >> (std::istream &is, PGhost::GhostData &gd)
       gw.ori.w = std::stof(result[i + 6]);
       gd.wheel.push_back(gw);
     }
-  }
-  catch (...) {
+  } catch (...) {
     PUtil::outLog() << "Invalid data format in *.ghost file." << std::endl;
   }
   return is;
@@ -97,7 +96,7 @@ inline std::istream & operator >> (std::istream &is, PGhost::GhostData &gd)
 /// @param [in] gd      Ghost data to be written
 /// @returns The output stream
 ///
-inline std::ostream & operator << (std::ostream &os, const PGhost::GhostData &gd)
+inline std::ostream& operator << (std::ostream &os, const PGhost::GhostData &gd)
 {
   os << gd.time << ',';
   os << gd.pos.x << ',';
@@ -119,15 +118,15 @@ inline std::ostream & operator << (std::ostream &os, const PGhost::GhostData &gd
 /// @param [in] sampletime  Time in seconds after which ghost is sampled
 ///
 PGhost::PGhost(float sampletime) :
-    mapname(""),
-    vehiclename(""),
-    sampletime(sampletime),
-    lastsample(std::numeric_limits<float>::lowest()),
-    recordeddata(std::vector<GhostData>()),
-    replaydata(std::vector<GhostData>()),
-    racetime(0.0f),
-    replayvehicle(""),
-    replaytime(std::numeric_limits<float>::max())
+  mapname(""),
+  vehiclename(""),
+  sampletime(sampletime),
+  lastsample(std::numeric_limits<float>::lowest()),
+  recordeddata(std::vector<GhostData>()),
+  replaydata(std::vector<GhostData>()),
+  racetime(0.0f),
+  replayvehicle(""),
+  replaytime(std::numeric_limits<float>::max())
 {
 }
 
@@ -174,8 +173,7 @@ void PGhost::recordStart(const std::string &map, const std::string &vehicle)
     while (inputstream >> data)
       replaydata.push_back(data);
     PHYSFS_close(physfile);
-  }
-  catch (...) {
+  } catch (...) {
     PUtil::outLog() << "Invalid data format in *.ghost file." << std::endl;
   }
 }
@@ -228,7 +226,7 @@ void PGhost::recordStop(float time)
       return;
 
     outputstream << vehiclename << ',' << time << std::endl;
-    for (const GhostData &data: recordeddata)
+    for (const GhostData &data : recordeddata)
       outputstream << data;
 
     physfs_write(physfile, outputstream.str().data(), sizeof(char), outputstream.str().size());
@@ -246,26 +244,25 @@ bool PGhost::getReplayData(GhostData &data, std::string &vehicle) const
 {
   vehicle = replayvehicle;
 
-  for(unsigned int i = 0; i < replaydata.size(); ++i) {
-    if (i == replaydata.size()-1 && racetime >= replaydata[i].time) {
+  for (unsigned int i = 0; i < replaydata.size(); ++i) {
+    if (i == replaydata.size() - 1 && racetime >= replaydata[i].time) {
       data = replaydata[i];
       return true;
-    }
-    else if (racetime >= replaydata[i].time && racetime < replaydata[i+1].time) {
+    } else if (racetime >= replaydata[i].time && racetime < replaydata[i + 1].time) {
       float interptime = 0.0f;
 
-      if (replaydata[i+1].time - replaydata[i].time != 0.0f)
-        interptime = (racetime - replaydata[i].time) / (replaydata[i+1].time - replaydata[i].time);
+      if (replaydata[i + 1].time - replaydata[i].time != 0.0f)
+        interptime = (racetime - replaydata[i].time) / (replaydata[i + 1].time - replaydata[i].time);
 
       data.time = racetime;
-      data.pos = INTERP(replaydata[i].pos, replaydata[i+1].pos, interptime);
-      data.ori = INTERP(replaydata[i].ori, replaydata[i+1].ori, interptime);
+      data.pos = INTERP(replaydata[i].pos, replaydata[i + 1].pos, interptime);
+      data.ori = INTERP(replaydata[i].ori, replaydata[i + 1].ori, interptime);
 
       for (unsigned int j = 0; j < replaydata[i].wheel.size(); ++j) {
         GhostWheel wheel;
 
-        wheel.pos = INTERP(replaydata[i].wheel[j].pos, replaydata[i+1].wheel[j].pos, interptime);
-        wheel.ori = INTERP(replaydata[i].wheel[j].ori, replaydata[i+1].wheel[j].ori, interptime);
+        wheel.pos = INTERP(replaydata[i].wheel[j].pos, replaydata[i + 1].wheel[j].pos, interptime);
+        wheel.ori = INTERP(replaydata[i].wheel[j].ori, replaydata[i + 1].wheel[j].ori, interptime);
         data.wheel.push_back(wheel);
       }
       return true;

@@ -75,55 +75,52 @@ the game. Ick.
 
 
 /// used to determine which colors to use for the GuiWidget label
-enum class LabelStyle
-{
-    Regular,
-    Weak,
-    Strong,
-    Marked,
-    Header,
-    List
+enum class LabelStyle {
+  Regular,
+  Weak,
+  Strong,
+  Marked,
+  Header,
+  List
 };
 
 /// used to determine which colors to use for the GuiWidget graphic
-enum class GraphicStyle
-{
-    Button,
-    Image
+enum class GraphicStyle {
+  Button,
+  Image
 };
 
-struct GuiWidgetColors
-{
-    vec4f normal;       ///< non-clickable labels
-    vec4f click;        ///< clickable labels
-    vec4f hover;        ///< clickable labels with mouse hovering on top
-    vec4f listnormal;   ///< non-clickable list items
-    vec4f listclick;    ///< clickable list items
-    vec4f listhover;    ///< clickable list items with mouse hovering on top
-    vec4f weak;         ///< non-clickable labels that should be discreet
-    vec4f strong;       ///< non-clickable labels that should be obvious
-    vec4f marked;       ///< non-clickable labels that should draw attention
-    vec4f header;       ///< non-clickable labels that are used as section title
-    vec4f bnormal;      ///< disabled button
-    vec4f bclick;       ///< clickable button
-    vec4f bhover;       ///< clickable button with mouse hovering on top
+struct GuiWidgetColors {
+  vec4f normal;       ///< non-clickable labels
+  vec4f click;        ///< clickable labels
+  vec4f hover;        ///< clickable labels with mouse hovering on top
+  vec4f listnormal;   ///< non-clickable list items
+  vec4f listclick;    ///< clickable list items
+  vec4f listhover;    ///< clickable list items with mouse hovering on top
+  vec4f weak;         ///< non-clickable labels that should be discreet
+  vec4f strong;       ///< non-clickable labels that should be obvious
+  vec4f marked;       ///< non-clickable labels that should draw attention
+  vec4f header;       ///< non-clickable labels that are used as section title
+  vec4f bnormal;      ///< disabled button
+  vec4f bclick;       ///< clickable button
+  vec4f bhover;       ///< clickable button with mouse hovering on top
 
-    GuiWidgetColors():
-        normal      {1, 0, 0, 1},
-        click       {0, 1, 0, 1},
-        hover       {0, 0, 1, 1},
-        listnormal  {1, 1, 0, 1},
-        listclick   {1, 0, 1, 1},
-        listhover   {0, 1, 1, 1},
-        weak        {0.5, 0.5, 0.5, 1},
-        strong      {1, 1, 1, 1},
-        marked      {1, 0.5, 0.5, 1},
-        header      {0.8, 0.8, 0.4, 1},
-        bnormal     {1, 1, 0, 0.75},
-        bclick      {0, 1, 1, 0.75},
-        bhover      {1, 1, 1, 1}
-    {
-    }
+  GuiWidgetColors():
+    normal      {1, 0, 0, 1},
+    click       {0, 1, 0, 1},
+    hover       {0, 0, 1, 1},
+    listnormal  {1, 1, 0, 1},
+    listclick   {1, 0, 1, 1},
+    listhover   {0, 1, 1, 1},
+    weak        {0.5, 0.5, 0.5, 1},
+    strong      {1, 1, 1, 1},
+    marked      {1, 0.5, 0.5, 1},
+    header      {0.8, 0.8, 0.4, 1},
+    bnormal     {1, 1, 0, 0.75},
+    bclick      {0, 1, 1, 0.75},
+    bhover      {1, 1, 1, 1}
+  {
+  }
 };
 
 struct LevelState {
@@ -162,136 +159,143 @@ struct GuiWidget {
   float fontsize;
 
   vec2f
-    dims,
-    dims_min,
-    pos;
+  dims,
+  dims_min,
+  pos;
 
   vec4f
-    colnormal   {1.00f, 1.00f, 1.00f, 0.85f},  ///< Normal color for unclickable widgets.
-    colclick    {0.65f, 1.00f, 0.65f, 0.85f},  ///< Normal color for clickable widgets.
-    colhover    {1.00f, 0.40f, 0.00f, 1.00f};  ///< Mouse hover color for clickable widgets.
+  colnormal   {1.00f, 1.00f, 1.00f, 0.85f},  ///< Normal color for unclickable widgets.
+              colclick    {0.65f, 1.00f, 0.65f, 0.85f},  ///< Normal color for clickable widgets.
+              colhover    {1.00f, 0.40f, 0.00f, 1.00f};  ///< Mouse hover color for clickable widgets.
 
   float glow;
 
-  PTexture *tex;
+  PTexture* tex;
 
   GuiWidget(int t) : type(t), clickable(false), selectable(false), selected(false), d1(0), d2(0), glow(0.0f) { }
 };
 
 
-class Gui {
+class Gui
+{
 
-private:
+  private:
 
     GuiWidgetColors colors;
 
-  std::vector<GuiWidget> widget;
+    std::vector<GuiWidget> widget;
 
-  PSSRender *ssRender;
+    PSSRender* ssRender;
 
-  vec2f cursor;
+    vec2f cursor;
 
-  int highlight, defwidget;
+    int highlight, defwidget;
 
-  float defflash;
+    float defflash;
 
-  PTexture *fonttex;
+    PTexture* fonttex;
 
-protected:
-  int getFreeWidget();
+  protected:
+    int getFreeWidget();
 
-  void measureWidgetTree(int w);
-  void placeWidgetTree(int w);
+    void measureWidgetTree(int w);
+    void placeWidgetTree(int w);
 
-  void renderWidgetTree(int w);
+    void renderWidgetTree(int w);
 
-public:
-  Gui() : cursor(vec2f::zero()), defflash(0.0f) {  }
+  public:
+    Gui() : cursor(vec2f::zero()), defflash(0.0f) {  }
 
-  ~Gui() {
-    if (vao_widget != nullptr)
+    ~Gui()
+    {
+      if (vao_widget != nullptr)
         delete vao_widget;
-    if (sp_widget != nullptr)
+      if (sp_widget != nullptr)
         delete sp_widget;
-  }
+    }
 
-  bool loadColors(const std::string &filename);
-  void loadVaoShader() {
-    vao_widget = new VAO(
+    bool loadColors(const std::string &filename);
+    void loadVaoShader()
+    {
+      vao_widget = new VAO(
         widget_vbo, 5 * 4 * sizeof(float),
         widget_ibo, 6 * sizeof(unsigned short)
-    );
+      );
 
-    sp_widget = new ShaderProgram("widget");
-  }
+      sp_widget = new ShaderProgram("widget");
+    }
 
     ///
     /// @brief Returns the Gui's colors.
     ///
     GuiWidgetColors getColors() const
     {
-        return colors;
+      return colors;
     }
 
-  void setSSRender(PSSRender &render) { ssRender = &render; }
-  void setFont(PTexture *tex) { fonttex = tex; }
+    void setSSRender(PSSRender &render) { ssRender = &render; }
+    void setFont(PTexture *tex) { fonttex = tex; }
 
-  void tick(float delta);
+    void tick(float delta);
 
-  void setCursorPos(float x, float y);
+    void setCursorPos(float x, float y);
 
-  bool getClickAction(int &data1, int &data2);
-  bool getDefaultAction(int &data1, int &data2);
+    bool getClickAction(int& data1, int& data2);
+    bool getDefaultAction(int& data1, int& data2);
 
-  void doLayout();
+    void doLayout();
 
-  void render(const glm::mat4& p);
+    void render(const glm::mat4& p);
 
-  void renderGraphicWidget(const glm::vec4& color, const glm::mat4& mv, const glm::mat4& p);
+    void renderGraphicWidget(const glm::vec4& color, const glm::mat4& mv, const glm::mat4& p);
 
-  void clear() { widget.clear(); highlight = -1; defwidget = -1; }
+    void clear() { widget.clear(); highlight = -1; defwidget = -1; }
 
-  int addContainer(int parent, float minwidth, float minheight, bool vert);
+    int addContainer(int parent, float minwidth, float minheight, bool vert);
 
-  int addLabel(float x, float y, const std::string &text, uint32 flags, float fontsize, LabelStyle ls = LabelStyle::Regular);
+    int addLabel(float x, float y, const std::string &text, uint32 flags, float fontsize,
+                 LabelStyle ls = LabelStyle::Regular);
 
-  int addGraphic(float x, float y, float width, float height, PTexture *tex, GraphicStyle gs = GraphicStyle::Image);
+    int addGraphic(float x, float y, float width, float height, PTexture *tex, GraphicStyle gs = GraphicStyle::Image);
 
-  int makeClickable(int w, int data1, int data2) {
-    widget[w].clickable = true;
-    widget[w].d1 = data1;
-    widget[w].d2 = data2;
-    return w;
-  }
+    int makeClickable(int w, int data1, int data2)
+    {
+      widget[w].clickable = true;
+      widget[w].d1 = data1;
+      widget[w].d2 = data2;
+      return w;
+    }
 
-  int makeUnclickable(int w) {
-    widget[w].clickable = false;
-    return w;
-  }
+    int makeUnclickable(int w)
+    {
+      widget[w].clickable = false;
+      return w;
+    }
 
-  int makeSelectable(int w, int data1, int data2, bool select) {
-    widget[w].selectable = true;
-    widget[w].selected = select;
-    return makeClickable(w, data1, data2);
-  }
+    int makeSelectable(int w, int data1, int data2, bool select)
+    {
+      widget[w].selectable = true;
+      widget[w].selected = select;
+      return makeClickable(w, data1, data2);
+    }
 
-  void makeDefault(int w) { defwidget = w; }
+    void makeDefault(int w) { defwidget = w; }
 
-private:
-  float widget_vbo[20] = {
-    0.0f, 0.0f,   0.0f, 0.0f, 0.0f,
-    1.0f, 0.0f,   1.0f, 0.0f, 0.0f,
-    1.0f, 1.0f,   1.0f, 1.0f, 0.0f,
-    0.0f, 1.0f,   0.0f, 1.0f, 0.0f,
-  };
+  private:
+    float widget_vbo[20] = {
+      0.0f, 0.0f,   0.0f, 0.0f, 0.0f,
+      1.0f, 0.0f,   1.0f, 0.0f, 0.0f,
+      1.0f, 1.0f,   1.0f, 1.0f, 0.0f,
+      0.0f, 1.0f,   0.0f, 1.0f, 0.0f,
+    };
 
-  unsigned short widget_ibo[6] = {
-    0, 1, 2,
-    2, 3, 0,
-  };
+    unsigned short widget_ibo[6] = {
+      0, 1, 2,
+      2, 3, 0,
+    };
 
-  VAO* vao_widget = nullptr;
-  ShaderProgram* sp_widget = nullptr;
+    VAO* vao_widget = nullptr;
+    ShaderProgram* sp_widget = nullptr;
 };
 
 

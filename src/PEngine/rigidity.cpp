@@ -33,11 +33,11 @@ PRigidity::PRigidity()
   }
 
   for (XMLElement *walk = rootelem->FirstChildElement();
-      walk; walk = walk->NextSiblingElement()) {
+       walk; walk = walk->NextSiblingElement()) {
     if (strcmp(walk->Value(), "rigidity") == 0) {
       std::string sprite;
       float value;
-      const char *val;
+      const char* val;
 
       val = walk->Attribute("sprite");
       if (val == nullptr)

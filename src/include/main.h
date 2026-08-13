@@ -41,112 +41,112 @@ class MainApp;
 /// @details basically just a coordinate
 ///
 struct CheckPoint {
-	vec3f pt;
+  vec3f pt;
 
-	CheckPoint(const vec3f &_pt) : pt(_pt) { }
+  CheckPoint(const vec3f &_pt) : pt(_pt) { }
 };
 
 ///
 /// @brief Holds codriver checkpoint information.
 ///
-struct CodriverCP
-{
-	// Where this checkpoint is on the map
-    vec3f pt;
-    // What the codriver should say.
-    std::string notes;
+struct CodriverCP {
+  // Where this checkpoint is on the map
+  vec3f pt;
+  // What the codriver should say.
+  std::string notes;
 
-    CodriverCP(const vec3f &pt, const std::string &notes):
-        pt(pt),
-        notes(notes)
-    {
-    }
+  CodriverCP(const vec3f &pt, const std::string &notes):
+    pt(pt),
+    notes(notes)
+  {
+  }
 };
 
 ///
 /// @brief The status of the race ending
 ///
 enum class Gamefinish {
-	// race not finished yet
-	not_finished,
-	// race passed
-	pass,
-	// race failed
-	fail
+  // race not finished yet
+  not_finished,
+  // race passed
+  pass,
+  // race failed
+  fail
 };
 
 ///
 /// @brief Current state of the game
 ///
 enum class Gamestate {
-	// the few seconds before start
-	countdown,
-	// during racing
-	racing,
-	// race ended
-	finished
+  // the few seconds before start
+  countdown,
+  // during racing
+  racing,
+  // race ended
+  finished
 };
 ///
 /// @brief Camera view mode
 ///
-enum class CameraMode{
-	chase = 0,
-	bumper,
-	side,
-	hood,
-	periscope,
-	// disabled
-	//piggyback,
-	count
+enum class CameraMode {
+  chase = 0,
+  bumper,
+  side,
+  hood,
+  periscope,
+  // disabled
+  //piggyback,
+  count
 };
 
 ///
 /// @brief class containing information about the race is being played
 ///
-class TriggerGame {
+class TriggerGame
+{
 
-	friend class MainApp;
+    friend class MainApp;
 
-public:
+  public:
 
     // Sets the codriver checkpoints to "ordered" (true) or "free" (false).
     bool cdcheckpt_ordered = false;
 
-private:
-	MainApp *app;
+  private:
+    MainApp* app;
 
-	// simulation context
-	PSim *sim;
+    // simulation context
+    PSim* sim;
 
-	// current state of the race
-	Gamestate gamestate;
+    // current state of the race
+    Gamestate gamestate;
 
-	int randomseed;
+    int randomseed;
 
-	// the vehicles
-	std::vector<PVehicle *> vehicle;
+    // the vehicles
+    std::vector<PVehicle*> vehicle;
 
-	// User's vehicle
-	PVehicle *uservehicle;
+    // User's vehicle
+    PVehicle* uservehicle;
 
-	// the terrain
-	PTerrain *terrain;
+    // the terrain
+    PTerrain* terrain;
 
-	// Checkpoints
-	std::vector<CheckPoint> checkpt;
-	// Codriver checkpoints
-	std::vector<CodriverCP> codrivercheckpt;
+    // Checkpoints
+    std::vector<CheckPoint> checkpt;
+    // Codriver checkpoints
+    std::vector<CodriverCP> codrivercheckpt;
 
-	int number_of_laps = 1;
+    int number_of_laps = 1;
 
-	// Codriver voice and sign set
-	PCodriverVoice cdvoice;
-	PCodriverSigns cdsigns;
+    // Codriver voice and sign set
+    PCodriverVoice cdvoice;
+    PCodriverSigns cdsigns;
 
-	// Rigidity map for foliage and road signs
-	PRigidity rigidity;
+    // Rigidity map for foliage and road signs
+    PRigidity rigidity;
 
-public:
+  public:
 
     const float offroadtime_penalty_multiplier = 2.5f;
 
@@ -156,82 +156,81 @@ public:
     ///
     float getOffroadTime() const;
 
-private:
+  private:
 
-	// Time passed since the race started
-	float coursetime;
-	// time variable used for pre and post race (i.e. Countdown)
-	float othertime;
-	// checkpoint time
-	float cptime;
-	// the time needed to win
-	float targettime;
+    // Time passed since the race started
+    float coursetime;
+    // time variable used for pre and post race (i.e. Countdown)
+    float othertime;
+    // checkpoint time
+    float cptime;
+    // the time needed to win
+    float targettime;
 
-	// level comment string
-	std::string comment;
+    // level comment string
+    std::string comment;
 
-	vec3f start_pos;
-	quatf start_ori;
+    vec3f start_pos;
+    quatf start_ori;
 
     // used to reset vehicle at last passed checkpoint
     vec3f lastCkptPos;
     quatf lastCkptOri;
 
-	// Structure that stores the current weather
-	struct {
-		struct {
-			std::string texname;
-			float scrollrate;
-		} cloud;
-		struct {
-			vec3f color;
-			float density;
-			float density_sky;
-		} fog;
-		struct {
-			float rain;
-			float snowfall;
-		} precip;
-	} weather;
+    // Structure that stores the current weather
+    struct {
+      struct {
+        std::string texname;
+        float scrollrate;
+      } cloud;
+      struct {
+        vec3f color;
+        float density;
+        float density_sky;
+      } fog;
+      struct {
+        float rain;
+        float snowfall;
+      } precip;
+    } weather;
 
     ///
     /// @brief Water information.
     /// @todo Maybe remove defaults, used in `game.cpp`.
     ///
-    struct
-    {
-        bool        enabled     = false;    ///< Enables the water?
-        float       height      = 0.0f;     ///< The height of the water.
-        std::string texname     = "";       ///< Custom water texture.
-        bool        useralpha   = false;    ///< Use alpha provided by user?
-        bool        fixedalpha  = false;    ///< Use the same alpha for all the water?
-        float       alpha       = 1.0f;     ///< Default user alpha value.
+    struct {
+      bool        enabled     = false;    ///< Enables the water?
+      float       height      = 0.0f;     ///< The height of the water.
+      std::string texname     = "";       ///< Custom water texture.
+      bool        useralpha   = false;    ///< Use alpha provided by user?
+      bool        fixedalpha  = false;    ///< Use the same alpha for all the water?
+      float       alpha       = 1.0f;     ///< Default user alpha value.
     } water;
 
-public:
-	std::vector<PVehicleType *> vehiclechoices;
+  public:
+    std::vector<PVehicleType*> vehiclechoices;
 
-public:
-	TriggerGame(MainApp *parent);
-	~TriggerGame();
+  public:
+    TriggerGame(MainApp *parent);
+    ~TriggerGame();
 
-	void resetAtCheckpoint(PVehicle *veh);
+    void resetAtCheckpoint(PVehicle *veh);
 
-	void renderCodriverSigns(const glm::mat4& mv, const glm::mat4& p);
+    void renderCodriverSigns(const glm::mat4& mv, const glm::mat4& p);
 
-	bool loadVehicles();
+    bool loadVehicles();
 
-	bool loadLevel(const std::string &filename);
+    bool loadLevel(const std::string &filename);
 
-	void chooseVehicle(PVehicleType *type);
+    void chooseVehicle(PVehicleType *type);
 
-	void tick(float delta);
+    void tick(float delta);
 
-	bool isFinished() const;
+    bool isFinished() const;
 
-	bool isRacing() const;
+    bool isRacing() const;
 
-	Gamefinish getFinishState();
+    Gamefinish getFinishState();
 };
 
 
@@ -249,75 +248,74 @@ public:
 
 
 struct TriggerLevel {
-	std::string filename, name, description, comment, author, targettime, targettimeshort;
+  std::string filename, name, description, comment, author, targettime, targettimeshort;
 
-	float targettimefloat;
+  float targettimefloat;
 
-	PTexture *tex_minimap = nullptr;
-	PTexture *tex_screenshot = nullptr;
+  PTexture* tex_minimap = nullptr;
+  PTexture* tex_screenshot = nullptr;
 };
 
 ///
 /// @brief an Event with his levels
 ///
 struct TriggerEvent {
-	std::string filename, name, comment, author, totaltime;
+  std::string filename, name, comment, author, totaltime;
 
-	bool locked = false;
-	UnlockData unlocks; ///< @see `HiScore1`
+  bool locked = false;
+  UnlockData unlocks; ///< @see `HiScore1`
 
-	// Note that levels are not linked to... they are
-	// stored in the event because an event may have
-	// "hidden" levels not otherwise available
+  // Note that levels are not linked to... they are
+  // stored in the event because an event may have
+  // "hidden" levels not otherwise available
 
-	std::vector<TriggerLevel> levels;
+  std::vector<TriggerLevel> levels;
 };
 
 
-class DirtParticleSystem : public PParticleSystem {
-public:
-
-	void tick(float delta)
-	{
-		PParticleSystem::tick(delta);
-
-		for (unsigned int i=0; i<part.size(); i++)
-		{
-			PULLTOWARD(part[i].linvel, vec3f::zero(), delta * 25.0f);
-		}
-	}
-};
-
-
-struct RainDrop
+class DirtParticleSystem : public PParticleSystem
 {
-	vec3f drop_pt, drop_vect;
-	float life, prevlife;
+  public:
+
+    void tick(float delta)
+    {
+      PParticleSystem::tick(delta);
+
+      for (unsigned int i = 0; i < part.size(); i++) {
+        PULLTOWARD(part[i].linvel, vec3f::zero(), delta * 25.0f);
+      }
+    }
 };
 
-struct SnowFlake
-{
-    vec3f drop_pt;
-    vec3f drop_vect;
-    float life;
-    float prevlife;
+
+struct RainDrop {
+  vec3f drop_pt, drop_vect;
+  float life, prevlife;
+};
+
+struct SnowFlake {
+  vec3f drop_pt;
+  vec3f drop_vect;
+  float life;
+  float prevlife;
 };
 
 ///
 /// @brief this class is the whole Trigger Rally game. Create a MainApp object is the only thing main() does
 ///
-class MainApp : public PApp {
-private:
-	int appstate;
+class MainApp : public PApp
+{
+  private:
+    int appstate;
 
-	// TODO: use `aspect` instead of these?
-	// TODO: type should be GLdouble instead of double
-	double hratio; ///< Horizontal ratio.
-	double vratio; ///< Vertical ratio.
+    // TODO: use `aspect` instead of these?
+    // TODO: type should be GLdouble instead of double
+    double hratio; ///< Horizontal ratio.
+    double vratio; ///< Vertical ratio.
 
-	UnlockData player_unlocks; ///< Unlocks for current player, see `HiScore1`.
+    UnlockData player_unlocks; ///< Unlocks for current player, see `HiScore1`.
 
-public:
+  public:
     ///
     /// @brief Checks if the given data was unlocked by the current player.
     /// @param [in] udata       Unlock data to be checked.
@@ -326,7 +324,7 @@ public:
     ///
     bool isUnlockedByPlayer(const std::string &udata) const
     {
-        return player_unlocks.count(udata) != 0;
+      return player_unlocks.count(udata) != 0;
     }
 
     ///
@@ -337,260 +335,260 @@ public:
     ///
     bool isVehicleLocked(const std::string &vefi) const
     {
-        XMLDocument xmlfile;
-        XMLElement *rootelem = PUtil::loadRootElement(xmlfile, vefi, "vehicle");
+      XMLDocument xmlfile;
+      XMLElement *rootelem = PUtil::loadRootElement(xmlfile, vefi, "vehicle");
 
-        if (rootelem == nullptr)
-        {
-            PUtil::outLog() << "Couldn't read vehicle \"" << vefi << "\"" << std::endl;
-            return false;
-        }
-
-        const char *val = rootelem->Attribute("locked");
-
-        if (val != nullptr && std::string(val) == "yes")
-            return true;
-
+      if (rootelem == nullptr) {
+        PUtil::outLog() << "Couldn't read vehicle \"" << vefi << "\"" << std::endl;
         return false;
+      }
+
+      const char* val = rootelem->Attribute("locked");
+
+      if (val != nullptr && std::string(val) == "yes")
+        return true;
+
+      return false;
     }
 
-private:
-	float splashtimeout;
+  private:
+    float splashtimeout;
 
-	std::vector<TriggerLevel> levels;
-	std::vector<TriggerEvent> events;
+    std::vector<TriggerLevel> levels;
+    std::vector<TriggerEvent> events;
 
-	std::string getVehicleUnlockEvent(const std::string &vehiclename) const;
+    std::string getVehicleUnlockEvent(const std::string &vehiclename) const;
 
-	// for level screen
-	Gui gui;
-  
-  // for option screen
-  POption option;
-  // for control screen
-  PControl control;
+    // for level screen
+    Gui gui;
 
-public:
+    // for option screen
+    POption option;
+    // for control screen
+    PControl control;
 
-	LevelState lss;
+  public:
 
-  // for handling configuration
-  PConfig cfg;
+    LevelState lss;
 
-private:
-	HISCORE1_SORT hs_sort_method = HISCORE1_SORT::BY_TOTALTIME_ASC;
-	RaceData race_data;
-	std::vector<TimeEntry> current_times;
+    // for handling configuration
+    PConfig cfg;
 
-	TriggerGame *game;
+  private:
+    HISCORE1_SORT hs_sort_method = HISCORE1_SORT::BY_TOTALTIME_ASC;
+    RaceData race_data;
+    std::vector<TimeEntry> current_times;
 
-	PVehicleType *vt_tank;
+    TriggerGame* game;
 
-	PTexture *tex_fontSourceCodeBold,
-			*tex_fontSourceCodeOutlined,
-			*tex_fontSourceCodeShadowed;
+    PVehicleType* vt_tank;
 
-	PTexture *tex_detail,
-			*tex_sky[1],
-			*tex_water,
-			*tex_waterdefault,
-			*tex_dirt,
-			*tex_snowflake,
-			*tex_shadow,
-			*tex_hud_revs,
-			*tex_hud_revneedle,
-			*tex_hud_life,
-			*tex_hud_offroad,
-			*tex_loading_screen,
-			*tex_splash_screen,
-			*tex_end_screen,
-			*tex_race_no_screenshot,
-			*tex_race_no_minimap,
-			*tex_button_next,
-			*tex_button_prev,
-			*tex_damage_front_left,
-			*tex_damage_front_right,
-			*tex_damage_rear_left,
-			*tex_damage_rear_right;
+    PTexture* tex_fontSourceCodeBold,
+              * tex_fontSourceCodeOutlined,
+              * tex_fontSourceCodeShadowed;
+
+    PTexture* tex_detail,
+              * tex_sky[1],
+              * tex_water,
+              * tex_waterdefault,
+              * tex_dirt,
+              * tex_snowflake,
+              * tex_shadow,
+              * tex_hud_revs,
+              * tex_hud_revneedle,
+              * tex_hud_life,
+              * tex_hud_offroad,
+              * tex_loading_screen,
+              * tex_splash_screen,
+              * tex_end_screen,
+              * tex_race_no_screenshot,
+              * tex_race_no_minimap,
+              * tex_button_next,
+              * tex_button_prev,
+              * tex_damage_front_left,
+              * tex_damage_front_right,
+              * tex_damage_rear_left,
+              * tex_damage_rear_right;
 
 
-	std::unordered_map<std::string, PTexture *> tex_codriversigns;
-	std::unordered_map<std::string, PAudioSample *> aud_codriverwords;
+    std::unordered_map<std::string, PTexture*> tex_codriversigns;
+    std::unordered_map<std::string, PAudioSample*> aud_codriverwords;
 
-	DirtParticleSystem *psys_dirt;
+    DirtParticleSystem* psys_dirt;
 
-	// Tones
-	PAudioSample *aud_engine,
-				*aud_wind,
-				*aud_shiftup,
-				*aud_shiftdown,
-				*aud_gravel,
-				*aud_crash1;
+    // Tones
+    PAudioSample* aud_engine,
+                  * aud_wind,
+                  * aud_shiftup,
+                  * aud_shiftdown,
+                  * aud_gravel,
+                  * aud_crash1;
 
-	// Audio instances
-	PAudioInstance *audinst_engine, *audinst_wind, *audinst_gravel;
+    // Audio instances
+    PAudioInstance* audinst_engine, * audinst_wind, * audinst_gravel;
 
-	std::vector<PAudioInstance *> audinst;
+    std::vector<PAudioInstance*> audinst;
 
-	float cloudscroll;
+    float cloudscroll;
 
-	vec3f campos, campos_prev;
-	quatf camori;
+    vec3f campos, campos_prev;
+    quatf camori;
 
-	vec3f camvel;
+    vec3f camvel;
 
-	float nextcpangle;
+    float nextcpangle;
 
-	float cprotate;
+    float cprotate;
 
-	// what view mode the camera is
-	CameraMode cameraview;
-	float camera_angle;
-	float camera_user_angle;
+    // what view mode the camera is
+    CameraMode cameraview;
+    float camera_angle;
+    float camera_user_angle;
 
-	// If with the the vehicle should be rendered (depends on cameraview)
-	bool renderowncar;
+    // If with the the vehicle should be rendered (depends on cameraview)
+    bool renderowncar;
 
-	bool showmap;
+    bool showmap;
 
-	bool pauserace;
+    bool pauserace;
 
-	bool showui;
+    bool showui;
 
-	bool showcheckpoint;
+    bool showcheckpoint;
 
-	float crashnoise_timeout;
+    float crashnoise_timeout;
 
-	std::vector<RainDrop> rain;
-	std::vector<SnowFlake> snowfall;
+    std::vector<RainDrop> rain;
+    std::vector<SnowFlake> snowfall;
 
-	//
+    //
 
-	int loadscreencount;
+    int loadscreencount;
 
-	float choose_spin;
+    float choose_spin;
 
-	int choose_type;
+    int choose_type;
 
-	// Time and count to calculate frames per second
-	float fpstime;
-	unsigned int fpscount;
-	float fps;
-	void tickCalculateFps(float delta);
+    // Time and count to calculate frames per second
+    float fpstime;
+    unsigned int fpscount;
+    float fps;
+    void tickCalculateFps(float delta);
 
-	// Record and display of ghost vehicles
-	PGhost ghost;
+    // Record and display of ghost vehicles
+    PGhost ghost;
 
-  void loadCodriversigns();
-  void loadCodrivername();
-  void reloadAll();
+    void loadCodriversigns();
+    void loadCodrivername();
+    void reloadAll();
 
-protected:
-	void renderWater(const glm::mat4 &mv, const glm::mat4& p);
-	void renderSky(const glm::mat4 &cammat, const glm::mat4& p);
+  protected:
+    void renderWater(const glm::mat4 &mv, const glm::mat4& p);
+    void renderSky(const glm::mat4 &cammat, const glm::mat4& p);
 
-	bool startGame(const std::string &filename);
-	void toggleSounds(bool to);
-	void initAudio();
-	void endGame(Gamefinish state);
-	void enterGame();
+    bool startGame(const std::string &filename);
+    void toggleSounds(bool to);
+    void initAudio();
+    void endGame(Gamefinish state);
+    void enterGame();
 
-	void quitGame()
-	{
-		endGame(Gamefinish::not_finished);
-		splashtimeout = 0.0f;
-		appstate = AS_END_SCREEN;
-	}
+    void quitGame()
+    {
+      endGame(Gamefinish::not_finished);
+      splashtimeout = 0.0f;
+      appstate = AS_END_SCREEN;
+    }
 
-	void levelScreenAction(int action, int index);
-	void handleLevelScreenKey(const SDL_KeyboardEvent &ke);
-	void finishRace(Gamefinish state, float coursetime);
+    void levelScreenAction(int action, int index);
+    void handleLevelScreenKey(const SDL_KeyboardEvent &ke);
+    void finishRace(Gamefinish state, float coursetime);
 
-public:
-	MainApp(const std::string &title, const std::string &name):
-    PApp(title, name),
-    option(gui, cfg),
-    control(gui, cfg),
-    cfg(this),
-    ghost(0.1f)
-	{
-	}
-	//MainApp::~MainApp(); // should not have destructor, use unload
+  public:
+    MainApp(const std::string &title, const std::string &name):
+      PApp(title, name),
+      option(gui, cfg),
+      control(gui, cfg),
+      cfg(this),
+      ghost(0.1f)
+    {
+    }
+    //MainApp::~MainApp(); // should not have destructor, use unload
 
-	float getCodriverVolume() const;
+    float getCodriverVolume() const;
 
-	void config();
-	void load();
-	void unload();
+    void config();
+    void load();
+    void unload();
 
-	void copyDefaultPlayers() const;
-	bool loadAll();
-	void loadShadersAndVao();
-	bool loadLevelsAndEvents();
-	bool loadLevel(TriggerLevel &tl);
+    void copyDefaultPlayers() const;
+    bool loadAll();
+    void loadShadersAndVao();
+    bool loadLevelsAndEvents();
+    bool loadLevel(TriggerLevel &tl);
 
-	void calcScreenRatios();
+    void calcScreenRatios();
 
-	void tick(float delta);
+    void tick(float delta);
 
-	void resize();
-	void render(float eyetranslation);
+    void resize();
+    void render(float eyetranslation);
 
-	void renderTexturedFullscreenQuad(const glm::mat4& mv, const glm::mat4& p);
-	void renderTexturedFullscreenQuad(const glm::mat4& p);
-	void renderStateLoading(float eyetranslation);
-	void renderStateEnd(float eyetranslation);
-	void tickStateLevel(float delta);
-	void renderStateLevel(float eyetranslation);
-	void tickStateChoose(float delta);
-	void renderStateChoose(float eyetranslation);
-	void tickStateGame(float delta);
-	void renderStateGame(float eyetranslation);
-	void renderVehicle(PVehicle* vehic, PGhost::GhostData* ghostdata, const glm::mat4& mv, const glm::mat4& p);
-	void renderVehicleType(PVehicleType* vtype, const glm::mat4& mv, const glm::mat4& p);
-	void renderRpmDial(float rpm, const glm::mat4& p);
-	void renderMap(int nextcp, const glm::mat4& p);
-	void renderMapMarker(const glm::vec2& vpos, float angle, const glm::vec4& col, float sc, const glm::mat4& mv, const glm::mat4& p);
-	void renderRain(const glm::mat4& mv, const glm::mat4& p);
-	void renderSnow(const glm::mat4& mv, const glm::mat4& p);
-	void renderCheckpoints(int nextcp, const glm::mat4& mv, const glm::mat4& p);
-	void renderDamageIndicator(
-        const PTexture *texture, float posx, float posy, float scalex, float scaley, float damage, const glm::mat4& mv, const glm::mat4& p);
+    void renderTexturedFullscreenQuad(const glm::mat4& mv, const glm::mat4& p);
+    void renderTexturedFullscreenQuad(const glm::mat4& p);
+    void renderStateLoading(float eyetranslation);
+    void renderStateEnd(float eyetranslation);
+    void tickStateLevel(float delta);
+    void renderStateLevel(float eyetranslation);
+    void tickStateChoose(float delta);
+    void renderStateChoose(float eyetranslation);
+    void tickStateGame(float delta);
+    void renderStateGame(float eyetranslation);
+    void renderVehicle(PVehicle* vehic, PGhost::GhostData* ghostdata, const glm::mat4& mv, const glm::mat4& p);
+    void renderVehicleType(PVehicleType* vtype, const glm::mat4& mv, const glm::mat4& p);
+    void renderRpmDial(float rpm, const glm::mat4& p);
+    void renderMap(int nextcp, const glm::mat4& p);
+    void renderMapMarker(const glm::vec2& vpos, float angle, const glm::vec4& col, float sc, const glm::mat4& mv,
+                         const glm::mat4& p);
+    void renderRain(const glm::mat4& mv, const glm::mat4& p);
+    void renderSnow(const glm::mat4& mv, const glm::mat4& p);
+    void renderCheckpoints(int nextcp, const glm::mat4& mv, const glm::mat4& p);
+    void renderDamageIndicator(
+      const PTexture *texture, float posx, float posy, float scalex, float scaley, float damage, const glm::mat4& mv,
+      const glm::mat4& p);
     void renderDamageIndicatorGroup(const glm::mat4& mv, const glm::mat4& p);
 
-	void buildSkyVao();
-	void buildChkptVao();
+    void buildSkyVao();
+    void buildChkptVao();
 
-	void keyEvent(const SDL_KeyboardEvent &ke);
-  void touchEvent(const SDL_TouchFingerEvent& te);
-  void touchMoveEvent(const SDL_TouchFingerEvent& te);
-	void mouseMoveEvent(int dx, int dy);
-	void cursorMoveEvent(int posx, int posy);
-	void mouseButtonEvent(const SDL_MouseButtonEvent &mbe);
-	void joyButtonEvent(int which, int button, bool down);
-	bool joyAxisEvent(int which, int axis, float value, bool down);
+    void keyEvent(const SDL_KeyboardEvent &ke);
+    void touchEvent(const SDL_TouchFingerEvent& te);
+    void touchMoveEvent(const SDL_TouchFingerEvent& te);
+    void mouseMoveEvent(int dx, int dy);
+    void cursorMoveEvent(int posx, int posy);
+    void mouseButtonEvent(const SDL_MouseButtonEvent &mbe);
+    void joyButtonEvent(int which, int button, bool down);
+    bool joyAxisEvent(int which, int axis, float value, bool down);
 
-	virtual float getCtrlActionBackValue();
-	virtual int getVehicleCurrentGear();
+    virtual float getCtrlActionBackValue();
+    virtual int getVehicleCurrentGear();
 
-    std::unordered_map<std::string, PAudioSample *> getCodriverWords() const
+    std::unordered_map<std::string, PAudioSample*> getCodriverWords() const
     {
-        return aud_codriverwords;
+      return aud_codriverwords;
     }
 
-    std::unordered_map<std::string, PTexture *> getCodriverSigns() const
+    std::unordered_map<std::string, PTexture*> getCodriverSigns() const
     {
-        return tex_codriversigns;
+      return tex_codriversigns;
     }
 
     PCodriverUserConfig getCodriverUserConfig() const;
 
-private:
-    const vec4f checkpoint_col[3] =
-    {
-        vec4f(1.0f, 0.0f, 0.0f, 0.8f),  // 0 = next checkpoint
-        vec4f(0.7f, 0.7f, 0.1f, 0.6f),  // 1 = checkpoint after next
-        vec4f(0.2f, 0.8f, 0.2f, 0.4f)  // 2 = all other checkpoints
+  private:
+    const vec4f checkpoint_col[3] = {
+      vec4f(1.0f, 0.0f, 0.0f, 0.8f),  // 0 = next checkpoint
+      vec4f(0.7f, 0.7f, 0.1f, 0.6f),  // 1 = checkpoint after next
+      vec4f(0.2f, 0.8f, 0.2f, 0.4f)  // 2 = all other checkpoints
     };
 
     ShaderProgram* sp_rpm_needle;
@@ -621,89 +619,89 @@ private:
     /// Map marker
     // 2f position, 1f alpha
     const float map_marker_vbo[15] = {
-        0.0f, 0.0f,  1.0f,
-        1.0f, 0.0f,  0.0f,
-        0.0f, 1.0f,  0.0f,
-       -1.0f, 0.0f,  0.0f,
-        0.0f,-1.0f,  0.0f,
+      0.0f, 0.0f,  1.0f,
+      1.0f, 0.0f,  0.0f,
+      0.0f, 1.0f,  0.0f,
+      -1.0f, 0.0f,  0.0f,
+      0.0f, -1.0f,  0.0f,
     };
     // Fan
     const unsigned short map_marker_ibo[6] = {
-        0, 1, 2, 3, 4, 1,
+      0, 1, 2, 3, 4, 1,
     };
 
     /// Map
     float map_vbo[8] = {
-        -1.0f,  1.0f,
-        -1.0f, -1.0f,
-        1.0f,  1.0f,
-        1.0f, -1.0f,
+      -1.0f,  1.0f,
+      -1.0f, -1.0f,
+      1.0f,  1.0f,
+      1.0f, -1.0f,
     };
     unsigned short map_ibo[4] = {
-        0, 1, 2, 3,
+      0, 1, 2, 3,
     };
 
     /// RPM dial
     // GL_T2F_V3F
     const float rpm_dial_vbo[20] = {
-      0.0f,1.0f, -1.0f, 1.0f, 0.0f,
-      0.0f,0.0f, -1.0f,-1.0f, 0.0f,
-      1.0f,1.0f,  1.0f, 1.0f, 0.0f,
-      1.0f,0.0f,  1.0f,-1.0f, 0.0f,
+      0.0f, 1.0f, -1.0f, 1.0f, 0.0f,
+      0.0f, 0.0f, -1.0f, -1.0f, 0.0f,
+      1.0f, 1.0f,  1.0f, 1.0f, 0.0f,
+      1.0f, 0.0f,  1.0f, -1.0f, 0.0f,
     };
 
     const unsigned short rpm_dial_ibo[4] = {
-        0, 1, 2, 3,
+      0, 1, 2, 3,
     };
 
     /// Background
     float bckgnd_vbo[20] = {
-        0.0f, 1.0f,  -1.0f, 1.0f, 0.0f,
-        0.0f, 0.0f,  -1.0f,-1.0f, 0.0f,
-        1.0f, 1.0f,   1.0f, 1.0f, 0.0f,
-        1.0f, 0.0f,   1.0f,-1.0f, 0.0f,
+      0.0f, 1.0f, -1.0f, 1.0f, 0.0f,
+      0.0f, 0.0f, -1.0f, -1.0f, 0.0f,
+      1.0f, 1.0f,   1.0f, 1.0f, 0.0f,
+      1.0f, 0.0f,   1.0f, -1.0f, 0.0f,
     };
 
     unsigned short bckgnd_ibo[4] = {
-        0, 1, 2, 3,
+      0, 1, 2, 3,
     };
 
     /// Snow
     // GL_T2F_V3F
     // Texture coordinates will be ignored if texturing is disabled
     float snow_vbo[20] = {
-        1.0f, 1.0f,  0.0f, 0.0f, 0.0f,
-        0.0f, 1.0f,  0.0f, 0.0f, 1.0f,
-        1.0f, 0.0f,  1.0f, 1.0f, 0.0f,
-        0.0f, 0.0f,  1.0f, 1.0f, 1.0f,
+      1.0f, 1.0f,  0.0f, 0.0f, 0.0f,
+      0.0f, 1.0f,  0.0f, 0.0f, 1.0f,
+      1.0f, 0.0f,  1.0f, 1.0f, 0.0f,
+      0.0f, 0.0f,  1.0f, 1.0f, 1.0f,
     };
 
     unsigned short snow_ibo[4] = {
-        0, 1, 2, 3,
+      0, 1, 2, 3,
     };
 
     /// Offroad sign
     float offroad_vbo[16] = {
-        0.0f,   1.0f,  -1.0f,   1.0f,
-        0.0f,   0.0f,  -1.0f,  -1.0f,
-        1.0f,   1.0f,   1.0f,   1.0f,
-        1.0f,   0.0f,   1.0f,  -1.0f,
+      0.0f,   1.0f, -1.0f,   1.0f,
+      0.0f,   0.0f, -1.0f, -1.0f,
+      1.0f,   1.0f,   1.0f,   1.0f,
+      1.0f,   0.0f,   1.0f, -1.0f,
     };
 
     unsigned short offroad_ibo[4] = {
-        0, 1, 2, 3,
+      0, 1, 2, 3,
     };
 
     /// Damage indicator
     float damage_vbo[16] = {
-        0.0f,   1.0f,  -1.0f,   1.0f,
-        0.0f,   0.0f,  -1.0f,  -1.0f,
-        1.0f,   1.0f,   1.0f,   1.0f,
-        1.0f,   0.0f,   1.0f,  -1.0f,
+      0.0f,   1.0f, -1.0f,   1.0f,
+      0.0f,   0.0f, -1.0f, -1.0f,
+      1.0f,   1.0f,   1.0f,   1.0f,
+      1.0f,   0.0f,   1.0f, -1.0f,
     };
 
     unsigned short damage_ibo[4] = {
-        0, 1, 2, 3,
+      0, 1, 2, 3,
     };
 
     Light default_light;
