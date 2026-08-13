@@ -172,6 +172,12 @@ clean:
 		$(shell find -type f -name "*~")
 
 #
+# formats the source code with AStyle according to rules in .astylerc
+#
+style:
+	astyle --project=.astylerc -n --recursive *.cpp,*.h
+
+#
 # includes dependency files; these files are needed to speed up
 # the build process by excluding the compilation of object files
 # which are already up-to-date

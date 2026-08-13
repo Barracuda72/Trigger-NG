@@ -1,0 +1,50 @@
+# AStyle configuration for Trigger Rally
+#
+# Conventions:
+# - Indent: 2 spaces
+# - Brace style: Allman (opening brace on new line)
+# - Line length: 120
+
+# Use 2-space indentation 
+indent=spaces=2
+
+# Convert tabs to spaces
+convert-tabs
+
+# K&R: opening brace on a same line
+style=kr
+
+# Keep one-line namespaces, classes, structs, and statements
+# Preserves patterns like: static vec2<T> zero() { return vec2<T>(0,0); }
+keep-one-line-blocks
+keep-one-line-statements
+
+# Break closing headers (e.g. 'else', 'catch', ...) from their 
+# immediately preceding closing braces
+#break-closing-braces
+
+# Maximum code length 
+max-code-length=120
+
+# Pad around operators, headers ('if', 'for', 'while', ...) and includes
+pad-oper
+pad-header
+pad-include
+
+# Align pointer/reference with type
+align-pointer=type
+
+# Minimum number of spaces for header padding
+min-conditional-indent=0
+
+# Indent preprocessor directives ending with a backslash
+indent-preproc-define
+
+# Indent case statements inside switch
+indent-switches
+
+# Indent class members
+indent-classes
+
+# Indent namespace contents
+indent-namespaces
