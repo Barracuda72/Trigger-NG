@@ -196,7 +196,7 @@ class PTexture : public PResource
                    );
 
   public:
-    PTexture () : texid (0) { }
+    PTexture () : texid (0), textarget (0) { }
     PTexture (const std::string &filename, GLfloat cfgAnisotropy, bool genMipmaps, bool clamp) : texid (0) { load (filename, cfgAnisotropy, genMipmaps, clamp); }
     PTexture (PImage &img, GLfloat cfgAnisotropy, bool genMipmaps, bool clamp) : texid (0) { load (img, cfgAnisotropy, genMipmaps, clamp); }
     ~PTexture() { unload (); }
