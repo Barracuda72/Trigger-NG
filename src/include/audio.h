@@ -35,7 +35,7 @@ class PSSAudio : public PSubsystem
   public:
     PSSAudio(PApp &parentApp);
     ~PSSAudio();
-    void tick();
+    void tick(float delta, const vec3f &eyepos, const mat44f &eyeori, const vec3f &eyevel);
     PAudioSample* loadSample(const std::string &name, bool positional3D = true);
 };
 

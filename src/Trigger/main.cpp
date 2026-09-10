@@ -831,8 +831,6 @@ void MainApp::calcScreenRatios()
 
 void MainApp::tick(float delta)
 {
-  getSSAudio().tick();
-
   switch (appstate) {
     case AS_LOAD_1:
       splashtimeout -= delta;

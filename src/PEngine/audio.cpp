@@ -79,8 +79,12 @@ PSSAudio::~PSSAudio()
   samplist.clear();
 }
 
-void PSSAudio::tick()
+void PSSAudio::tick(float delta, const vec3f &eyepos, const mat44f &eyeori, const vec3f &eyevel)
 {
+  UNREFERENCED_PARAMETER(delta);
+  UNREFERENCED_PARAMETER(eyepos);
+  UNREFERENCED_PARAMETER(eyeori);
+  UNREFERENCED_PARAMETER(eyevel);
 }
 
 PAudioSample::PAudioSample(const std::string &filename, bool positional3D)
@@ -162,8 +166,12 @@ PSSAudio::~PSSAudio()
   alutExit();
 }
 
-void PSSAudio::tick()
+void PSSAudio::tick(float delta, const vec3f &eyepos, const mat44f &eyeori, const vec3f &eyevel)
 {
+  UNREFERENCED_PARAMETER(delta);
+  UNREFERENCED_PARAMETER(eyepos);
+  UNREFERENCED_PARAMETER(eyeori);
+  UNREFERENCED_PARAMETER(eyevel);
 }
 
 PAudioSample::PAudioSample(const std::string &filename, bool positional3D)
@@ -405,8 +413,13 @@ PSSAudio::~PSSAudio()
 ///
 /// @brief Updates the FMOD system.
 ///
-void PSSAudio::tick()
+void PSSAudio::tick(float delta, const vec3f &eyepos, const mat44f &eyeori, const vec3f &eyevel)
 {
+  UNREFERENCED_PARAMETER(delta);
+  UNREFERENCED_PARAMETER(eyepos);
+  UNREFERENCED_PARAMETER(eyeori);
+  UNREFERENCED_PARAMETER(eyevel);
+
   FMOD_System_Update(fs);
 }
 
